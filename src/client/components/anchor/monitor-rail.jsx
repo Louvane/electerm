@@ -178,7 +178,6 @@ export default function MonitorRail (props) {
 
   return (
     <aside className='anchor-rail'>
-      <div className='anchor-logo'>ANCHOR<i>锚点终端</i></div>
       <div className='anchor-rail-sec'>
         <div className='anchor-cap'>TARGET{live ? <span className='live-dot' /> : null}</div>
         <div className='anchor-kv'><span>主机</span><b className='ip'>{tab && tab.host ? tab.host : '—'}</b></div>

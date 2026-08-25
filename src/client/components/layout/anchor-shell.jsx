@@ -11,13 +11,14 @@ import TermView from '../anchor/term-view'
 import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
 import MonitorRail from '../anchor/monitor-rail'
 import { initAnchorTheme, toggleAnchorTheme } from '../anchor/anchor-theme'
+import { isMacJs } from '../../common/constants'
 import './anchor.styl'
 import '../anchor/anchor-ui.styl'
 
 export default auto(function Layout (props) {
   const { store } = props
   const {
-    tabs
+    tabs, config
   } = store
   // 自绘标签栏不注册 electerm 的 refsTabs,自行解析当前标签
   const currentTab = tabs.find(t => t.id === store.activeTabId) || null
@@ -32,38 +33,56 @@ export default auto(function Layout (props) {
 
   return (
     <div className='anchor-shell'>
-      <MonitorRail store={store} tab={currentTab} />
-      <main className='anchor-main'>
-        <div className='anchor-tabbar'>
-          <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}>📁 连接管理器</button>
-          <div className='anchor-tabs'>
-            {
+      {
+        !config.useSystemTitleBar && (
+          <div className={'anchor-titlebar' + (isMacJs ? ' mac' : '')}>
+            <span className='anchor-titlebar-text'>ANCHOR</span>
+          </div>
+        )
+      }
+      <div className='anchor-body'>
+        <MonitorRail store={store} tab={currentTab} />
+        <main className='anchor-main'>
+          <div className='anchor-tabbar'>
+            <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}>📁 连接管理器</button>
+            <div className='anchor-tabs'>
+              {
               tabs.map(t => {
                 return (
                   <div
                     key={t.id}
                     className={'anchor-tab' + (currentTab && currentTab.id === t.id ? ' on' : '')}
                     onClick={() => { store.activeTabId = t.id; setView('term') }}
+                    onContextMenu={(e) => {
+                      e.preventDefault()
+                      store.delTab(t.id)
+                    }}
                   >
                     <span className='dot' />
                     <span>{t.title}</span>
+                    <span
+                      className='x'
+                      title='关闭'
+                      onClick={(e) => { e.stopPropagation(); store.delTab(t.id) }}
+                    >✕
+                    </span>
                   </div>
                 )
               })
             }
+            </div>
+            <button className='anchor-newtab' title='快速连接' onClick={() => setView('home')}>+</button>
+            <div className='anchor-spacer' />
+            <button
+              className='anchor-theme-btn'
+              title='切换昼夜主题'
+              onClick={() => setTheme(toggleAnchorTheme())}
+            >
+              {theme === 'light' ? '☾ 黑夜' : '☀ 白天'}
+            </button>
           </div>
-          <button className='anchor-newtab' title='快速连接' onClick={() => setView('home')}>+</button>
-          <div className='anchor-spacer' />
-          <button
-            className='anchor-theme-btn'
-            title='切换昼夜主题'
-            onClick={() => setTheme(toggleAnchorTheme())}
-          >
-            {theme === 'light' ? '☾ 黑夜' : '☀ 白天'}
-          </button>
-        </div>
-        <div className='anchor-content'>
-          {
+          <div className='anchor-content'>
+            {
             view === 'term' && store.tabs.length
               ? <TermView store={store} />
               : (
@@ -75,8 +94,9 @@ export default auto(function Layout (props) {
                 />
                 )
           }
-        </div>
-      </main>
+          </div>
+        </main>
+      </div>
       <ConnectionManager
         open={mgrOpen}
         onClose={() => setMgrOpen(false)}

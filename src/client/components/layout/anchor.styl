@@ -6,6 +6,7 @@
   bottom 0
   left 0
   display flex
+  flex-direction column
   background var(--ink0, #0f141d)
   color var(--snow, #e6edf5)
   font-size 13px
@@ -132,3 +133,44 @@
   p
     color var(--fog, #8b98ab)
     margin 4px 0
+.anchor-tab
+  .x
+    width 16px
+    height 16px
+    line-height 15px
+    text-align center
+    border-radius 3px
+    color var(--fog, #8b98ab)
+    visibility hidden
+    cursor pointer
+    flex-shrink 0
+  &:hover .x
+    visibility visible
+  .x:hover
+    background var(--alert, #f2555a)
+    color #fff
+
+// 无边框窗口标题栏:mac 红绿灯避让 + 拖拽区
+.anchor-titlebar
+  height 38px
+  flex-shrink 0
+  -webkit-app-region drag
+  display flex
+  align-items center
+  padding-left 12px
+  background var(--ink1, #151c28)
+  &.mac
+    padding-left 84px
+  .anchor-titlebar-text
+    font-family "IBM Plex Mono", monospace
+    font-weight 700
+    letter-spacing 2px
+    color var(--amber, #ffb454)
+    font-size 12px
+    -webkit-app-region no-drag
+    pointer-events none
+.anchor-body
+  flex 1
+  display flex
+  flex-direction row
+  min-height 0
