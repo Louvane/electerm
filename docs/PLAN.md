@@ -42,6 +42,7 @@
 - [x] 终端配色走 electerm 内置终端主题系统(设置面板可换,不重复造)
 - [x] e2e 7/7(切换/变量注入/持久化/light 下终端渲染/浮层随主题)
 
-## P7 打包
-- [ ] electron-builder:应用名/图标/userData=anchor
-- [ ] npm run b 出 macOS 包,安装验证
+## P7 打包(用户指示暂缓)
+- [x] 前置:appId/productName=ANCHOR、notarize 关闭、ad-hoc 签名(已提交)
+- [ ] electron-builder 出 macOS 包(待用户发起)
+- [ ] 安装验证

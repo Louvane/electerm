@@ -1,5 +1,5 @@
 {
-  "appId": "org.electerm.electerm",
+  "appId": "com.anchor.terminal",
   "directories": {
     "app": "work/app",
     "output": "dist",
@@ -92,7 +92,8 @@
     "gatekeeperAssess": false,
     "entitlements": "./build/entitlements.plist",
     "entitlementsInherit": "./build/entitlements.plist",
-    "notarize": true
+    "notarize": false,
+    "identity": null
   },
   "dmg": {
     "contents": [
@@ -137,5 +138,6 @@
   },
   "deb": {
     "afterInstall": "build/bin/linux-deb-after-build.sh"
-  }
+  },
+  "productName": "ANCHOR"
 }
