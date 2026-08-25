@@ -72,7 +72,9 @@ export default {
   apiPathAI: '/chat/completions',
   proxyAI: '',
   sessionLogPath: '',
-  sshSftpSplitView: false,
+  sshSftpSplitView: true,
+  // FinalShell 风格:分屏方向固定 SFTP 在下;'auto' 按窗口宽高比自动
+  sshSftpSplitDirection: 'topDown',
   showCmdSuggestions: false,
   autoReconnectTerminal: false,
   startDirectoryLocal: '',

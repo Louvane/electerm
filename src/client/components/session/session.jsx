@@ -4,6 +4,7 @@
 import { createRef } from 'react'
 import { Component } from 'manate/react/class-components'
 import Term from '../terminal/terminal.jsx'
+import MonitorPanel from './monitor-panel'
 import Sftp from '../sftp/sftp-entry'
 import RdpSession from '../rdp/rdp-session'
 import VncSession from '../vnc/vnc-session'
@@ -21,6 +22,7 @@ import copy from 'json-deep-copy'
 import classnames from 'classnames'
 import {
   paneMap,
+  terminalLocalType,
   terminalRdpType,
   terminalVncType,
   terminalWebType,
@@ -49,7 +51,9 @@ export default class SessionWrapper extends Component {
       delKeyPressed: false,
       broadcastInput: false,
       keepaliveEnabled: false,
-      wrapDisabled: false
+      wrapDisabled: false,
+      monitorCollapsed: false,
+      monitorClosed: false
     }
     if (props.tab.sshSftpSplitView === undefined) {
       props.tab.sshSftpSplitView = !!props.config.sshSftpSplitView
@@ -106,6 +110,11 @@ export default class SessionWrapper extends Component {
     } = this.props.tab
     if (!sshSftpSplitView || !this.canSplitView()) {
       return 'tabed'
+    }
+    // 用户设置固定方向(topDown=FinalShell 风格 SFTP 在下),auto 则按宽高比自动
+    const dirSetting = this.props.config.sshSftpSplitDirection || 'topDown'
+    if (dirSetting === 'topDown' || dirSetting === 'leftRight') {
+      return dirSetting
     }
     const {
       width,
@@ -406,11 +415,38 @@ export default class SessionWrapper extends Component {
     }
   }
 
+  // FinalShell 式底部监控条占用的高度(仅 ssh 类型,关闭时为 0)
+  getMonitorHeight = () => {
+    if (!this.isSshTab() || this.state.monitorClosed) {
+      return 0
+    }
+    return this.state.monitorCollapsed ? 26 : 110
+  }
+
+  isSshTab = () => {
+    const { type, host } = this.props.tab
+    return !this.isNotTerminalType() && type !== terminalLocalType && !!host
+  }
+
+  renderMonitor = () => {
+    if (!this.isSshTab() || this.state.monitorClosed) {
+      return null
+    }
+    return (
+      <MonitorPanel
+        pid={this.props.tab.id}
+        collapsed={this.state.monitorCollapsed}
+        onToggle={() => this.setState(s => ({ monitorCollapsed: !s.monitorCollapsed }))}
+        onClose={() => this.setState({ monitorClosed: true })}
+      />
+    )
+  }
+
   calcTermWidthHeight = () => {
     const width = this.getWidth()
     const height = this.props.computeHeight(
       this.props.height
-    )
+    ) - this.getMonitorHeight()
     if (!this.canSplitView() || !this.props.tab.sshSftpSplitView) {
       return {
         width,
@@ -557,7 +593,7 @@ export default class SessionWrapper extends Component {
       className: notSplitVew ? 'not-split-view' : '',
       style: {
         width: this.props.width + 'px',
-        height: this.props.height + 'px'
+        height: (this.props.height - this.getMonitorHeight()) + 'px'
       }
     }
     const paneProps = {
@@ -647,6 +683,7 @@ export default class SessionWrapper extends Component {
           onExitGracefully={this.handleExitGracefully}
         />
         {this.renderViews()}
+        {this.renderMonitor()}
       </div>
     )
   }

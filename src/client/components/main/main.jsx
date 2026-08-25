@@ -6,7 +6,6 @@ import FileCompareModal from '../sftp/file-compare-modal'
 import UpdateCheck from './upgrade'
 import SettingModal from '../setting-panel/setting-modal'
 import TextEditor from '../text-editor/text-editor-entry'
-import Sidebar from '../sidebar'
 import CssOverwrite from '../bg/css-overwrite'
 import UiTheme from './ui-theme'
 import CustomCss from '../bg/custom-css.jsx'
@@ -97,12 +96,10 @@ export default auto(function Index (props) {
     installSrc,
     fileTransfers,
     uiThemeConfig,
-    transferHistory,
     transferToConfirm,
     openResolutionEdit,
     rightPanelTitle,
-    rightPanelTab,
-    widgetInstances
+    rightPanelTab
   } = store
   const upgradeInfo = deepCopy(store.upgradeInfo)
   const cls = classnames({
@@ -165,33 +162,6 @@ export default auto(function Index (props) {
     themeConfig: store.getUiThemeConfig()
   }
   const copiedTransfer = deepCopy(fileTransfers)
-  const copiedHistory = deepCopy(transferHistory)
-  const sidebarProps = {
-    ...pick(store, [
-      'activeItemId',
-      'history',
-      'showModal',
-      'showInfoModal',
-      'openedSideBar',
-      'height',
-      'settingTab',
-      'settingItem',
-      'isSyncingSetting',
-      'leftSidePanelWidth',
-      'leftSideBarWidth',
-      'transferTab',
-      'sidebarPanelTab',
-      'openWidgetsModal'
-    ]),
-    zoom: config.zoom,
-    fileTransfers: copiedTransfer,
-    transferHistory: copiedHistory,
-    upgradeInfo,
-    pinned,
-    leftSideBarIcons: config.leftSideBarIcons,
-    widgetInstancesLength: widgetInstances.length
-  }
-
   const infoModalProps = {
     ...pick(store, [
       'infoModalTab',
@@ -287,7 +257,6 @@ export default auto(function Index (props) {
         <div
           id='outside-context'
         >
-          <Sidebar {...sidebarProps} />
           <Layout
             store={store}
           />

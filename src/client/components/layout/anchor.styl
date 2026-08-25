@@ -1,0 +1,134 @@
+// ANCHOR 布局壳样式(P0)——token 与 demo 对齐
+.anchor-shell
+  position absolute
+  top 0
+  right 0
+  bottom 0
+  left 0
+  display flex
+  background var(--ink0, #0f141d)
+  color var(--snow, #e6edf5)
+  font-size 13px
+
+.anchor-rail
+  width 212px
+  flex-shrink 0
+  background var(--ink1, #151c28)
+  border-right 1px solid var(--line, #2a3547)
+  display flex
+  flex-direction column
+  padding 12px
+  gap 12px
+.anchor-logo
+  font-family "IBM Plex Mono", monospace
+  font-weight 700
+  letter-spacing 2px
+  color var(--amber, #ffb454)
+  font-size 13px
+  i
+    font-style normal
+    color var(--fog, #8b98ab)
+    font-weight 400
+    letter-spacing 0
+    margin-left 8px
+    font-size 11px
+.anchor-rail-sec
+  border-top 1px solid var(--line, #2a3547)
+  padding-top 10px
+.anchor-cap
+  font-family "IBM Plex Mono", monospace
+  font-size 10px
+  letter-spacing 2px
+  color var(--fog, #8b98ab)
+  margin-bottom 6px
+.anchor-kv
+  display flex
+  justify-content space-between
+  margin 3px 0
+  span
+    color var(--fog, #8b98ab)
+    font-size 11px
+  b
+    font-weight 400
+    font-family "IBM Plex Mono", monospace
+    font-size 12px
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+    max-width 120px
+.anchor-rail-foot
+  margin-top auto
+  color #4d5b72
+  font-size 10px
+  font-family "IBM Plex Mono", monospace
+
+.anchor-main
+  flex 1
+  display flex
+  flex-direction column
+  min-width 0
+.anchor-tabbar
+  height 40px
+  background var(--ink1, #151c28)
+  border-bottom 1px solid var(--line, #2a3547)
+  display flex
+  align-items center
+  padding 0 10px
+  gap 6px
+.anchor-mgr-btn
+  height 28px
+  padding 0 10px
+  border 1px solid var(--line, #2a3547)
+  border-radius 5px
+  color var(--fog, #8b98ab)
+  font-size 12px
+  cursor pointer
+  background none
+.anchor-tabs
+  display flex
+  gap 4px
+  margin-left 4px
+.anchor-tab
+  height 29px
+  padding 0 12px
+  display flex
+  align-items center
+  gap 7px
+  border-radius 6px
+  cursor pointer
+  color var(--fog, #8b98ab)
+  font-size 12px
+  .dot
+    width 6px
+    height 6px
+    border-radius 50%
+    background #3a465a
+  &.on
+    background var(--ink2, #1c2534)
+    color var(--snow, #e6edf5)
+    box-shadow inset 0 0 0 1px var(--line, #2a3547)
+    .dot
+      background var(--signal, #3fd68f)
+.anchor-newtab
+  width 26px
+  height 26px
+  border 1px dashed var(--line, #2a3547)
+  border-radius 5px
+  color var(--fog, #8b98ab)
+  background none
+  cursor pointer
+.anchor-spacer
+  flex 1
+.anchor-content
+  flex 1
+  min-height 0
+  position relative
+.anchor-bridge-proof
+  padding 40px 60px
+  h2
+    font-size 18px
+    letter-spacing 1px
+    margin-bottom 10px
+  p
+    color var(--fog, #8b98ab)
+    margin 4px 0

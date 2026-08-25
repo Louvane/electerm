@@ -100,3 +100,47 @@
 .split-view-toggle
   &.active
     color var(--success)
+// FinalShell 式底部实时监控条
+.monitor-strip
+  height 110px
+  border-top 1px solid var(--border)
+  background var(--main-darker)
+  display flex
+  flex-direction column
+  font-size 12px
+  overflow hidden
+  &.collapsed
+    height 26px
+    flex-direction row
+    align-items center
+    gap 10px
+    padding 0 8px
+    cursor pointer
+  .monitor-header
+    display flex
+    justify-content space-between
+    align-items center
+    padding 2px 8px
+    color var(--text)
+  .monitor-title
+    color var(--text-light)
+  .monitor-close
+    color var(--text)
+    &:hover
+      color var(--text-light)
+  .monitor-body
+    flex 1
+    display flex
+    min-height 0
+  .monitor-item
+    flex 1
+    padding 0 8px 4px
+    min-width 0
+    display flex
+    flex-direction column
+  .monitor-label
+    color var(--text)
+    line-height 16px
+  .monitor-val
+    margin-left 6px
+    color var(--text-light)

@@ -83,6 +83,7 @@ export default class SettingTerminal extends Component {
   }
 
   handleChangeDelMode = v => this.onChangeValue(v, 'backspaceMode')
+  handleChangeSplitDirection = v => this.onChangeValue(v, 'sshSftpSplitDirection')
   handleChangeRenderType = v => this.onChangeValue(v, 'rendererType')
   handleChangeDragDropBehavior = v => this.onChangeValue(v, 'dragDropBehavior')
 
@@ -452,6 +453,7 @@ export default class SettingTerminal extends Component {
       rendererType,
       backspaceMode = '^?',
       dragDropBehavior = 'ask',
+      sshSftpSplitDirection = 'topDown',
       keywords = [{ color: 'red' }]
     } = this.props.config
     const {
@@ -601,6 +603,16 @@ export default class SettingTerminal extends Component {
               )
             })
           }
+        </Select>
+        <div className='pd1b'>ssh/sftp split direction (topDown = FinalShell style)</div>
+        <Select
+          onChange={this.handleChangeSplitDirection}
+          value={sshSftpSplitDirection}
+          popupMatchSelectWidth={false}
+        >
+          {['auto', 'topDown', 'leftRight'].map(id => (
+            <Option key={id} value={id}>{id}</Option>
+          ))}
         </Select>
         {this.renderReset()}
       </div>
