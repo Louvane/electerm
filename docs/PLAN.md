@@ -9,8 +9,9 @@
 - [ ] dev 启动冒烟:electron 窗口显示新壳,store/worker 桥接正常(读一条配置)
 
 ## P1 数据层
-- [ ] bookmark/group CRUD 封装(走现有 store API)
-- [ ] 历史记录(history)读写
+- [x] bookmark/group CRUD 封装(anchor-api.js,自包含数组操作,manate 原生追踪)
+- [x] 历史记录(history)读写(getRecents/clearRecents)
+- [x] 单测 14 项全过(node --test src/test/unit-ci/anchor-api.spec.js)
 - [ ] 认证门保留,样式套 ANCHOR token
 
 ## P2 连接管理器
