@@ -4,7 +4,6 @@
 import { createRef } from 'react'
 import { Component } from 'manate/react/class-components'
 import Term from '../terminal/terminal.jsx'
-import MonitorPanel from './monitor-panel'
 import Sftp from '../sftp/sftp-entry'
 import RdpSession from '../rdp/rdp-session'
 import VncSession from '../vnc/vnc-session'
@@ -51,9 +50,7 @@ export default class SessionWrapper extends Component {
       delKeyPressed: false,
       broadcastInput: false,
       keepaliveEnabled: false,
-      wrapDisabled: false,
-      monitorCollapsed: false,
-      monitorClosed: false
+      wrapDisabled: false
     }
     if (props.tab.sshSftpSplitView === undefined) {
       props.tab.sshSftpSplitView = !!props.config.sshSftpSplitView
@@ -415,13 +412,8 @@ export default class SessionWrapper extends Component {
     }
   }
 
-  // FinalShell 式底部监控条占用的高度(仅 ssh 类型,关闭时为 0)
-  getMonitorHeight = () => {
-    if (!this.isSshTab() || this.state.monitorClosed) {
-      return 0
-    }
-    return this.state.monitorCollapsed ? 26 : 110
-  }
+  // 底部监控条已由左遥测栏(monitor-rail)取代
+  getMonitorHeight = () => 0
 
   isSshTab = () => {
     const { type, host } = this.props.tab
@@ -429,17 +421,7 @@ export default class SessionWrapper extends Component {
   }
 
   renderMonitor = () => {
-    if (!this.isSshTab() || this.state.monitorClosed) {
-      return null
-    }
-    return (
-      <MonitorPanel
-        pid={this.props.tab.id}
-        collapsed={this.state.monitorCollapsed}
-        onToggle={() => this.setState(s => ({ monitorCollapsed: !s.monitorCollapsed }))}
-        onClose={() => this.setState({ monitorClosed: true })}
-      />
-    )
+    return null
   }
 
   calcTermWidthHeight = () => {

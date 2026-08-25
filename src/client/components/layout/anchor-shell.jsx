@@ -9,14 +9,17 @@ import ConnectionManager from '../anchor/connection-manager'
 import QuickConnect from '../anchor/quick-connect'
 import TermView from '../anchor/term-view'
 import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
+import MonitorRail from '../anchor/monitor-rail'
 import './anchor.styl'
 import '../anchor/anchor-ui.styl'
 
 export default auto(function Layout (props) {
   const { store } = props
   const {
-    tabs, currentTab, config
+    tabs
   } = store
+  // 自绘标签栏不注册 electerm 的 refsTabs,自行解析当前标签
+  const currentTab = tabs.find(t => t.id === store.activeTabId) || null
   const [mgrOpen, setMgrOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [formHost, setFormHost] = useState(null)
@@ -24,15 +27,7 @@ export default auto(function Layout (props) {
 
   return (
     <div className='anchor-shell'>
-      <aside className='anchor-rail'>
-        <div className='anchor-logo'>ANCHOR<i>锚点终端</i></div>
-        <div className='anchor-rail-sec'>
-          <div className='anchor-cap'>TARGET</div>
-          <div className='anchor-kv'><span>标签</span><b>{currentTab ? currentTab.title : '—'}</b></div>
-          <div className='anchor-kv'><span>主题</span><b>{config.theme}</b></div>
-        </div>
-        <div className='anchor-rail-foot'>P0 · 骨架冒烟</div>
-      </aside>
+      <MonitorRail store={store} tab={currentTab} />
       <main className='anchor-main'>
         <div className='anchor-tabbar'>
           <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}>📁 连接管理器</button>
