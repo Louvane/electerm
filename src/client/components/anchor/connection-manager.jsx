@@ -146,7 +146,8 @@ export default function ConnectionManager (props) {
               upsertBookmark(store, h, gid)
               message.success('已恢复')
             }}
-          >撤销</button>
+          >撤销
+          </button>
         </span>
       )
     })

@@ -21,9 +21,9 @@
 - [x] e2e 9 项全过(e2e/p2-manager.spec.js,_electron 驱动真 app)
 
 ## P3 快速连接页
-- [ ] 历史列表 + 双击连接 + 清空 + 空状态
-- [ ] 会话建立自动关主页
-- e2e:6 项断言
+- [x] 历史列表(getRecents)+ 双击连接 + 清空 + 空状态引导
+- [x] 活跃会话状态点(host+username 反查,history 副本无 srcId)
+- [x] e2e 11 项全过(e2e/p3-quick.spec.js)
 
 ## P4 终端标签
 - [ ] xterm.js 接 session ws(electerm terminal 组件改造复用)

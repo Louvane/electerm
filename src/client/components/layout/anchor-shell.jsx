@@ -6,6 +6,8 @@
 import { auto } from 'manate/react'
 import { useState } from 'react'
 import ConnectionManager from '../anchor/connection-manager'
+import QuickConnect from '../anchor/quick-connect'
+import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
 import './anchor.styl'
 import '../anchor/anchor-ui.styl'
 
@@ -15,6 +17,8 @@ export default auto(function Layout (props) {
     tabs, currentTab, config
   } = store
   const [mgrOpen, setMgrOpen] = useState(false)
+  const [formOpen, setFormOpen] = useState(false)
+  const [formHost, setFormHost] = useState(null)
 
   return (
     <div className='anchor-shell'>
@@ -50,17 +54,24 @@ export default auto(function Layout (props) {
           <div className='anchor-spacer' />
         </div>
         <div className='anchor-content'>
-          <div className='anchor-bridge-proof'>
-            <h2>ANCHOR · P2</h2>
-            <p>连接管理器已可用:主机/分组 CRUD、搜索、右键、键盘导航</p>
-            <p>下一步:P3 快速连接页 → P4 终端(见 docs/PLAN.md)</p>
-          </div>
+          <QuickConnect
+            store={store}
+            onOpenManager={() => setMgrOpen(true)}
+            onNewHost={() => { setFormHost(null); setFormOpen(true) }}
+          />
         </div>
       </main>
       <ConnectionManager
         open={mgrOpen}
         onClose={() => setMgrOpen(false)}
         store={store}
+        onNewHost={() => { setFormHost(null); setFormOpen(true) }}
+      />
+      <BookmarkFormDrawer
+        open={formOpen}
+        host={formHost}
+        store={store}
+        onClose={() => setFormOpen(false)}
       />
     </div>
   )
