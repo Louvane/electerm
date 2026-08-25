@@ -26,9 +26,10 @@
 - [x] e2e 11 项全过(e2e/p3-quick.spec.js)
 
 ## P4 终端标签
-- [ ] xterm.js 接 session ws(electerm terminal 组件改造复用)
-- [ ] 标签栏(状态点/关闭/切换)
-- e2e:终端渲染断言
+- [x] 复用 electerm SessionsWrap/Session/Term 全链路(TermView 量测尺寸)
+- [x] 视图切换:主页 ↔ 终端(+/标签点击/连接回调)
+- [x] 真实 SSH 服务器连通验证(首连需在终端应答 trust 信任指纹)
+- [x] e2e 4/4(e2e/p4-real.local.js,凭据走环境变量不入库)
 
 ## P5 监控栏
 - [ ] exec-cmd 轮询 /proc + 环形缓冲 + SVG 曲线(移植 demo 逻辑)

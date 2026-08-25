@@ -7,6 +7,7 @@ import { auto } from 'manate/react'
 import { useState } from 'react'
 import ConnectionManager from '../anchor/connection-manager'
 import QuickConnect from '../anchor/quick-connect'
+import TermView from '../anchor/term-view'
 import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
 import './anchor.styl'
 import '../anchor/anchor-ui.styl'
@@ -19,6 +20,7 @@ export default auto(function Layout (props) {
   const [mgrOpen, setMgrOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [formHost, setFormHost] = useState(null)
+  const [view, setView] = useState('home') // home=快速连接 | term=终端
 
   return (
     <div className='anchor-shell'>
@@ -41,7 +43,7 @@ export default auto(function Layout (props) {
                   <div
                     key={t.id}
                     className={'anchor-tab' + (currentTab && currentTab.id === t.id ? ' on' : '')}
-                    onClick={() => { store.activeTabId = t.id }}
+                    onClick={() => { store.activeTabId = t.id; setView('term') }}
                   >
                     <span className='dot' />
                     <span>{t.title}</span>
@@ -50,15 +52,22 @@ export default auto(function Layout (props) {
               })
             }
           </div>
-          <button className='anchor-newtab'>+</button>
+          <button className='anchor-newtab' title='快速连接' onClick={() => setView('home')}>+</button>
           <div className='anchor-spacer' />
         </div>
         <div className='anchor-content'>
-          <QuickConnect
-            store={store}
-            onOpenManager={() => setMgrOpen(true)}
-            onNewHost={() => { setFormHost(null); setFormOpen(true) }}
-          />
+          {
+            view === 'term' && store.tabs.length
+              ? <TermView store={store} />
+              : (
+                <QuickConnect
+                  store={store}
+                  onOpenManager={() => setMgrOpen(true)}
+                  onNewHost={() => { setFormHost(null); setFormOpen(true) }}
+                  onConnect={() => setView('term')}
+                />
+                )
+          }
         </div>
       </main>
       <ConnectionManager
@@ -66,6 +75,7 @@ export default auto(function Layout (props) {
         onClose={() => setMgrOpen(false)}
         store={store}
         onNewHost={() => { setFormHost(null); setFormOpen(true) }}
+        onConnect={() => setView('term')}
       />
       <BookmarkFormDrawer
         open={formOpen}

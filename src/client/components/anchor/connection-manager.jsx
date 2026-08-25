@@ -111,6 +111,7 @@ export default function ConnectionManager (props) {
   function connect (hostId) {
     store.onSelectBookmark(hostId)
     message.success('已连接')
+    props.onConnect && props.onConnect()
     if (closeAfterRef.current) onClose()
   }
   const closeAfterRef = useRef(true)

@@ -44,8 +44,12 @@ export default auto(function QuickConnect (props) {
                   className={'qc-row' + (openIds.has(bidOf(h)) ? ' open' : '')}
                   onDoubleClick={() => {
                     const bid = bidOf(h)
-                    if (bid) store.onSelectBookmark(bid)
-                    else message.info('该记录对应的主机已不存在')
+                    if (bid) {
+                      store.onSelectBookmark(bid)
+                      props.onConnect && props.onConnect()
+                    } else {
+                      message.info('该记录对应的主机已不存在')
+                    }
                   }}
                   onContextMenu={(e) => {
                     e.preventDefault()
