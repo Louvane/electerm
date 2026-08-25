@@ -4,12 +4,13 @@
  * 面板内容在 P1-P5 逐阶段填充(见 docs/PLAN.md)。
  */
 import { auto } from 'manate/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ConnectionManager from '../anchor/connection-manager'
 import QuickConnect from '../anchor/quick-connect'
 import TermView from '../anchor/term-view'
 import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
 import MonitorRail from '../anchor/monitor-rail'
+import { initAnchorTheme, toggleAnchorTheme } from '../anchor/anchor-theme'
 import './anchor.styl'
 import '../anchor/anchor-ui.styl'
 
@@ -24,6 +25,10 @@ export default auto(function Layout (props) {
   const [formOpen, setFormOpen] = useState(false)
   const [formHost, setFormHost] = useState(null)
   const [view, setView] = useState('home') // home=快速连接 | term=终端
+  const [theme, setTheme] = useState('dark')
+  useEffect(() => {
+    setTheme(initAnchorTheme())
+  }, [])
 
   return (
     <div className='anchor-shell'>
@@ -49,6 +54,13 @@ export default auto(function Layout (props) {
           </div>
           <button className='anchor-newtab' title='快速连接' onClick={() => setView('home')}>+</button>
           <div className='anchor-spacer' />
+          <button
+            className='anchor-theme-btn'
+            title='切换昼夜主题'
+            onClick={() => setTheme(toggleAnchorTheme())}
+          >
+            {theme === 'light' ? '☾ 黑夜' : '☀ 白天'}
+          </button>
         </div>
         <div className='anchor-content'>
           {

@@ -37,9 +37,10 @@
 - e2e:占位/点亮/数值断言
 
 ## P6 主题
-- [ ] token 体系(antd theme + CSS vars 双层)
-- [ ] 应用双主题 + 终端 5 预设,持久化
-- e2e:切换/持久化/终端独立断言
+- [x] token 体系(anchor-theme.js 注入 documentElement,antd 浮层 CSS 覆盖)
+- [x] 应用双主题(暗默认/亮),切换按钮 + localStorage 持久化 + 跟随系统
+- [x] 终端配色走 electerm 内置终端主题系统(设置面板可换,不重复造)
+- [x] e2e 7/7(切换/变量注入/持久化/light 下终端渲染/浮层随主题)
 
 ## P7 打包
 - [ ] electron-builder:应用名/图标/userData=anchor

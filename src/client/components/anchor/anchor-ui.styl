@@ -506,3 +506,53 @@
     max-width 120px
     &.ip
       color var(--amber, #ffb454)
+
+// 主题:黑夜模式下 antd 浮层适配(白天 antd 默认浅色即可)
+body[data-anchor-theme=dark]
+  .ant-select-dropdown
+    background var(--ink2, #1c2534)
+    .ant-select-item
+      color var(--snow, #e6edf5)
+      &:hover
+        background var(--ink1, #151c28)
+    .ant-select-item-option-selected
+      background var(--ink1, #151c28)
+      color var(--amber, #ffb454)
+  .ant-modal-content
+    background var(--ink2, #1c2534)
+    color var(--snow, #e6edf5)
+  .ant-modal-header
+    background var(--ink2, #1c2534)
+    .ant-modal-title
+      color var(--snow, #e6edf5)
+  .ant-drawer-content
+    background var(--ink2, #1c2534)
+    .ant-drawer-header
+      background var(--ink2, #1c2534)
+      border-bottom-color var(--line, #2a3547)
+      .ant-drawer-title
+        color var(--snow, #e6edf5)
+  .ant-message-notice-content
+    background var(--ink2, #1c2534)
+    color var(--snow, #e6edf5)
+  .ant-btn-default
+    background var(--ink1, #151c28)
+    color var(--snow, #e6edf5)
+    border-color var(--line, #2a3547)
+  .ant-modal-confirm
+    .ant-modal-body
+      color var(--snow, #e6edf5)
+
+// 主题切换按钮
+.anchor-theme-btn
+  height 26px
+  padding 0 12px
+  border 1px solid var(--line, #2a3547)
+  border-radius 13px
+  color var(--fog, #8b98ab)
+  font-size 12px
+  cursor pointer
+  background none
+  &:hover
+    color var(--amber, #ffb454)
+    border-color var(--amber, #ffb454)
