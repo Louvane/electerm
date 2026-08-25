@@ -4,13 +4,17 @@
  * 面板内容在 P1-P5 逐阶段填充(见 docs/PLAN.md)。
  */
 import { auto } from 'manate/react'
+import { useState } from 'react'
+import ConnectionManager from '../anchor/connection-manager'
 import './anchor.styl'
+import '../anchor/anchor-ui.styl'
 
 export default auto(function Layout (props) {
   const { store } = props
   const {
     tabs, currentTab, config
   } = store
+  const [mgrOpen, setMgrOpen] = useState(false)
 
   return (
     <div className='anchor-shell'>
@@ -25,7 +29,7 @@ export default auto(function Layout (props) {
       </aside>
       <main className='anchor-main'>
         <div className='anchor-tabbar'>
-          <button className='anchor-mgr-btn'>📁 连接管理器</button>
+          <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}>📁 连接管理器</button>
           <div className='anchor-tabs'>
             {
               tabs.map(t => {
@@ -47,12 +51,17 @@ export default auto(function Layout (props) {
         </div>
         <div className='anchor-content'>
           <div className='anchor-bridge-proof'>
-            <h2>ANCHOR · P0 骨架</h2>
-            <p>store 桥接正常:tabs={tabs.length},当前={currentTab ? currentTab.title : '无'}</p>
-            <p>下一步:P1 数据层 → P2 连接管理器(见 docs/PLAN.md)</p>
+            <h2>ANCHOR · P2</h2>
+            <p>连接管理器已可用:主机/分组 CRUD、搜索、右键、键盘导航</p>
+            <p>下一步:P3 快速连接页 → P4 终端(见 docs/PLAN.md)</p>
           </div>
         </div>
       </main>
+      <ConnectionManager
+        open={mgrOpen}
+        onClose={() => setMgrOpen(false)}
+        store={store}
+      />
     </div>
   )
 })

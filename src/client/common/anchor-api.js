@@ -105,6 +105,11 @@ export function copyBookmark (s, id) {
   return nid
 }
 
+/** 主机所在分组 id(无则 null) */
+export function getBookmarkGroupId (s, bookmarkId) {
+  return findGroupOf(st(s), bookmarkId)
+}
+
 function findGroupOf (store, bookmarkId) {
   const g = store.bookmarkGroups.find(x => (x.bookmarkIds || []).includes(bookmarkId))
   return g ? g.id : null
@@ -208,4 +213,41 @@ export function getRecents (s, limit = 50) {
 
 export function clearRecents (s) {
   st(s).history = []
+}
+
+/** 全部分组路径:[{ id, path }]。path 形如 /CMI-SC/西云,用于展示与下拉 */
+export function groupPaths (s) {
+  const out = [{ id: defaultBookmarkGroupId, path: '/(默认分组)' }]
+  const walk = (node, path) => {
+    for (const c of node.children) {
+      if (c.id === defaultBookmarkGroupId) {
+        // 默认分组深入但不作为路径项(它已映射为 /(默认分组))
+        walk(c, path)
+        continue
+      }
+      const p = path + '/' + c.title
+      out.push({ id: c.id, path: p })
+      walk(c, p)
+    }
+  }
+  walk({ children: getBookmarkTree(s) }, '')
+  return out
+}
+
+/** 把表单里引用的跳板主机 id 列表解析成 connectionHoppings 配置 */
+export function resolveHops (s, bookmarkIds) {
+  const store = st(s)
+  return (bookmarkIds || [])
+    .filter(Boolean)
+    .map(id => store.bookmarks.find(b => b.id === id))
+    .filter(Boolean)
+    .map(b => ({
+      host: b.host,
+      port: b.port,
+      username: b.username,
+      authType: b.authType,
+      password: b.password,
+      privateKey: b.privateKey,
+      passphrase: b.passphrase
+    }))
 }

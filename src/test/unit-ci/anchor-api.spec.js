@@ -118,6 +118,22 @@ describe('anchor-api: 分组操作', () => {
   })
 })
 
+describe('anchor-api: groupPaths / resolveHops', () => {
+  it('groupPaths:含默认分组与嵌套路径', () => {
+    const st = mockStore()
+    const ps = api.groupPaths(st)
+    assert.ok(ps.some(p => p.id === 'default' && p.path === '/(默认分组)'))
+    assert.ok(ps.some(p => p.path === '/G1/G2'))
+  })
+  it('resolveHops:引用解析为连接配置,空值过滤', () => {
+    const st = mockStore()
+    const hops = api.resolveHops(st, ['b1', '', 'nope'])
+    assert.strictEqual(hops.length, 1)
+    assert.strictEqual(hops[0].host, '1.1.1.1')
+    assert.strictEqual(hops[0].username, 'root')
+  })
+})
+
 describe('anchor-api: 历史记录', () => {
   it('getRecents:按时间倒序', () => {
     const st = mockStore()
@@ -128,5 +144,13 @@ describe('anchor-api: 历史记录', () => {
     const st = mockStore()
     api.clearRecents(st)
     assert.strictEqual(st.history.length, 0)
+  })
+})
+
+describe('anchor-api: getBookmarkGroupId', () => {
+  it('返回所在分组,未分组返回 null', () => {
+    const st = mockStore()
+    assert.strictEqual(api.getBookmarkGroupId(st, 'b1'), 'default')
+    assert.strictEqual(api.getBookmarkGroupId(st, 'nope'), null)
   })
 })
