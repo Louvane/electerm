@@ -559,3 +559,44 @@ body[data-anchor-theme=dark]
   &:hover
     color var(--amber, #ffb454)
     border-color var(--amber, #ffb454)
+
+// ===== 动画层(P6.5)=====
+// 视图/页面切入
+.anchor-content > *
+  animation anchor-fade-in 0.18s ease
+@keyframes anchor-fade-in
+  from
+    opacity 0
+    transform translateY(4px)
+  to
+    opacity 1
+    transform none
+
+// 右键菜单弹入
+.anchor-ctx
+  animation ctx-pop 0.12s ease
+@keyframes ctx-pop
+  from
+    opacity 0
+    transform scale(0.96)
+  to
+    opacity 1
+    transform none
+
+// 列表行渐入(快速连接/管理器树首层)
+.qc-row
+  animation row-in 0.2s ease both
+@keyframes row-in
+  from
+    opacity 0
+    transform translateX(-6px)
+  to
+    opacity 1
+    transform none
+
+// 尊重减弱动效偏好
+@media (prefers-reduced-motion: reduce)
+  .anchor-content > *
+  .anchor-ctx
+  .qc-row
+    animation none !important
