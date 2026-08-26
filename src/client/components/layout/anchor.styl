@@ -187,3 +187,32 @@
   display flex
   flex-direction row
   min-height 0
+
+// 多标签排列:不收缩,横向滚动,标题省略
+.anchor-tabs
+  flex 1 1 auto
+  min-width 0
+  overflow-x auto
+  overflow-y hidden
+  scrollbar-width none
+  &::-webkit-scrollbar
+    display none
+.anchor-tab
+  flex-shrink 0
+  max-width 190px
+  span:not(.x):not(.dot)
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+
+// 工具按钮不收缩不换行
+.anchor-tabbar
+  overflow hidden
+.anchor-mgr-btn
+  flex-shrink 0
+  white-space nowrap
+.anchor-newtab
+  flex-shrink 0
+.anchor-theme-btn
+  flex-shrink 0
+  white-space nowrap

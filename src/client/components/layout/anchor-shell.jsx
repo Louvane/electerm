@@ -4,7 +4,7 @@
  * 面板内容在 P1-P5 逐阶段填充(见 docs/PLAN.md)。
  */
 import { auto } from 'manate/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ConnectionManager from '../anchor/connection-manager'
 import QuickConnect from '../anchor/quick-connect'
 import TermView from '../anchor/term-view'
@@ -26,6 +26,12 @@ export default auto(function Layout (props) {
   const [formOpen, setFormOpen] = useState(false)
   const [formHost, setFormHost] = useState(null)
   const [view, setView] = useState('home') // home=快速连接 | term=终端
+  const tabsRef = useRef(null)
+  useEffect(() => {
+    // 激活标签滚入可见区(标签多溢出时)
+    const el = tabsRef.current && tabsRef.current.querySelector('.anchor-tab.on')
+    el && el.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [store.activeTabId, tabs.length])
   const [theme, setTheme] = useState('dark')
   useEffect(() => {
     setTheme(initAnchorTheme())
@@ -45,7 +51,7 @@ export default auto(function Layout (props) {
         <main className='anchor-main'>
           <div className='anchor-tabbar'>
             <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}>📁 连接管理器</button>
-            <div className='anchor-tabs'>
+            <div className='anchor-tabs' ref={tabsRef}>
               {
               tabs.map(t => {
                 return (
