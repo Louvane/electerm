@@ -15,7 +15,37 @@ export default Store => {
   Store.prototype.getTerminalThemes = function () {
     const t1 = defaultTheme()
     const t2 = defaultThemeLight()
+    // ANCHOR 内置:Termius 风格终端配色(默认)
+    const t0 = {
+      id: 'anchorTermius',
+      name: 'ANCHOR Termius',
+      themeConfig: {
+        foreground: '#dce1f0',
+        background: '#141622',
+        cursor: '#5c8dff',
+        cursorAccent: '#141622',
+        selectionBackground: 'rgba(92, 141, 255, 0.35)',
+        black: '#3a3d52',
+        red: '#ff6b6b',
+        green: '#3fd68f',
+        yellow: '#ffd483',
+        blue: '#5c8dff',
+        magenta: '#c792ea',
+        cyan: '#7fdbca',
+        white: '#e8ebf4',
+        brightBlack: '#565a7a',
+        brightRed: '#ff8b8b',
+        brightGreen: '#6ee7a8',
+        brightYellow: '#ffe3a3',
+        brightBlue: '#8ab4ff',
+        brightMagenta: '#ddb3f5',
+        brightCyan: '#a8e8d8',
+        brightWhite: '#f5f7fc'
+      },
+      uiThemeConfig: t1.uiThemeConfig
+    }
     return [
+      t0,
       t1,
       t2,
       ...window.store.getItems(settingMap.terminalThemes).filter(d => {

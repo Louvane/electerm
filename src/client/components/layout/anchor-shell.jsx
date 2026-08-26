@@ -33,9 +33,16 @@ export default auto(function Layout (props) {
     el && el.scrollIntoView({ block: 'nearest', inline: 'nearest' })
   }, [store.activeTabId, tabs.length])
   const [theme, setTheme] = useState('dark')
+  const cfgTheme = store.config.theme
   useEffect(() => {
     setTheme(initAnchorTheme())
   }, [])
+  // 迁移:旧默认终端主题 → ANCHOR Termius(config 异步加载完成后触发)
+  useEffect(() => {
+    if (cfgTheme === 'default') {
+      store.updateConfig({ theme: 'anchorTermius' })
+    }
+  }, [cfgTheme])
 
   return (
     <div className='anchor-shell'>
@@ -79,6 +86,13 @@ export default auto(function Layout (props) {
             </div>
             <button className='anchor-newtab' title='快速连接' onClick={() => setView('home')}>+</button>
             <div className='anchor-spacer' />
+            <button
+              className='anchor-theme-btn'
+              title='设置'
+              onClick={() => window.store.openSettingModal()}
+            >
+              ⚙ 设置
+            </button>
             <button
               className='anchor-theme-btn'
               title='切换昼夜主题'
