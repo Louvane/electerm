@@ -181,8 +181,9 @@ export default (Store) => {
       for (const s of arr) {
         store.onSelectBookmark(s)
       }
-      if (!arr.length && store.config.initDefaultTabOnStart) {
-        store.initFirstTab()
+      // ANCHOR:默认不开本地终端标签(用户显式开启 onStartSessions 除外)
+      if (!arr.length && store.config.initDefaultTabOnStart === true) {
+        store.config.initDefaultTabOnStart = false
       }
     }
 

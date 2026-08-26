@@ -41,7 +41,8 @@ export default {
   defaultEditor: '',
   terminalWordSeparator: './\\()"\'-:,.;<>~!@#$%^&*|+=[]{}`~ ?',
   confirmBeforeExit: false,
-  initDefaultTabOnStart: true,
+  // ANCHOR:启动落地快速连接页,不自动开本地终端标签
+  initDefaultTabOnStart: false,
   screenReaderMode: false,
   autoRefreshWhenSwitchToSftp: false,
   addTimeStampToTermLog: false,
