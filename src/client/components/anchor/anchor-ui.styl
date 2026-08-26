@@ -600,3 +600,20 @@ body[data-anchor-theme=dark]
   .anchor-ctx
   .qc-row
     animation none !important
+
+// 弹框 header:去掉 antd 默认底色横带,✕ 对齐
+body[data-anchor-theme=dark]
+  .ant-modal-header
+    background transparent !important
+    border-bottom none !important
+  .ant-modal-title
+    color var(--snow, #e8ebf4) !important
+  .ant-modal-content
+    background var(--ink2, #2a2d45) !important
+  .ant-modal-close
+    top 14px !important
+    right 14px !important
+    color var(--fog, #9aa0b5) !important
+    &:hover
+      color var(--snow, #e8ebf4) !important
+      background var(--ink1, #22243a) !important
