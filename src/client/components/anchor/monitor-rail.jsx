@@ -93,11 +93,11 @@ function Spark ({ data, color }) {
   }).filter(Boolean).join(' ')
   return (
     <svg width='100%' height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio='none'>
-      <polyline points={pts} fill='none' stroke={color} strokeWidth='1.5' />
+      <polyline points={pts} fill='none' style={{ stroke: color }} strokeWidth='1.5' />
       <circle
         cx={(vals.length - 1) * w / (MAX_POINTS - 1)}
         cy={h - Math.min(vals[vals.length - 1], max) * h / max}
-        r='2.5' fill={color}
+        r='2.5' style={{ fill: color }}
       />
     </svg>
   )
@@ -187,11 +187,11 @@ export default function MonitorRail (props) {
       <div className='anchor-rail-sec'>
         <div className='gauge'>
           <div className='top'><span className='k'>CPU</span><span className='v'>{cpu}</span></div>
-          <div className='rail'><div style={{ width: last.cpu || 0 + '%', background: 'var(--amber,#ffb454)' }} /></div>
+          <div className='rail'><div style={{ width: last.cpu || 0 + '%', background: 'var(--amber,#5c8dff)' }} /></div>
         </div>
         <div className='gauge'>
           <div className='top'><span className='k'>内存</span><span className='v'>{mem}</span></div>
-          <div className='rail'><div style={{ width: last.mem || 0 + '%', background: 'var(--amber,#ffb454)' }} /></div>
+          <div className='rail'><div style={{ width: last.mem || 0 + '%', background: 'var(--amber,#5c8dff)' }} /></div>
           <div className='sub'>{memSub}</div>
         </div>
         <div className='gauge'>
@@ -227,12 +227,12 @@ export default function MonitorRail (props) {
                 }
               </div>
               )
-            : <div className='anchor-chart'><Spark data={points.map(p => p[chartMode])} color={chartMode === 'cpu' ? '#f2555a' : '#ffb454'} /></div>
+            : <div className='anchor-chart'><Spark data={points.map(p => p[chartMode])} color={chartMode === 'cpu' ? 'var(--alert,#ff6b6b)' : 'var(--amber,#5c8dff)'} /></div>
         }
       </div>
       <div className='anchor-rail-sec'>
         <div className='anchor-cap'>NETWORK</div>
-        <div className='net-row'><span className='net-dir up'>↑</span><div className='net-rail tx'><div style={{ width: Math.min(100, (last.txKb || 0) / 8) + '%', background: 'var(--alert,#f2555a)' }} /></div><span className='net-val'>{tx}</span></div>
+        <div className='net-row'><span className='net-dir up'>↑</span><div className='net-rail tx'><div style={{ width: Math.min(100, (last.txKb || 0) / 8) + '%', background: 'var(--alert,#ff6b6b)' }} /></div><span className='net-val'>{tx}</span></div>
         <div className='net-row'><span className='net-dir down'>↓</span><div className='net-rail rx'><div style={{ width: Math.min(100, (last.rxKb || 0) / 8) + '%', background: 'var(--signal,#3fd68f)' }} /></div><span className='net-val'>{rx}</span></div>
         <div className='anchor-kv' style={{ marginTop: 6 }}><span>延迟</span><b>—</b></div>
       </div>

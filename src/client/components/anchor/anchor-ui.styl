@@ -42,10 +42,10 @@
 .mg-tree
   flex 1
   overflow-y auto
-  background var(--ink0, #0f141d)
+  background var(--ink0, #1a1c2e)
   margin 10px 0
-  border 1px solid var(--line, #2a3547)
-  border-radius 6px
+  border 1px solid var(--line, #34374f)
+  border-radius 10px
   padding 8px
   outline none
 
@@ -53,10 +53,11 @@
   display flex
   align-items center
   gap 7px
-  padding 4px 8px
-  border-radius 5px
+  padding 5px 8px
+  border-radius 7px
   cursor default
   font-size 12.5px
+  transition background 0.12s
   &:hover
     background var(--ink2, #1c2534)
   &.sel
@@ -130,10 +131,10 @@
 .anchor-ctx
   position fixed
   z-index 1000
-  background var(--ink2, #1c2534)
-  border 1px solid var(--line, #2a3547)
-  border-radius 7px
-  box-shadow 0 10px 30px rgba(0, 0, 0, 0.45)
+  background var(--ink2, #2a2d45)
+  border 1px solid var(--line, #34374f)
+  border-radius 10px
+  box-shadow var(--shadow, 0 8px 28px rgba(10, 12, 24, 0.45))
   min-width 150px
   padding 5px
   div
@@ -259,22 +260,23 @@
     text-decoration underline
 
 .anchor-btn
-  padding 6px 18px
-  border-radius 5px
-  border 1px solid var(--line, #2a3547)
-  color var(--snow, #e6edf5)
-  font-size 12px
+  padding 7px 18px
+  border-radius 8px
+  border 1px solid var(--line, #34374f)
+  color var(--snow, #e8ebf4)
+  font-size 12.5px
   cursor pointer
   background none
+  transition all 0.15s
   &:hover
-    border-color var(--fog, #8b98ab)
+    border-color var(--fog, #9aa0b5)
   &.pri
-    background var(--amber, #ffb454)
-    border-color var(--amber, #ffb454)
-    color #1a1206
+    background var(--amber, #5c8dff)
+    border-color var(--amber, #5c8dff)
+    color #fff
     font-weight 600
     &:hover
-      background #ffc472
+      filter brightness(1.08)
 
 // 快速连接页
 .page-home
@@ -295,10 +297,11 @@
     font-size 12px
 .qc-panel
   margin-top 18px
-  border 1px solid var(--line, #2a3547)
-  border-radius 8px
-  background var(--ink1, #151c28)
+  border 1px solid var(--line, #34374f)
+  border-radius 12px
+  background var(--ink1, #22243a)
   overflow hidden
+  box-shadow var(--shadow, 0 8px 28px rgba(10, 12, 24, 0.45))
 .qc-toolbar
   display flex
   align-items center
@@ -329,10 +332,10 @@
 .qc-row
   display flex
   align-items center
-  padding 9px 14px
+  padding 10px 14px
   gap 14px
   cursor pointer
-  border-bottom 1px solid rgba(42, 53, 71, 0.45)
+  border-bottom 1px solid rgba(52, 55, 79, 0.45)
   transition background 0.12s
   &:last-child
     border-bottom none

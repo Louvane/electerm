@@ -65,8 +65,15 @@ const { _electron } = require('/tmp/shot/node_modules/playwright-core')
     const dd = [...document.querySelectorAll('.ant-select-dropdown')].find(d => d.offsetParent !== null || d.classList.contains('ant-select-dropdown-open'))
     return dd ? getComputedStyle(dd).backgroundColor : 'none'
   })
-  const isDark = await win.evaluate(() => document.body.dataset.anchorTheme === 'dark')
-  T('下拉浮层随主题', isDark ? ddBg === 'rgb(28, 37, 52)' : ddBg !== 'rgb(28, 37, 52)')
+  const expected = await win.evaluate(() => {
+    const probe = document.createElement('div')
+    probe.style.background = 'var(--ink2)'
+    document.body.appendChild(probe)
+    const c = getComputedStyle(probe).backgroundColor
+    probe.remove()
+    return c
+  })
+  T('下拉浮层随主题', ddBg === expected)
 
   await win.screenshot({ path: '/tmp/p6-theme.png' })
   console.log('='.repeat(40))
