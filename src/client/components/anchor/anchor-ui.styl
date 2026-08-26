@@ -617,3 +617,50 @@ body[data-anchor-theme=dark]
     &:hover
       color var(--snow, #e8ebf4) !important
       background var(--ink1, #22243a) !important
+
+// ===== 溢出防御(同类问题清扫)=====
+// 树节点:长主机名/路径不挤压同行元素
+.tnode
+  min-width 0
+  .lbl
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+    min-width 0
+  .cnt
+    flex-shrink 0
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+    max-width 140px
+  .usr
+    flex-shrink 0
+// 右键菜单项:长分组路径截断
+.anchor-ctx div
+  max-width 280px
+  white-space nowrap
+  overflow hidden
+  text-overflow ellipsis
+// 表单抽屉字段
+.fld
+  input, select
+    min-width 0
+.jump-row
+  select
+    min-width 0
+// 快速连接行:IP 可收缩
+.qc-row
+  min-width 0
+  .ip
+    min-width 0
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+// 页头允许换行
+.home-head
+  flex-wrap wrap
+
+.qc-row .usr
+  overflow hidden
+  text-overflow ellipsis
+  white-space nowrap
