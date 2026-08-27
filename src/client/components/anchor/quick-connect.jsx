@@ -38,14 +38,13 @@ export default auto(function QuickConnect (props) {
     <div className='page-home'>
       <div className='home-head'>
         <h1>快速连接</h1>
-        <span className='sub'>按最近使用排序 · 双击行建立会话</span>
       </div>
       <div className='qc-panel'>
         <div className='qc-toolbar'>
           <span className='cap'>{useAll ? 'ALL HOSTS' : 'RECENT'}</span>
           <span className='n'>{rows.length}</span>
           <span className='sp' />
-          <button className='hint' onClick={onOpenManager}>全部主机…</button>
+          <button className='hint' onClick={onOpenManager}>全部主机</button>
           <button
             className='hint' onClick={() => {
               clearRecents(store)
@@ -87,19 +86,16 @@ export default auto(function QuickConnect (props) {
             })
             : (
               <div className='qc-empty'>
-                <div className='big'>还没有连接记录</div>
-                <div className='sm'>从连接管理器选择主机,或新建一台</div>
+                <div className='big'>暂无主机</div>
                 <div className='acts'>
-                  <button className='btn pri' onClick={onOpenManager}>打开连接管理器</button>
+                  <button className='btn pri' onClick={onOpenManager}>连接管理器</button>
                   <button className='btn' onClick={onNewHost}>新建主机</button>
                 </div>
               </div>
               )
         }
       </div>
-      <div className='home-tip'>
-        {useAll ? '按名称排序 · 连接后自动置顶到最近使用' : '双击 连接 · 右键 更多操作 · Esc 关闭弹层'}
-      </div>
+
     </div>
   )
 })

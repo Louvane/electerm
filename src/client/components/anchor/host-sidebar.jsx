@@ -1,9 +1,9 @@
 /**
- * ANCHOR 连接管理器(P2)
- * 树(分组实体+主机)/ 搜索高亮 / 右键菜单 / 内联编辑 / 键盘导航 / 移动到…
- * 数据操作全部走 anchor-api(见 SPEC.md §4 交互规格)。
+ * ANCHOR 主机侧栏(P8):常驻树,替代原连接管理器弹窗
+ * 搜索/右键菜单/内联编辑/键盘导航全部保留;连接后关闭窗口逻辑随弹窗退役
  */
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import { Search, Plus, FolderPlus, Folder, HardDrive } from 'lucide-react'
 import { Modal, message } from 'antd'
 import {
   getBookmarkTree,
@@ -31,33 +31,31 @@ function hl (text, kw) {
   return esc(t.slice(0, i)) + '<mark>' + esc(t.substr(i, kw.length)) + '</mark>' + esc(t.slice(i + kw.length))
 }
 
-export default function ConnectionManager (props) {
-  const { open, onClose, store } = props
+export default function HostSidebar (props) {
+  const { store } = props
   const [kw, setKw] = useState('')
   const [expanded, setExpanded] = useState({ default: true })
-  const [sel, setSel] = useState(() => { window._mounts = (window._mounts || 0) + 1; return null }) // {kind:'dir'|'host', id}
-  const [editId, setEditId] = useState(null) // 内联重命名的节点 id
-  const [pendingDir, setPendingDir] = useState(null) // 内联新建文件夹的父 id
-  const [menu, setMenu] = useState(null) // {x,y,node,view:'main'|'move'}
+  const [sel, setSel] = useState(null)
+  const [editId, setEditId] = useState(null)
+  const [pendingDir, setPendingDir] = useState(null)
+  const [menu, setMenu] = useState(null)
   const [formOpen, setFormOpen] = useState(false)
-  const [formHost, setFormHost] = useState(null) // null=新建
+  const [formHost, setFormHost] = useState(null)
   const [formGroupId, setFormGroupId] = useState(null)
   const treeRef = useRef(null)
 
-  if (typeof window !== 'undefined') window._kw = kw // debug
-  const tree = open ? getBookmarkTree(store) : []
-  const bookmarks = open ? getBookmarks(store) : []
+  const tree = getBookmarkTree(store)
+  const bookmarks = getBookmarks(store)
 
-  // 展平可见节点(键盘导航用)
   const flat = []
-  const walk = (nodes, expandedMap, kwArg) => {
+  const walkFlat = (nodes, expandedMap, kwArg) => {
     for (const n of nodes) {
       const all = JSON.stringify(n).toLowerCase()
       if (kwArg && !all.includes(kwArg.toLowerCase())) continue
       const isOpen = expandedMap[n.id] || !!kwArg
       flat.push({ kind: 'dir', id: n.id, title: n.title, isOpen })
       if (isOpen) {
-        walk(n.children, expandedMap, kwArg)
+        walkFlat(n.children, expandedMap, kwArg)
         for (const h of n.hosts) {
           if (kwArg && !((h.title || '') + (h.host || '') + (h.username || '')).toLowerCase().includes(kwArg.toLowerCase())) continue
           flat.push({ kind: 'host', id: h.id, title: h.title, host: h.host, username: h.username })
@@ -65,19 +63,9 @@ export default function ConnectionManager (props) {
       }
     }
   }
-  if (open) walk(tree, expanded, kw)
+  walkFlat(tree, expanded, kw)
 
-  const closeMenu = useCallback(() => setMenu(null), [])
   useEffect(() => {
-    if (!menu) return undefined
-    const h = () => closeMenu()
-    window.addEventListener('click', h)
-    return () => window.removeEventListener('click', h)
-  }, [menu, closeMenu])
-
-  // 键盘导航(管理器打开、焦点不在输入框时)
-  useEffect(() => {
-    if (!open) return undefined
     const h = (e) => {
       if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return
       const idx = sel ? flat.findIndex(n => n.kind === sel.kind && n.id === sel.id) : -1
@@ -108,13 +96,17 @@ export default function ConnectionManager (props) {
     return () => window.removeEventListener('keydown', h)
   })
 
+  useEffect(() => {
+    if (!menu) return undefined
+    const h = () => setMenu(null)
+    window.addEventListener('click', h)
+    return () => window.removeEventListener('click', h)
+  }, [menu])
+
   function connect (hostId) {
     store.onSelectBookmark(hostId)
-    message.success('已连接')
     props.onConnect && props.onConnect()
-    if (closeAfterRef.current) onClose()
   }
-  const closeAfterRef = useRef(true)
 
   function selHost (id) {
     return bookmarks.find(b => b.id === id)
@@ -142,7 +134,7 @@ export default function ConnectionManager (props) {
         <span style={{ display: 'inline-flex', gap: 14, alignItems: 'center' }}>
           已删除 {h.title || h.host}
           <button
-            style={{ border: 'none', background: 'none', color: '#ffb454', cursor: 'pointer' }}
+            style={{ border: 'none', background: 'none', color: '#5c8dff', cursor: 'pointer' }}
             onClick={() => {
               upsertBookmark(store, h, gid)
               message.success('已恢复')
@@ -156,7 +148,6 @@ export default function ConnectionManager (props) {
 
   function askDelDir (id) {
     const title = dirTitle(id)
-    // 统计子树规模
     let hosts = 0
     let dirs = 0
     const count = (nodes) => {
@@ -200,6 +191,10 @@ export default function ConnectionManager (props) {
     setEditId(null)
   }
 
+  function countAll (n) {
+    return n.hosts.length + n.children.reduce((a, c) => a + countAll(c), 0)
+  }
+
   function renderTree (nodes, depth, path) {
     return nodes.map(n => {
       const p = path + '/' + n.title
@@ -212,7 +207,7 @@ export default function ConnectionManager (props) {
         <React.Fragment key={n.id}>
           <div
             className={'tnode' + (isSel ? ' sel' : '')}
-            style={{ paddingLeft: depth * 18 + 4 }}
+            style={{ paddingLeft: depth * 14 + 4 }}
             onClick={() => setSel({ kind: 'dir', id: n.id })}
             onContextMenu={(e) => {
               e.preventDefault()
@@ -225,21 +220,18 @@ export default function ConnectionManager (props) {
               onClick={(e) => { e.stopPropagation(); setExpanded(m => ({ ...m, [n.id]: !m[n.id] })) }}
             >▶
             </span>
-            <span>📁</span>
-            {
-              editId === n.id
-                ? <InlineInput initial={n.title} onCommit={v => commitRename(n.id, 'dir', v)} onCancel={() => setEditId(null)} />
-                : <span className='lbl dir' dangerouslySetInnerHTML={{ __html: hl(n.title, kw) }} />
-            }
-            <span className='cnt'>{n.hosts.length + n.children.reduce((a, c) => a + countAll(c), 0)}</span>
+            <Folder size={14} />
+            <span className='lbl dir' dangerouslySetInnerHTML={{ __html: hl(n.title, kw) }} />
+            <span className='cnt'>{countAll(n)}</span>
           </div>
           {
             isOpen && (
               <>
                 {
                   pendingDir === n.id && (
-                    <div className='tnode' style={{ paddingLeft: (depth + 1) * 18 + 4 }}>
-                      <span className='arrow leaf'>▶</span><span>📁</span>
+                    <div className='tnode' style={{ paddingLeft: (depth + 1) * 14 + 4 }}>
+                      <span className='arrow leaf'>▶</span>
+                      <Folder size={14} />
                       <InlineInput
                         initial='' onCommit={(v) => {
                           if (v.trim()) {
@@ -247,7 +239,7 @@ export default function ConnectionManager (props) {
                             setSel({ kind: 'dir', id: null })
                           }
                           setPendingDir(null)
-                        }} onCancel={() => setPendingDir(null)} autoFocus placeholder='文件夹名称,Enter 确认 · Esc 取消'
+                        }} onCancel={() => setPendingDir(null)} autoFocus placeholder='名称,Enter 确认'
                       />
                     </div>
                   )
@@ -261,7 +253,7 @@ export default function ConnectionManager (props) {
                       <div
                         key={h.id}
                         className={'tnode' + (hostSel ? ' sel' : '')}
-                        style={{ paddingLeft: (depth + 1) * 18 + 4 }}
+                        style={{ paddingLeft: (depth + 1) * 14 + 4 }}
                         onClick={() => setSel({ kind: 'host', id: h.id })}
                         onDoubleClick={() => connect(h.id)}
                         onContextMenu={(e) => {
@@ -270,20 +262,26 @@ export default function ConnectionManager (props) {
                           setMenu({ x: e.clientX, y: e.clientY, node: { kind: 'host', id: h.id }, view: 'main' })
                         }}
                       >
-                        <span className='arrow leaf'>▶</span><span>🖥</span>
+                        <span className='arrow leaf'>▶</span>
+                        <HardDrive size={14} />
                         {
                           editing
-                            ? <InlineInput initial={h.title} onCommit={v => commitRename(h.id, 'host', v)} onCancel={() => setEditId(null)} />
+                            ? (
+                              <InlineInput
+                                initial={h.title}
+                                onCommit={v => commitRename(h.id, 'host', v)}
+                                onCancel={() => setEditId(null)}
+                              />
+                              )
                             : <span className='lbl' dangerouslySetInnerHTML={{ __html: hl(h.title, kw) }} />
                         }
                         <span className='cnt'>{hl(h.host, kw)}</span>
-                        <span className='usr'>{hl(h.username, kw)}</span>
                       </div>
                     )
                   })
                 }
                 {
-                  empty && <div className='empty-dir' style={{ paddingLeft: (depth + 1) * 18 + 10 }}>空分组 · 右键新建主机</div>
+                  empty && <div className='empty-dir' style={{ paddingLeft: (depth + 1) * 14 + 10 }}>空分组</div>
                 }
               </>
             )
@@ -293,11 +291,6 @@ export default function ConnectionManager (props) {
     })
   }
 
-  function countAll (n) {
-    return n.hosts.length + n.children.reduce((a, c) => a + countAll(c), 0)
-  }
-
-  // 右键菜单渲染
   function renderMenu () {
     if (!menu) return null
     const { node, view } = menu
@@ -306,7 +299,6 @@ export default function ConnectionManager (props) {
       const targets = groupPaths(store).filter(p => {
         if (isDir) {
           if (p.id === node.id) return false
-          // 排除自己子树:粗略用标题路径判断
           return !p.path.startsWith(menu.node.path + '/')
         }
         return true
@@ -314,12 +306,8 @@ export default function ConnectionManager (props) {
       return (
         <div className='anchor-ctx' style={{ left: menu.x, top: menu.y }} onClick={e => e.stopPropagation()}>
           <div className='cap'>移动到</div>
-          <div onClick={() => { doMove(node, 'default') }}>/(默认分组)</div>
-          {
-            targets.map(t => (
-              <div key={t.id} onClick={() => doMove(node, t.id)}>{t.path}</div>
-            ))
-          }
+          <div onClick={() => doMove(node, 'default')}>/(默认分组)</div>
+          {targets.map(t => <div key={t.id} onClick={() => doMove(node, t.id)}>{t.path}</div>)}
           <div className='sep' />
           <div onClick={() => setMenu({ ...menu, view: 'main' })}>‹ 返回</div>
         </div>
@@ -359,55 +347,38 @@ export default function ConnectionManager (props) {
   }
 
   return (
-    <Modal
-      open={open}
-      onCancel={onClose}
-      footer={null}
-      width={660}
-      styles={{ body: { padding: 0 } }}
-      title='🗂 连接管理器'
-      destroyOnClose
-    >
-      <div className='anchor-mgr'>
-        <div className='mg-tools'>
-          <button className='tl' onClick={() => { setFormHost(null); setFormGroupId(sel && sel.kind === 'dir' ? sel.id : null); setFormOpen(true) }}>＋ 主机</button>
-          <button
-            className='tl' onClick={() => {
-              const parent = sel && sel.kind === 'dir' ? sel.id : 'default'
-              setPendingDir(parent)
-              setExpanded(m => ({ ...m, [parent]: true }))
-            }}
-          >＋ 文件夹
-          </button>
-          <input
-            className='mg-search'
-            placeholder='搜索名称 / IP / 用户…'
-            value={kw}
-            onChange={e => { console.log('[anchor:search-change]', JSON.stringify(e.target.value)); setKw(e.target.value) }}
-          />
-        </div>
-        <div className='mg-tree' ref={treeRef} tabIndex={0}>
-          {
-            renderTree([{
-              kind: 'dir',
-              id: 'root',
-              title: '连接',
-              children: tree,
-              hosts: []
-            }], 0, '')
-          }
-        </div>
-        <div className='mg-foot'>
-          <span>双击主机建立连接</span>
-          <span className='kbd'>↑↓ 选择 · Enter 连接 · F2 重命名 · Del 删除</span>
-          <label>
-            <input
-              type='checkbox'
-              defaultChecked
-              onChange={e => { closeAfterRef.current = e.target.checked }}
-            /> 连接后关闭窗口
-          </label>
-        </div>
+    <aside className='host-sidebar'>
+      <div className='hs-search'>
+        <Search size={14} />
+        <input
+          placeholder='搜索主机'
+          value={kw}
+          onChange={e => setKw(e.target.value)}
+        />
+      </div>
+      <div className='hs-tree' ref={treeRef} tabIndex={0}>
+        {
+          renderTree([{
+            kind: 'dir',
+            id: 'root',
+            title: '主机',
+            children: tree,
+            hosts: []
+          }], 0, '')
+        }
+      </div>
+      <div className='hs-foot'>
+        <button onClick={() => { setFormHost(null); setFormGroupId(sel && sel.kind === 'dir' ? sel.id : null); setFormOpen(true) }}>
+          <Plus size={14} /> 新建主机
+        </button>
+        <button onClick={() => {
+          const parent = sel && sel.kind === 'dir' ? sel.id : 'default'
+          setPendingDir(parent)
+          setExpanded(m => ({ ...m, [parent]: true }))
+        }}
+        >
+          <FolderPlus size={14} /> 新建分组
+        </button>
       </div>
       {renderMenu()}
       <BookmarkFormDrawer
@@ -417,7 +388,7 @@ export default function ConnectionManager (props) {
         store={store}
         onClose={() => setFormOpen(false)}
       />
-    </Modal>
+    </aside>
   )
 }
 
@@ -441,7 +412,7 @@ function InlineInput ({ initial, onCommit, onCancel, autoFocus, placeholder }) {
         if (e.key === 'Enter') onCommit(v)
         if (e.key === 'Escape') onCancel()
       }}
-      onBlur={() => onCancel()}
+      onBlur={() => setTimeout(onCancel, 0)}
     />
   )
 }
