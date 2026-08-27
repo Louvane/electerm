@@ -14,9 +14,16 @@ export default auto(function QuickConnect (props) {
   const openIds = new Set(
     store.tabs.filter(t => t.srcId).map(t => t.srcId)
   )
-  // 无历史时回退展示全部主机(按名称排序),消灭空尴尬态
+  const [cleared, setCleared] = React.useState(false)
+  // 无历史时回退展示全部主机(按名称排序),消灭空尴尬态;
+  // 用户主动清空则尊重其意愿,显示引导态直到有新连接/新主机
   const allHosts = store.bookmarks.filter(b => !b.folder)
-  const useAll = recents.length === 0 && allHosts.length > 0
+  const hostCountRef = React.useRef(allHosts.length)
+  if (allHosts.length !== hostCountRef.current) {
+    hostCountRef.current = allHosts.length
+    if (cleared) setCleared(false)
+  }
+  const useAll = recents.length === 0 && allHosts.length > 0 && !cleared
   const rows = useAll
     ? [...allHosts].sort((a, b) => (a.title || '').localeCompare(b.title || ''))
     : recents
@@ -39,9 +46,13 @@ export default auto(function QuickConnect (props) {
           <span className='n'>{rows.length}</span>
           <span className='sp' />
           <button className='hint' onClick={onOpenManager}>全部主机…</button>
-          {
-            !useAll && <button className='hint' onClick={() => { clearRecents(store) }}>清空记录</button>
-          }
+          <button
+            className='hint' onClick={() => {
+              clearRecents(store)
+              if (useAll) setCleared(true)
+            }}
+          >清空记录
+          </button>
         </div>
         {
           rows.length
