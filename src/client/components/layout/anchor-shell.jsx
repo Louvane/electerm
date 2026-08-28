@@ -11,6 +11,7 @@ import ConnectionManager from '../anchor/connection-manager'
 import QuickConnect from '../anchor/quick-connect'
 import TermView from '../anchor/term-view'
 import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
+import SettingsDrawer from '../anchor/settings-drawer'
 import CommandPalette from '../anchor/command-palette'
 import MonitorRail from '../anchor/monitor-rail'
 import { initAnchorTheme, toggleAnchorTheme } from '../anchor/anchor-theme'
@@ -28,6 +29,7 @@ export default auto(function Layout (props) {
   const [formOpen, setFormOpen] = useState(false)
   const [formHost, setFormHost] = useState(null)
   const [cmdOpen, setCmdOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [view, setView] = useState('home') // home=快速连接 | term=终端
   const [theme, setTheme] = useState('dark')
   useEffect(() => {
@@ -54,7 +56,7 @@ export default auto(function Layout (props) {
         <span className='anchor-titlebar-text'>ANCHOR<i>锚点终端</i></span>
       </div>
       <div className='anchor-body'>
-        <MonitorRail store={store} tab={currentTab} />
+        <MonitorRail store={store} tab={currentTab} onOpenSettings={() => setSettingsOpen(true)} />
         <main className='anchor-main'>
           <div className='anchor-tabbar'>
             <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}>📁 连接管理器</button>
@@ -130,6 +132,7 @@ export default auto(function Layout (props) {
         onClose={() => setCmdOpen(false)}
         store={store}
       />
+      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} store={store} />
       <BookmarkFormDrawer
         open={formOpen}
         host={formHost}

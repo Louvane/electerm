@@ -117,7 +117,7 @@ function Spark ({ data, color }) {
 }
 
 export default function MonitorRail (props) {
-  const { store, tab } = props
+  const { store, tab, onOpenSettings } = props
   const [points, setPoints] = useState([])
   const [disk, setDisk] = useState('')
   const [live, setLive] = useState(false)
@@ -276,6 +276,7 @@ export default function MonitorRail (props) {
       <div className='anchor-rail-foot'>
         <div className='anchor-cap'>DISK</div>
         <div className='anchor-kv'><span>/</span><b>{disk || '—'}</b></div>
+        <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'>⚙ 设置</button>
       </div>
     </aside>
   )

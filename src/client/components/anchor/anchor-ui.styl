@@ -899,3 +899,22 @@ body[data-anchor-theme=dark]
   font-size 10px
   margin-left 8px
   font-family "IBM Plex Mono", monospace
+
+// 设置入口(遥测栏底部)
+.anchor-rail-settings
+  width 100%
+  margin-top 12px
+  padding 7px 0
+  border 1px solid var(--line, #2a3547)
+  border-radius 6px
+  background none
+  color var(--fog, #8b98ab)
+  font-size 12px
+  cursor pointer
+  &:hover
+    color var(--amber, #ffb454)
+    border-color var(--amber, #ffb454)
+
+// 设置抽屉:标签略宽,防“退出前确认”换行
+.settings-drawer .fld label
+  width 64px
