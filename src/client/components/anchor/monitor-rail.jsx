@@ -140,6 +140,8 @@ export default function MonitorRail (props) {
           const point = computePoint(prevRef.current, sample)
           point.swap = sample.swapPct
           point.load = sample.load
+          point.memTotalKb = sample.memTotal
+          point.memAvailKb = sample.memAvail
           prevRef.current = sample
           setPoints(pts => [...pts.slice(-(MAX_POINTS - 1)), point])
           setLive(true)
@@ -185,7 +187,9 @@ export default function MonitorRail (props) {
     : '—'
   const cpu = last.cpu == null ? '—' : last.cpu.toFixed(0) + '%'
   const mem = last.mem == null ? '—' : last.mem.toFixed(0) + '%'
-  const memSub = last.mem == null ? '— / —' : `${(last.mem * 0.32).toFixed(1)}G / 32G`
+  const memSub = last.memTotalKb > 0
+    ? `${((last.memTotalKb - last.memAvailKb) / 1048576).toFixed(1)}G / ${(last.memTotalKb / 1048576).toFixed(1)}G`
+    : '— / —'
   const swap = last.swapPct == null ? '—' : last.swapPct.toFixed(0) + '%'
   const rx = last.rxKb == null ? '—' : fmtB(last.rxKb) + '/s'
   const tx = last.txKb == null ? '—' : fmtB(last.txKb) + '/s'
