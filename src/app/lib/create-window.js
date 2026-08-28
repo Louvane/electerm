@@ -32,6 +32,8 @@ exports.createWindow = async function (userConfig) {
     x,
     y,
     fullscreenable: true,
+    // 后台窗口第一击直接作用于内容(否则只激活窗口,点击"无反应")
+    acceptsFirstMouse: true,
     minWidth: minWindowWidth,
     minHeight: minWindowHeight,
     title: packInfo.name,

@@ -125,8 +125,13 @@ export default auto(function Layout (props) {
         store.fullscreen && (
           <button
             className='anchor-fs-exit'
-            title='退出全屏 (alt+f)'
-            onClick={() => store.toggleSessFullscreen(false)}
+            title='退出全屏 (Esc / alt+f)'
+            // onMouseDown 触发:不等 mouseup,避免任何重渲染竞态吞掉 click
+            onMouseDown={e => {
+              e.preventDefault()
+              e.stopPropagation()
+              store.toggleSessFullscreen(false)
+            }}
           >
             ⤡ 退出全屏
           </button>
