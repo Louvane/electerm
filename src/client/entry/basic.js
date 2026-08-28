@@ -7,6 +7,24 @@ import { get as _get } from 'lodash-es'
 import '../common/pre'
 
 const { isDev } = window.et
+// dev 诊断:fetch/XHR 请求 undefined 路径时打印完整调用栈
+if (isDev) {
+  const of = window.fetch
+  window.fetch = function (...args) {
+    const u = String(args[0] || '')
+    if (u.includes('undefined')) {
+      console.warn('[anchor:bad-fetch]', u, new Error('stack').stack)
+    }
+    return of.apply(this, args)
+  }
+  const oo = window.XMLHttpRequest.prototype.open
+  window.XMLHttpRequest.prototype.open = function (m, u, ...rest) {
+    if (String(u).includes('undefined')) {
+      console.warn('[anchor:bad-xhr]', u, new Error('stack').stack)
+    }
+    return oo.call(this, m, u, ...rest)
+  }
+}
 // dev 诊断:资源 404(undefined 路径)时打印元素 + React 组件链
 if (isDev) {
   window.addEventListener('error', e => {
