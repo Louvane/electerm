@@ -33,6 +33,16 @@ export default auto(function Layout (props) {
   useEffect(() => {
     setTheme(initAnchorTheme())
   }, [])
+  // Esc 退出全屏(与右上角按钮、alt+f 三条退出路径)
+  useEffect(() => {
+    const onKey = e => {
+      if (e.key === 'Escape' && store.fullscreen) {
+        store.toggleSessFullscreen(false)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   return (
     <div className='anchor-shell'>
