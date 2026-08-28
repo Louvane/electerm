@@ -3,13 +3,16 @@
     background-position -3000px
   to
     background-position 0px
+// ANCHOR 琥珀风面板 tab(布局不变,仅视觉)
 .type-tab-line
   position absolute
   bottom 0
   left 0
   width 100%
-  height 1px
-  background var(--text-dark)
+  height 2px
+  border-radius 2px
+  background var(--amber, #5c8dff)
+  opacity 0.25
   display none
 .type-tab-txt
   position relative
@@ -19,30 +22,37 @@
   display inline-block
   vertical-align middle
   line-height 30px
-  padding 0 20px 0 0
+  padding 0 16px 0 0
   margin-right 0px
-  font-size 14px
+  font-size 13px
+  letter-spacing 0.5px
+  color #8b98ab
   cursor pointer
+  transition color 0.15s
   &:hover
-  &.active
-    color var(--text-light)
-  &.active
+    color #e8ecf4
     .type-tab-line
       display inline-block
+  &.active
+    color var(--amber, #5c8dff)
+    .type-tab-line
+      display inline-block
+      opacity 1
 
 .is-transporting
   .type-tab.sftp
     .type-tab-line
       display inline-block
-      background linear-gradient(to right, var(--success) 0%, var(--main) 25%, var(--error) 50%, var(--primary) 75%, var(--success) 100%)
+      background linear-gradient(to right, var(--amber, #5c8dff) 0%, transparent 30%, transparent 70%, var(--amber, #5c8dff) 100%)
       animation: rotate 60s infinite linear
 .disable-ssh
   .type-tab.ssh
     display none
 .spliter
-  color var(--text)
+  color #8b98ab
+  transition color 0.15s
   &:hover
-    color var(--text-light)
+    color #e8ecf4
 
 .sessions
   position absolute
@@ -91,15 +101,30 @@
 .not-split-view > .ant-splitter-bar .ant-splitter-bar-dragger
   display none
 
+// 会话图标:统一雾灰/琥珀两态,active 加指示点
 .sess-icon
-  margin-right 10px
+  margin-right 12px
+  position relative
+  transition color 0.15s
+  &:hover
+    color #e8ecf4
   &.active
-    color var(--warn)
+    color var(--amber, #5c8dff)
+  &.active::after
+    content ''
+    position absolute
+    left 50%
+    transform translateX(-50%)
+    bottom -4px
+    width 3px
+    height 3px
+    border-radius 50%
+    background var(--amber, #5c8dff)
 
 .wrap-toggle-icon
 .split-view-toggle
   &.active
-    color var(--success)
+    color var(--amber, #5c8dff)
 // FinalShell 式底部实时监控条
 .monitor-strip
   height 110px
