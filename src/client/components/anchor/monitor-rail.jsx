@@ -195,7 +195,8 @@ export default function MonitorRail (props) {
     <aside className='anchor-rail'>
       <div className='anchor-rail-sec'>
         <div className='anchor-cap'>TARGET{live ? <span className='live-dot' /> : null}</div>
-        <div className='anchor-kv'><span>主机</span><b className='ip' title={userHost}>{userHost}</b></div>
+        <div className='anchor-kv'><span>用户</span><b>{tab && tab.username ? tab.username : '—'}</b></div>
+        <div className='anchor-kv'><span>IP</span><b className='ip' title={userHost}>{tab && tab.host ? tab.host : '—'}</b></div>
         <div className='anchor-kv'><span>运行时间</span><b>{upStr}</b></div>
         <div className='anchor-kv'><span>负载</span><b>{last.load || '—'}</b></div>
         {
