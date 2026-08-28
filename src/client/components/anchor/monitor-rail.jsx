@@ -133,7 +133,7 @@ export default function MonitorRail (props) {
     let timer = null
     const tick = async () => {
       try {
-        const res = await execCmd(pid, STATS_CMD, TIMEOUT)
+        const res = await execCmd(pid, STATS_CMD, TIMEOUT, { silent: true })
         const out = res && typeof res === 'object' && 'stdout' in res ? res.stdout : res
         const sample = parseSample(out)
         if (sample && aliveRef.current) {
@@ -162,7 +162,7 @@ export default function MonitorRail (props) {
     if (!isActive) return undefined
     const tick = async () => {
       try {
-        const res = await execCmd(tab.id, DISK_CMD, TIMEOUT)
+        const res = await execCmd(tab.id, DISK_CMD, TIMEOUT, { silent: true })
         const out = res && typeof res === 'object' && 'stdout' in res ? res.stdout : res
         const f = String(out).trim().split(/\s+/)
         if (f.length >= 4) {
