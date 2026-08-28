@@ -4,6 +4,7 @@
 import { useEffect, useRef } from 'react'
 import { noTerminalBgValue, textTerminalBgValue } from '../../common/constants'
 import { generateMosaicBackground } from './shapes'
+import anchorWatermark from './images/anchor-watermark.png'
 
 const themeDomId = 'css-overwrite-terminal-backgrounds'
 
@@ -105,7 +106,7 @@ async function createGlobalStyle (props) {
   const st = await createBackgroundStyle(props.terminalBackgroundImagePath)
   if (!st) {
     return '#container .session-batch-active .xterm-screen::before {' +
-    'background-image: url("./images/anchor-watermark.png");' +
+    'background-image: url(' + JSON.stringify(anchorWatermark) + ');' +
     '}'
   }
 

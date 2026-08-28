@@ -38,7 +38,7 @@ function handleIndex (req, res) {
   })
 }
 
-function redirect (req, res) {
+function redirect (req, res, next) {
   const {
     name
   } = req.params
@@ -46,7 +46,13 @@ function redirect (req, res) {
     electerm: '/src/client/entry/electerm.jsx',
     worker: '/src/client/entry/worker.js'
   }
-  res.redirect(mapper[name])
+  const to = mapper[name]
+  // 未知名字(如静态资源)放行给后续中间件,否则 redirect(undefined) 会变成
+  // 对 /images/undefined 的二次请求 + express "Url must be a string" 弃用警告
+  if (!to) {
+    return next()
+  }
+  res.redirect(to)
 }
 
 async function createServer () {
