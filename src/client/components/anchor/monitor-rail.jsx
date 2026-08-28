@@ -10,7 +10,8 @@ import { execCmd } from '../terminal/terminal-apis'
 const INTERVAL = 2000
 const TIMEOUT = 4000
 const MAX_POINTS = 60
-const STATS_CMD = 'cat /proc/stat /proc/meminfo /proc/net/dev /proc/loadavg 2>/dev/null | head -120'
+// loadavg/uptime 放最前,防 net/dev 行多(K8s veth)把 head 配额吃光
+const STATS_CMD = 'cat /proc/loadavg /proc/uptime /proc/stat /proc/meminfo /proc/net/dev 2>/dev/null | head -200'
 const DISK_CMD = 'df -k / 2>/dev/null | tail -1'
 
 function parseInt10 (n) {
@@ -32,6 +33,8 @@ function parseSample (txt) {
   let hasMem = false
   let hasNet = false
   let hasCpu = false
+  sm.swapPct = null
+  sm.uptimeSec = null
   for (const line of String(txt).split('\n')) {
     if (!hasCpu && line.startsWith('cpu ')) {
       const p = line.trim().split(/\s+/).slice(1).map(parseInt10)
@@ -43,6 +46,10 @@ function parseSample (txt) {
     } else if (line.startsWith('MemAvailable:')) {
       sm.memAvail = parseInt10(line.split(/\s+/)[1])
       hasMem = true
+    } else if (line.startsWith('SwapTotal:')) {
+      sm.swapTotal = parseInt10(line.split(/\s+/)[1])
+    } else if (line.startsWith('SwapFree:')) {
+      sm.swapFree = parseInt10(line.split(/\s+/)[1])
     } else if (line.includes(':') && /\d/.test(line) && !line.startsWith('Mem')) {
       const [iface, rest] = line.split(':')
       const f = rest.trim().split(/\s+/)
@@ -53,7 +60,12 @@ function parseSample (txt) {
       }
     } else if (sm.load === '' && /^\d+\.\d+\s+\d+\.\d+\s+\d+\.\d+/.test(line)) {
       sm.load = line.trim().split(/\s+/).slice(0, 3).join(' ')
+    } else if (sm.uptimeSec === null && /^\d+\.\d+\s+\d+\.\d+$/.test(line.trim())) {
+      sm.uptimeSec = parseInt10(line.trim().split(/\s+/)[0])
     }
+  }
+  if (hasMem && sm.swapTotal > 0) {
+    sm.swapPct = (sm.swapTotal - sm.swapFree) * 100 / sm.swapTotal
   }
   if (!hasCpu && !hasMem && !hasNet) return null
   return sm
@@ -93,18 +105,15 @@ function Spark ({ data, color }) {
   }).filter(Boolean).join(' ')
   return (
     <svg width='100%' height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio='none'>
-      <polyline points={pts} fill='none' stroke={color} strokeWidth='1.5' />
+      <polyline points={pts} fill='none' style={{ stroke: color }} strokeWidth='1.5' />
       <circle
         cx={(vals.length - 1) * w / (MAX_POINTS - 1)}
         cy={h - Math.min(vals[vals.length - 1], max) * h / max}
-        r='2.5' fill={color}
+        r='2.5' style={{ fill: color }}
       />
     </svg>
   )
 }
-
-// 会话起始时间(运行时间用)
-const firstSeen = new Map()
 
 export default function MonitorRail (props) {
   const { store, tab } = props
@@ -120,7 +129,6 @@ export default function MonitorRail (props) {
   useEffect(() => {
     if (!isActive) return undefined
     const pid = tab.id
-    if (!firstSeen.has(pid)) firstSeen.set(pid, Date.now())
     aliveRef.current = true
     let timer = null
     const tick = async () => {
@@ -130,6 +138,8 @@ export default function MonitorRail (props) {
         const sample = parseSample(out)
         if (sample && aliveRef.current) {
           const point = computePoint(prevRef.current, sample)
+          point.swap = sample.swapPct
+          point.load = sample.load
           prevRef.current = sample
           setPoints(pts => [...pts.slice(-(MAX_POINTS - 1)), point])
           setLive(true)
@@ -166,37 +176,45 @@ export default function MonitorRail (props) {
   }, [isActive, tab && tab.id])
 
   const last = points[points.length - 1] || {}
-  const up = firstSeen.get(tab && tab.id)
-  const upStr = live && up
-    ? `${Math.floor((Date.now() - up) / 60000)}m ${Math.floor((Date.now() - up) / 1000) % 60}s`
+  const sample = prevRef.current
+  const upSec = sample ? sample.uptimeSec : null
+  const upStr = upSec != null
+    ? (upSec >= 86400
+        ? Math.floor(upSec / 86400) + 'd ' + Math.floor(upSec % 86400 / 3600) + 'h'
+        : Math.floor(upSec / 3600) + 'h ' + Math.floor(upSec % 3600 / 60) + 'm')
     : '—'
   const cpu = last.cpu == null ? '—' : last.cpu.toFixed(0) + '%'
   const mem = last.mem == null ? '—' : last.mem.toFixed(0) + '%'
   const memSub = last.mem == null ? '— / —' : `${(last.mem * 0.32).toFixed(1)}G / 32G`
+  const swap = last.swapPct == null ? '—' : last.swapPct.toFixed(0) + '%'
   const rx = last.rxKb == null ? '—' : fmtB(last.rxKb) + '/s'
   const tx = last.txKb == null ? '—' : fmtB(last.txKb) + '/s'
+  const userHost = tab && tab.username ? tab.username + '@' + tab.host : (tab && tab.host ? tab.host : '—')
 
   return (
     <aside className='anchor-rail'>
       <div className='anchor-rail-sec'>
         <div className='anchor-cap'>TARGET{live ? <span className='live-dot' /> : null}</div>
-        <div className='anchor-kv'><span>主机</span><b className='ip'>{tab && tab.host ? tab.host : '—'}</b></div>
+        <div className='anchor-kv'><span>主机</span><b className='ip' title={userHost}>{userHost}</b></div>
         <div className='anchor-kv'><span>运行时间</span><b>{upStr}</b></div>
         <div className='anchor-kv'><span>负载</span><b>{last.load || '—'}</b></div>
+        {
+          !live && <div className='anchor-hint'>连接后显示遥测</div>
+        }
       </div>
       <div className='anchor-rail-sec'>
         <div className='gauge'>
           <div className='top'><span className='k'>CPU</span><span className='v'>{cpu}</span></div>
-          <div className='rail'><div style={{ width: last.cpu || 0 + '%', background: 'var(--amber,#ffb454)' }} /></div>
+          <div className='rail'><div style={{ width: last.cpu || 0 + '%', background: 'var(--amber,#5c8dff)' }} /></div>
         </div>
         <div className='gauge'>
           <div className='top'><span className='k'>内存</span><span className='v'>{mem}</span></div>
-          <div className='rail'><div style={{ width: last.mem || 0 + '%', background: 'var(--amber,#ffb454)' }} /></div>
+          <div className='rail'><div style={{ width: last.mem || 0 + '%', background: 'var(--amber,#5c8dff)' }} /></div>
           <div className='sub'>{memSub}</div>
         </div>
         <div className='gauge'>
-          <div className='top'><span className='k'>交换</span><span className='v'>—</span></div>
-          <div className='rail'><div style={{ width: 0 }} /></div>
+          <div className='top'><span className='k'>交换</span><span className='v'>{swap}</span></div>
+          <div className='rail'><div style={{ width: last.swapPct || 0 + '%', background: 'var(--amber,#5c8dff)' }} /></div>
         </div>
       </div>
       <div className='anchor-rail-sec'>
@@ -227,14 +245,13 @@ export default function MonitorRail (props) {
                 }
               </div>
               )
-            : <div className='anchor-chart'><Spark data={points.map(p => p[chartMode])} color={chartMode === 'cpu' ? '#f2555a' : '#ffb454'} /></div>
+            : <div className='anchor-chart'><Spark data={points.map(p => p[chartMode])} color={chartMode === 'cpu' ? 'var(--alert,#ff6b6b)' : 'var(--amber,#5c8dff)'} /></div>
         }
       </div>
       <div className='anchor-rail-sec'>
         <div className='anchor-cap'>NETWORK</div>
-        <div className='net-row'><span className='net-dir up'>↑</span><div className='net-rail tx'><div style={{ width: Math.min(100, (last.txKb || 0) / 8) + '%', background: 'var(--alert,#f2555a)' }} /></div><span className='net-val'>{tx}</span></div>
+        <div className='net-row'><span className='net-dir up'>↑</span><div className='net-rail tx'><div style={{ width: Math.min(100, (last.txKb || 0) / 8) + '%', background: 'var(--alert,#ff6b6b)' }} /></div><span className='net-val'>{tx}</span></div>
         <div className='net-row'><span className='net-dir down'>↓</span><div className='net-rail rx'><div style={{ width: Math.min(100, (last.rxKb || 0) / 8) + '%', background: 'var(--signal,#3fd68f)' }} /></div><span className='net-val'>{rx}</span></div>
-        <div className='anchor-kv' style={{ marginTop: 6 }}><span>延迟</span><b>—</b></div>
       </div>
       <div className='anchor-rail-foot'>
         <div className='anchor-cap'>DISK</div>
