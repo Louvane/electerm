@@ -237,12 +237,13 @@ export default function MonitorRail (props) {
             ? (
               <div className='anchor-cmdbox'>
                 {
-                  (store.cmdHistory || []).slice(0, 20).map((c, i) => (
-                    <div key={i}><b>$</b> {c}</div>
-                  ))
+                                  (store.terminalCommandHistory || []).slice(-20).reverse().map(c => (
+                                    <div key={c.id}><b>$</b> {c.cmd}{c.count > 1 ? ` ×${c.count}` : ''}</div>
+                                  ))
+
                 }
                 {
-                  !(store.cmdHistory || []).length && <div style={{ color: 'var(--fog,#8b98ab)' }}>暂无命令记录</div>
+                  !(store.terminalCommandHistory || []).length && <div style={{ color: 'var(--fog,#8b98ab)' }}>暂无命令记录</div>
                 }
               </div>
               )
