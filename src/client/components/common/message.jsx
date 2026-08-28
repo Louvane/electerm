@@ -25,7 +25,7 @@ const notify = (messages) => {
 
 let activeMessages = []
 
-function MessageItem ({ id, type, content, duration, onRemove, timestamp }) {
+function MessageItem ({ id, type, content, duration, onRemove, timestamp, action }) {
   const timeoutIdRef = useRef(null)
 
   useEffect(() => {
@@ -63,6 +63,15 @@ function MessageItem ({ id, type, content, duration, onRemove, timestamp }) {
       <div className='message-content-wrap'>
         {messageIcons[type]}
         <div className='message-content'>{content}</div>
+        {
+          action && (
+            <button
+              className='message-action'
+              onClick={() => { action.onClick && action.onClick(); onRemove && onRemove() }}
+            >{action.label}
+            </button>
+          )
+        }
         <CloseOutlined className='message-close' onClick={onRemove} />
       </div>
     </div>
@@ -105,12 +114,13 @@ const init = () => {
   messageContainerRoot.render(<MessageContainer />)
 }
 
-const addMessage = (type, content, duration = 3, onClose) => {
+const addMessage = (type, content, duration = 3, onClose, action) => {
   let config = {
     content,
     duration,
     onClose,
-    type
+    type,
+    action
   }
   if (typeof content === 'object' && content !== null && !React.isValidElement(content)) {
     config = {
@@ -125,6 +135,7 @@ const addMessage = (type, content, duration = 3, onClose) => {
   const newMessage = {
     ...config,
     id,
+    action: config.action,
     timestamp: Date.now()
   }
   if (existingIndex > -1) {
@@ -143,6 +154,10 @@ const addMessage = (type, content, duration = 3, onClose) => {
 }
 
 const message = {
+  open: (config) => {
+    const { content, duration = 3, action, type = 'info' } = config || {}
+    return addMessage(type, content, duration, null, action)
+  },
   info: (content, duration) => addMessage('info', content, duration),
   success: (content, duration) => addMessage('success', content, duration),
   warning: (content, duration) => addMessage('warning', content, duration),

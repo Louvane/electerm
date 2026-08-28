@@ -9,6 +9,7 @@ import ConnectionManager from '../anchor/connection-manager'
 import QuickConnect from '../anchor/quick-connect'
 import TermView from '../anchor/term-view'
 import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
+import CommandPalette from '../anchor/command-palette'
 import MonitorRail from '../anchor/monitor-rail'
 import { initAnchorTheme, toggleAnchorTheme } from '../anchor/anchor-theme'
 import './anchor.styl'
@@ -24,6 +25,7 @@ export default auto(function Layout (props) {
   const [mgrOpen, setMgrOpen] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [formHost, setFormHost] = useState(null)
+  const [cmdOpen, setCmdOpen] = useState(false)
   const [view, setView] = useState('home') // home=快速连接 | term=终端
   const [theme, setTheme] = useState('dark')
   useEffect(() => {
@@ -36,12 +38,12 @@ export default auto(function Layout (props) {
         <span className='anchor-titlebar-text'>ANCHOR<i>锚点终端</i></span>
       </div>
       <div className='anchor-body'>
-      <MonitorRail store={store} tab={currentTab} />
-      <main className='anchor-main'>
-        <div className='anchor-tabbar'>
-          <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}>📁 连接管理器</button>
-          <div className='anchor-tabs'>
-            {
+        <MonitorRail store={store} tab={currentTab} />
+        <main className='anchor-main'>
+          <div className='anchor-tabbar'>
+            <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}>📁 连接管理器</button>
+            <div className='anchor-tabs'>
+              {
               tabs.map(t => {
                 return (
                   <div
@@ -55,19 +57,26 @@ export default auto(function Layout (props) {
                 )
               })
             }
+            </div>
+            <button className='anchor-newtab' title='快速连接' onClick={() => setView('home')}>+</button>
+            <div className='anchor-spacer' />
+            <button
+              className='anchor-theme-btn'
+              title='常用命令'
+              onClick={() => setCmdOpen(true)}
+            >
+              ⚡ 命令
+            </button>
+            <button
+              className='anchor-theme-btn'
+              title='切换昼夜主题'
+              onClick={() => setTheme(toggleAnchorTheme())}
+            >
+              {theme === 'light' ? '☾ 黑夜' : '☀ 白天'}
+            </button>
           </div>
-          <button className='anchor-newtab' title='快速连接' onClick={() => setView('home')}>+</button>
-          <div className='anchor-spacer' />
-          <button
-            className='anchor-theme-btn'
-            title='切换昼夜主题'
-            onClick={() => setTheme(toggleAnchorTheme())}
-          >
-            {theme === 'light' ? '☾ 黑夜' : '☀ 白天'}
-          </button>
-        </div>
-        <div className='anchor-content'>
-          {
+          <div className='anchor-content'>
+            {
             view === 'term' && store.tabs.length
               ? <TermView store={store} />
               : (
@@ -79,8 +88,8 @@ export default auto(function Layout (props) {
                 />
                 )
           }
-        </div>
-      </main>
+          </div>
+        </main>
       </div>
       <ConnectionManager
         open={mgrOpen}
@@ -88,6 +97,11 @@ export default auto(function Layout (props) {
         store={store}
         onNewHost={() => { setFormHost(null); setFormOpen(true) }}
         onConnect={() => setView('term')}
+      />
+      <CommandPalette
+        open={cmdOpen}
+        onClose={() => setCmdOpen(false)}
+        store={store}
       />
       <BookmarkFormDrawer
         open={formOpen}

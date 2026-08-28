@@ -557,3 +557,332 @@ body[data-anchor-theme=dark]
   &:hover
     color var(--amber, #ffb454)
     border-color var(--amber, #ffb454)
+
+// 命令面板:编辑表单 + 行内操作
+.cp-row
+  display flex
+  align-items center
+  gap 8px
+  min-width 0
+  .cp-name
+    flex 1
+    min-width 0
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+.cp-ops
+  display flex
+  gap 6px
+  opacity 0
+  transition opacity 0.12s
+  color var(--fog, #9aa0b5)
+  font-size 11px
+.cp-item:hover .cp-ops
+  opacity 1
+  .anticon:hover
+    color var(--amber, #5c8dff)
+  .anticon:last-child:hover
+    color var(--alert, #f2555a)
+.cp-edit
+  border 1px solid var(--line, #34374f)
+  border-radius 8px
+  padding 8px
+  margin 4px 0
+  display flex
+  flex-direction column
+  gap 6px
+  background var(--ink1, #151c28)
+  input
+    border 1px solid var(--line, #34374f)
+    border-radius 5px
+    padding 5px 8px
+    outline none
+    background var(--ink0, #0f141d)
+    color var(--snow, #e8ebf4)
+    font-size 12px
+    &:focus
+      border-color var(--wave, #5aa9e6)
+  .cp-edit-cmd
+    font-family "IBM Plex Mono", monospace
+  .cp-edit-ops
+    display flex
+    gap 8px
+    justify-content flex-end
+    button
+      border 1px solid var(--line, #34374f)
+      border-radius 5px
+      background none
+      color var(--snow, #e8ebf4)
+      font-size 11.5px
+      padding 3px 10px
+      cursor pointer
+      &:hover
+        border-color var(--amber, #5c8dff)
+        color var(--amber, #5c8dff)
+
+// 命令面板
+.cmd-palette
+  position fixed
+  inset 0
+  background rgba(5, 8, 13, 0.45)
+  z-index 100
+  display flex
+  justify-content center
+  align-items flex-start
+  padding-top 12vh
+.cmd-palette-box
+  width 520px
+  max-width 90vw
+  max-height 60vh
+  background var(--ink2, #2a2d45)
+  border 1px solid var(--line, #34374f)
+  border-radius 12px
+  box-shadow var(--shadow, 0 8px 28px rgba(10, 12, 24, 0.45))
+  display flex
+  flex-direction column
+  overflow hidden
+  animation cp-pop 0.15s ease
+@keyframes cp-pop
+  from
+    opacity 0
+    transform translateY(-8px) scale(0.98)
+  to
+    opacity 1
+    transform none
+.cp-head
+  display flex
+  align-items center
+  gap 10px
+  padding 12px 16px
+  border-bottom 1px solid var(--line, #34374f)
+  .cp-search
+    flex 1
+    border none
+    outline none
+    background transparent
+    color var(--snow, #e8ebf4)
+    font-size 13px
+  .cp-close
+    color var(--fog, #9aa0b5)
+    cursor pointer
+    padding 2px 6px
+    border-radius 4px
+    &:hover
+      color var(--snow, #e8ebf4)
+      background var(--ink1, #151c28)
+.cp-list
+  flex 1
+  overflow-y auto
+  padding 6px
+.cp-item
+  padding 8px 10px
+  border-radius 7px
+  cursor pointer
+  &:hover
+    background var(--ink1, #151c28)
+  .cp-name
+    color var(--snow, #e8ebf4)
+    font-size 12.5px
+    margin-bottom 2px
+  .cp-cmd
+    color var(--fog, #9aa0b5)
+    font-size 11px
+    white-space nowrap
+    overflow hidden
+    text-overflow ellipsis
+.cp-empty
+  text-align center
+  padding 30px 0
+  color var(--fog, #9aa0b5)
+  font-size 12px
+  .cp-manage
+    margin-top 8px
+    color var(--amber, #5c8dff)
+    background none
+    border none
+    cursor pointer
+    font-size 12px
+.cp-foot
+  display flex
+  align-items center
+  justify-content space-between
+  padding 9px 16px
+  border-top 1px solid var(--line, #34374f)
+  color var(--fog, #9aa0b5)
+  font-size 11px
+  .cp-manage
+    display flex
+    align-items center
+    gap 5px
+    color var(--fog, #9aa0b5)
+    background none
+    border none
+    cursor pointer
+    font-size 11.5px
+    &:hover
+      color var(--amber, #5c8dff)
+
+// 右键菜单
+.anchor-ctx
+  position fixed
+  z-index 1000
+  background var(--ink2, #2a2d45)
+  border 1px solid var(--line, #34374f)
+  border-radius 10px
+  box-shadow var(--shadow, 0 8px 28px rgba(10, 12, 24, 0.45))
+  min-width 150px
+  padding 5px
+  div
+    padding 6px 14px
+    cursor pointer
+    color var(--snow, #e6edf5)
+    font-size 12.5px
+    border-radius 4px
+    display flex
+    align-items center
+    gap 8px
+    &:hover
+      background var(--ink1, #151c28)
+      color var(--amber, #ffb454)
+    .sub
+      margin-left auto
+      color var(--fog, #8b98ab)
+      font-size 10px
+    &.danger:hover
+      color var(--alert, #f2555a)
+    &.sep
+      height 1px
+      background var(--line, #2a3547)
+      margin 4px 6px
+      padding 0
+      cursor default
+    &.cap
+      font-size 10px
+      color var(--fog, #8b98ab)
+      letter-spacing 1px
+      padding 4px 14px 2px
+      cursor default
+      font-family "IBM Plex Mono", monospace
+
+// ===== 动画层(P6.5)=====
+// 视图/页面切入
+.anchor-content > *
+  animation anchor-fade-in 0.18s ease
+@keyframes anchor-fade-in
+  from
+    opacity 0
+    transform translateY(4px)
+  to
+    opacity 1
+    transform none
+
+// 右键菜单弹入
+.anchor-ctx
+  animation ctx-pop 0.12s ease
+@keyframes ctx-pop
+  from
+    opacity 0
+    transform scale(0.96)
+  to
+    opacity 1
+    transform none
+
+// 列表行渐入(快速连接/管理器树首层)
+.qc-row
+  animation row-in 0.2s ease both
+@keyframes row-in
+  from
+    opacity 0
+    transform translateX(-6px)
+  to
+    opacity 1
+    transform none
+
+// 尊重减弱动效偏好
+@media (prefers-reduced-motion: reduce)
+  .anchor-content > *
+  .anchor-ctx
+  .qc-row
+    animation none !important
+
+// 弹框 header:去掉 antd 默认底色横带,✕ 对齐
+body[data-anchor-theme=dark]
+  .ant-modal-header
+    background transparent !important
+    border-bottom none !important
+  .ant-modal-title
+    color var(--snow, #e8ebf4) !important
+  .ant-modal-content
+    background var(--ink2, #2a2d45) !important
+  .ant-modal-close
+    top 14px !important
+    right 14px !important
+    color var(--fog, #9aa0b5) !important
+    &:hover
+      color var(--snow, #e8ebf4) !important
+      background var(--ink1, #22243a) !important
+
+// ===== 溢出防御(同类问题清扫)=====
+// 树节点:长主机名/路径不挤压同行元素
+.tnode
+  min-width 0
+  .lbl
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+    min-width 0
+  .cnt
+    flex-shrink 0
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+    max-width 140px
+  .usr
+    flex-shrink 0
+// 右键菜单项:长分组路径截断
+.anchor-ctx div
+  max-width 280px
+  white-space nowrap
+  overflow hidden
+  text-overflow ellipsis
+// 表单抽屉字段
+.fld
+  input, select
+    min-width 0
+.jump-row
+  select
+    min-width 0
+// 快速连接行:IP 可收缩
+.qc-row
+  min-width 0
+  .ip
+    min-width 0
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+// 页头允许换行
+.home-head
+  flex-wrap wrap
+
+.qc-row .usr
+  overflow hidden
+  text-overflow ellipsis
+  white-space nowrap
+
+.anchor-hint
+  font-size 10px
+  color var(--fog, #9aa0b5)
+  opacity 0.7
+  margin-top 4px
+
+.anchor-hint
+  font-size 10px
+  color var(--fog, #9aa0b5)
+  opacity 0.7
+  margin-top 4px
+
+.anchor-hint
+  font-size 10px
+  color var(--fog, #9aa0b5)
+  opacity 0.7
+  margin-top 4px

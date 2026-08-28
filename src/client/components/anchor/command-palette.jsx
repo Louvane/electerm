@@ -5,12 +5,14 @@
  */
 import React, { useState, useEffect, useRef } from 'react'
 import { auto } from 'manate/react'
-import { SettingOutlined, CloseOutlined, ThunderboltOutlined } from '@ant-design/icons'
+import { CloseOutlined, ThunderboltOutlined, FormOutlined, EditOutlined } from '@ant-design/icons'
 import message from '../common/message'
+import { addQuickCommand, editQuickCommand, delQuickCommand } from './anchor-qm-api'
 
 export default auto(function CommandPalette (props) {
   const { open, onClose, store } = props
   const [kw, setKw] = useState('')
+  const [editing, setEditing] = useState(null)
   const inputRef = useRef(null)
 
   useEffect(() => {
@@ -35,6 +37,38 @@ export default auto(function CommandPalette (props) {
     onClose()
   }
 
+  function saveEditing () {
+    const command = (editing.command || '').trim()
+    if (!command) { message.warning('命令不能为空'); return }
+    const name = (editing.name || '').trim() || command
+    if (editing.id) {
+      editQuickCommand(store, editing.id, { name, command })
+      message.success('已保存')
+    } else {
+      addQuickCommand(store, { name, command })
+      message.success('已添加')
+    }
+    setEditing(null)
+  }
+
+  function delCmd (id, e) {
+    console.log('[anchor:delCmd]', id)
+    e.stopPropagation()
+    const q = (store.quickCommands || []).find(x => x.id === id)
+    delQuickCommand(store, { id })
+    message.open({
+      duration: 5,
+      content: '已删除 ' + (q ? (q.name || q.command) : ''),
+      action: {
+        label: '撤销',
+        onClick: () => {
+          addQuickCommand(store, q)
+          message.success('已恢复')
+        }
+      }
+    })
+  }
+
   if (!open) return null
 
   return (
@@ -57,6 +91,33 @@ export default auto(function CommandPalette (props) {
         </div>
         <div className='cp-list'>
           {
+            editing && (
+              <div className='cp-edit'>
+                <input
+                  className='cp-edit-name'
+                  placeholder='名称'
+                  value={editing.name}
+                  onChange={e => setEditing(ed => ({ ...ed, name: e.target.value }))}
+                  onKeyDown={e => e.key === 'Escape' && setEditing(null)}
+                />
+                <input
+                  className='cp-edit-cmd mono'
+                  placeholder='命令,如 df -h'
+                  value={editing.command}
+                  onChange={e => setEditing(ed => ({ ...ed, command: e.target.value }))}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') saveEditing()
+                    if (e.key === 'Escape') setEditing(null)
+                  }}
+                />
+                <div className='cp-edit-ops'>
+                  <button onClick={saveEditing}>保存 (Enter)</button>
+                  <button onClick={() => setEditing(null)}>取消 (Esc)</button>
+                </div>
+              </div>
+            )
+          }
+          {
             cmds.length
               ? cmds.map(q => (
                 <div
@@ -65,26 +126,32 @@ export default auto(function CommandPalette (props) {
                   onClick={() => run(q.id)}
                   title={(q.command || '')}
                 >
-                  <div className='cp-name'>{q.name || '未命名'}</div>
+                  <div className='cp-row'>
+                    <div className='cp-name'>{q.name || '未命名'}</div>
+                    <span className='cp-ops'>
+                      <EditOutlined
+                        onClick={(e) => { e.stopPropagation(); setEditing({ id: q.id, name: q.name || '', command: q.command || '' }) }}
+                      />
+                      <CloseOutlined onClick={(e) => delCmd(q.id, e)} />
+                    </span>
+                  </div>
                   <div className='cp-cmd mono'>{q.command}</div>
                 </div>
               ))
               : (
                 <div className='cp-empty'>
                   <div>{(store.quickCommands || []).length ? '无匹配命令' : '还没有常用命令'}</div>
-                  <button className='cp-manage' onClick={() => { onClose(); window.store.openSettingModal(); window.store.settingTab = 'quickCommands' }}>
-                    去添加
+                  <button className='cp-manage' onClick={() => setEditing({ id: null, name: '', command: '' })}>
+                    新建命令
                   </button>
                 </div>
                 )
           }
         </div>
         <div className='cp-foot'>
-          <span>点击命令发送到当前终端</span>
-          <button
-            className='cp-manage'
-            onClick={() => { onClose(); window.store.openSettingModal(); window.store.settingTab = 'quickCommands' }}
-          ><SettingOutlined /> 管理
+          <span>点击发送到当前终端 · Enter 执行首个</span>
+          <button className='cp-manage' onClick={() => setEditing({ id: null, name: '', command: '' })}>
+            <FormOutlined /> 新建命令
           </button>
         </div>
       </div>

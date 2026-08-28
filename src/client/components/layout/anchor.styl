@@ -159,3 +159,26 @@
   flex 1
   display flex
   min-height 0
+
+// 多标签:横向滚动 + 不收缩
+.anchor-tabs
+  flex 0 1 auto
+  min-width 0
+  overflow-x auto
+  overflow-y hidden
+  scrollbar-width none
+  &::-webkit-scrollbar
+    display none
+.anchor-tab
+  flex-shrink 0
+  span
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+.anchor-mgr-btn
+.anchor-newtab
+.anchor-theme-btn
+  flex-shrink 0
+  white-space nowrap
+.anchor-tabbar
+  overflow hidden
