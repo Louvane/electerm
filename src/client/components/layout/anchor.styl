@@ -184,6 +184,8 @@
   overflow hidden
 
 // 全屏退出浮钮(native 红绿灯之上层级;termSearchBox z 30)
+// 注意:窗口是 transparent:true,macOS 对低 alpha 像素做穿透命中,
+// 此按钮禁止任何元素级 opacity/低透明底,否则真机点击穿透(e2e 测不出)
 .anchor-fs-exit
   position fixed
   top 8px
@@ -193,16 +195,15 @@
   height 26px
   padding 0 12px
   font-size 12px
-  color #8b98ab
-  background rgba(13, 17, 26, 0.72)
-  border 1px solid rgba(92, 141, 255, 0.25)
+  color #cfd6e4
+  background #10141d
+  border 1px solid #2a3446
   border-radius 6px
   cursor pointer
-  opacity 0.35
   transition all 0.15s
   &:hover
-    opacity 1
-    color var(--amber, #5c8dff)
+    color #0b0f16
+    background var(--amber, #5c8dff)
     border-color var(--amber, #5c8dff)
 
 // 全屏时终端下移,避开 macOS 原生红绿灯(native 控件永远在 DOM 之上)
