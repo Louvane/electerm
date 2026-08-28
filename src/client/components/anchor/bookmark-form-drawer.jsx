@@ -76,9 +76,9 @@ export default function BookmarkFormDrawer (props) {
       open={open}
       onClose={onClose}
       zIndex={1100}
-      width={410}
+      styles={{ wrapper: { width: 410 } }}
       title={host ? '编辑主机 — ' + (host.title || '') : '新建主机'}
-      destroyOnClose
+      destroyOnHidden
       footer={
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <button className='anchor-btn' onClick={onClose}>取消</button>

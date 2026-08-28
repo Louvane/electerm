@@ -366,7 +366,7 @@ export default function ConnectionManager (props) {
       width={660}
       styles={{ body: { padding: 0 } }}
       title='🗂 连接管理器'
-      destroyOnClose
+      destroyOnHidden
     >
       <div className='anchor-mgr'>
         <div className='mg-tools'>

@@ -22,6 +22,8 @@ const globalState = require('./glob-state')
 const webviewHandler = require('./webview-handler')
 
 exports.createWindow = async function (userConfig) {
+  // dev 模式屏蔽 electron 安全警告噪音(CSP/unsafe-eval 为 vite dev 需要,打包后无)
+  process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
   globalState.set('closeAction', 'closeApp')
   globalState.set('requireAuth', !!userConfig.hashedPassword)
   const { width, height, x, y } = await getWindowSize()
