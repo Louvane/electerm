@@ -34,14 +34,18 @@ export default auto(function Layout (props) {
     setTheme(initAnchorTheme())
   }, [])
   // Esc 退出全屏(与右上角按钮、alt+f 三条退出路径)
+  // capture 阶段监听:window 捕获是事件链第一环,不被任何 stopPropagation 拦截;
+  // keyCode 27 兜底(IME 下 key 可能变形为 'Process'/229)
   useEffect(() => {
     const onKey = e => {
-      if (e.key === 'Escape' && store.fullscreen) {
+      const isEsc = e.key === 'Escape' || e.keyCode === 27
+      if (isEsc && store.fullscreen) {
+        e.stopPropagation()
         store.toggleSessFullscreen(false)
       }
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
   }, [])
 
   return (
