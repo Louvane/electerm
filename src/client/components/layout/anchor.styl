@@ -206,6 +206,11 @@
     background var(--amber, #5c8dff)
     border-color var(--amber, #5c8dff)
 
+// 全屏时隐藏标题栏:其 -webkit-app-region: drag 拖拽带横贯顶部 40px,
+// 会吞掉落在带内(退出按钮 top:8/搜索框 top:5)的真实点击(Electron 已知
+// 问题:drag 区可穿透覆盖层;CDP/e2e 点击不走原生层故测不出)
+html body .fullscreen .anchor-titlebar
+  display none
 // 全屏时终端下移,避开 macOS 原生红绿灯(native 控件永远在 DOM 之上)
 // pane 类名为 term-wrap-N(N 按布局序,单会话也可能是 2),通配命中
 html body .fullscreen .session-wrap.session-current
