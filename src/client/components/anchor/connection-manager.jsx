@@ -333,7 +333,7 @@ export default function ConnectionManager (props) {
           <div onClick={() => { setMenu(null); setPendingDir(node.id); setExpanded(m => ({ ...m, [node.id]: true })) }}>新建子文件夹</div>
           <div className='sep' />
           <div onClick={() => { setMenu(null); setEditId(node.id); setExpanded(m => ({ ...m, [node.id]: true })) }}>重命名 <span className='sub'>F2</span></div>
-          <div onClick={() => setMenu({ ...menu, view: 'move' })}>移动到 <span className='sub'>›</span></div>
+          <div onClick={() => setMenu({ ...menu, view: 'move' })}>移动到… <span className='sub'>›</span></div>
           <div className='sep' />
           <div className='danger' onClick={() => { setMenu(null); askDelDir(node.id) }}>删除 <span className='sub'>Del</span></div>
         </div>
@@ -345,7 +345,7 @@ export default function ConnectionManager (props) {
         <div onClick={() => { setMenu(null); connect(node.id) }}>连接 <span className='sub'>↵</span></div>
         <div onClick={() => { setMenu(null); setFormHost(selHost(node.id)); setFormOpen(true) }}>编辑</div>
         <div onClick={() => { copyBookmark(store, node.id); setMenu(null); message.success('已创建副本') }}>复制主机</div>
-        <div onClick={() => setMenu({ ...menu, view: 'move' })}>移动到 <span className='sub'>›</span></div>
+        <div onClick={() => setMenu({ ...menu, view: 'move' })}>移动到… <span className='sub'>›</span></div>
         <div className='sep' />
         <div className='danger' onClick={() => { setMenu(null); delHost(node.id) }}>删除 <span className='sub'>Del</span></div>
       </div>

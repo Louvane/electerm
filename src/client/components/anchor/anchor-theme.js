@@ -3,39 +3,34 @@
  * 双主题 token 注入 documentElement,antd 浮层用 CSS 覆盖适配。
  * 持久化 localStorage,首次跟随系统。
  */
-// Termius 风格:深夜蓝 / 清爽浅色,蓝色主 accent,大圆角柔和阴影
 export const ANCHOR_THEMES = {
   dark: {
-    '--ink0': '#1a1c2e',
-    '--ink1': '#22243a',
-    '--ink2': '#2a2d45',
-    '--line': '#34374f',
-    '--fog': '#9aa0b5',
-    '--snow': '#e8ebf4',
-    '--amber': '#5c8dff',
+    '--ink0': '#0f141d',
+    '--ink1': '#151c28',
+    '--ink2': '#1c2534',
+    '--line': '#2a3547',
+    '--fog': '#8b98ab',
+    '--snow': '#e6edf5',
+    '--amber': '#ffb454',
     '--signal': '#3fd68f',
-    '--alert': '#ff6b6b',
-    '--wave': '#5c8dff',
-    '--rail': '#31344e',
-    '--dot': '#454968',
-    '--radius': '10px',
-    '--shadow': '0 8px 28px rgba(10, 12, 24, 0.45)'
+    '--alert': '#f2555a',
+    '--wave': '#5aa9e6',
+    '--rail': '#232d3e',
+    '--dot': '#3a465a'
   },
   light: {
-    '--ink0': '#f3f5fa',
-    '--ink1': '#ffffff',
+    '--ink0': '#eef1f5',
+    '--ink1': '#f7f9fb',
     '--ink2': '#ffffff',
-    '--line': '#e1e6f0',
-    '--fog': '#6b7280',
-    '--snow': '#1d2433',
-    '--amber': '#2b6cee',
-    '--signal': '#18a05c',
-    '--alert': '#e04848',
-    '--wave': '#2b6cee',
-    '--rail': '#e7ebf4',
-    '--dot': '#c9d2e3',
-    '--radius': '10px',
-    '--shadow': '0 6px 24px rgba(29, 36, 51, 0.08)'
+    '--line': '#d4dbe4',
+    '--fog': '#5d6b7e',
+    '--snow': '#1c2634',
+    '--amber': '#b26a00',
+    '--signal': '#1e9e63',
+    '--alert': '#d43741',
+    '--wave': '#2563c4',
+    '--rail': '#d9e0e8',
+    '--dot': '#c3ccd8'
   }
 }
 
