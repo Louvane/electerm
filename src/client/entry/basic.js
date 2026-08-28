@@ -7,6 +7,25 @@ import { get as _get } from 'lodash-es'
 import '../common/pre'
 
 const { isDev } = window.et
+// dev 诊断:资源 404(undefined 路径)时打印元素 + React 组件链
+if (isDev) {
+  window.addEventListener('error', e => {
+    const t = e.target
+    if (!t || !t.tagName || !['IMG', 'LINK', 'SCRIPT'].includes(t.tagName)) return
+    const u = t.src || t.href || ''
+    if (!u.includes('undefined')) return
+    const comp = []
+    try {
+      const k = Object.keys(t).find(k => k.startsWith('__reactFiber$'))
+      let f = k && t[k]
+      while (f && comp.length < 8) {
+        if (f.type && typeof f.type === 'function' && f.type.name) comp.push(f.type.name)
+        f = f.return
+      }
+    } catch (err) {}
+    console.warn('[anchor:bad-asset]', u, '| components:', comp.join(' < ') || 'unknown')
+  }, true)
+}
 const { version } = window.pre.packInfo
 
 async function loadWorker () {

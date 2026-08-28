@@ -69,6 +69,17 @@ export default auto(function Layout (props) {
                   >
                     <span className='dot' />
                     <span>{t.title}</span>
+                    <span
+                      className='anchor-tab-close'
+                      title='关闭'
+                      onClick={e => {
+                        e.stopPropagation()
+                        store.delTab(t.id)
+                        if (store.tabs.length === 0) setView('home')
+                      }}
+                    >
+                      ×
+                    </span>
                   </div>
                 )
               })
