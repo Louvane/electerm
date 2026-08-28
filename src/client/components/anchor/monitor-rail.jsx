@@ -237,13 +237,26 @@ export default function MonitorRail (props) {
             ? (
               <div className='anchor-cmdbox'>
                 {
-                                  (store.terminalCommandHistory || []).slice(-20).reverse().map(c => (
-                                    <div key={c.id}><b>$</b> {c.cmd}{c.count > 1 ? ` ×${c.count}` : ''}</div>
-                                  ))
-
-                }
-                {
-                  !(store.terminalCommandHistory || []).length && <div style={{ color: 'var(--fog,#8b98ab)' }}>暂无命令记录</div>
+                                    (() => {
+                                      // 过滤噪音:空回车/prompt 残片/半截输入/清屏退出
+                                      const NOISE = /^(|clear|exit|logout|\s+|[➜❯~$\s]+)$/i
+                                      const seen = new Set()
+                                      const rows = []
+                                      const hist = store.terminalCommandHistory || []
+                                      for (let i = hist.length - 1; i >= 0 && rows.length < 20; i--) {
+                                        const raw = (hist[i].cmd || '').trim()
+                                        if (!raw || NOISE.test(raw)) continue
+                                        if (seen.has(raw)) continue
+                                        seen.add(raw)
+                                        rows.push({ ...hist[i], cmd: raw })
+                                      }
+                                      if (!rows.length) {
+                                        return <div style={{ color: 'var(--fog,#8b98ab)', padding: '4px 0' }}>暂无有效命令记录</div>
+                                      }
+                                      return rows.map(c => (
+                                        <div key={c.id}><b>$</b> {c.cmd}{c.count > 1 ? <span className='cnt'> ×{c.count}</span> : null}</div>
+                                      ))
+                                    })()
                 }
               </div>
               )

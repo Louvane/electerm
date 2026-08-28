@@ -12,27 +12,62 @@ import { addQuickCommand, editQuickCommand, delQuickCommand } from './anchor-qm-
 export default auto(function CommandPalette (props) {
   const { open, onClose, store } = props
   const [kw, setKw] = useState('')
+  const [selIdx, setSelIdx] = useState(0)
   const [editing, setEditing] = useState(null)
+  const listRef = useRef(null)
   const inputRef = useRef(null)
+
+  const freq = (() => {
+    try { return JSON.parse(window.localStorage.getItem('anchor-cmd-freq') || '{}') } catch (e) { return {} }
+  })()
+  const bumpFreq = (id) => {
+    freq[id] = (freq[id] || 0) + 1
+    window.localStorage.setItem('anchor-cmd-freq', JSON.stringify(freq))
+  }
 
   useEffect(() => {
     if (open) {
       setKw('')
+      setSelIdx(0)
       setTimeout(() => inputRef.current && inputRef.current.focus(), 50)
     }
   }, [open])
 
+  useEffect(() => {
+    const el = listRef.current && listRef.current.querySelector('.cp-item.sel')
+    el && el.scrollIntoView({ block: 'nearest' })
+  }, [selIdx, kw])
+
+  // 键盘导航(搜索框内捕获):↑↓ 选中 / Enter 执行选中
+  function onSearchKey (e) {
+    if (e.key === 'Escape') { onClose(); return }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      const n = cmds.length
+      if (!n) return
+      const i = selIdx >= n ? 0 : selIdx
+      setSelIdx(e.key === 'ArrowDown' ? Math.min(n - 1, i + 1) : Math.max(0, i - 1))
+    } else if (e.key === 'Enter') {
+      if (cmds[selIdx]) run(cmds[selIdx].id)
+    }
+  }
+
   const cmds = (store.quickCommands || []).filter(q => {
     if (!kw) return true
     return ((q.name || '') + (q.command || '')).toLowerCase().includes(kw.toLowerCase())
+  }).sort((a, b) => {
+    const fa = freq[a.id] || 0
+    const fb = freq[b.id] || 0
+    if (fa !== fb) return fb - fa
+    return (a.name || '').localeCompare(b.name || '')
   })
 
   function run (id) {
-    // 需有活动终端标签
     if (!store.tabs.some(t => t.id === store.activeTabId)) {
       message.warning('请先连接一个会话')
       return
     }
+    bumpFreq(id)
     store.runQuickCommandItem(id)
     onClose()
   }
@@ -81,11 +116,8 @@ export default auto(function CommandPalette (props) {
             className='cp-search'
             placeholder='搜索命令…'
             value={kw}
-            onChange={e => setKw(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && cmds.length) run(cmds[0].id)
-              if (e.key === 'Escape') onClose()
-            }}
+            onChange={e => { setKw(e.target.value); setSelIdx(0) }}
+            onKeyDown={onSearchKey}
           />
           <CloseOutlined className='cp-close' onClick={onClose} />
         </div>
@@ -119,10 +151,10 @@ export default auto(function CommandPalette (props) {
           }
           {
             cmds.length
-              ? cmds.map(q => (
+              ? cmds.map((q, i) => (
                 <div
                   key={q.id}
-                  className='cp-item'
+                  className={'cp-item' + (i === Math.min(selIdx, cmds.length - 1) ? ' sel' : '')}
                   onClick={() => run(q.id)}
                   title={(q.command || '')}
                 >
@@ -135,7 +167,10 @@ export default auto(function CommandPalette (props) {
                       <CloseOutlined onClick={(e) => delCmd(q.id, e)} />
                     </span>
                   </div>
-                  <div className='cp-cmd mono'>{q.command}</div>
+                  <div className='cp-cmd mono'>
+                    {q.command}
+                    {freq[q.id] ? <span className='cp-freq'>×{freq[q.id]}</span> : null}
+                  </div>
                 </div>
               ))
               : (
