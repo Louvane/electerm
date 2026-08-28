@@ -111,6 +111,17 @@ export default auto(function Layout (props) {
         store={store}
         onClose={() => setFormOpen(false)}
       />
+      {
+        store.fullscreen && (
+          <button
+            className='anchor-fs-exit'
+            title='退出全屏 (alt+f)'
+            onClick={() => store.toggleSessFullscreen(false)}
+          >
+            ⤡ 退出全屏
+          </button>
+        )
+      }
       <TermSearch
         currentTab={currentTab}
         config={store.config}

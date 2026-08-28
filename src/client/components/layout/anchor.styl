@@ -182,3 +182,31 @@
   white-space nowrap
 .anchor-tabbar
   overflow hidden
+
+// 全屏退出浮钮(native 红绿灯之上层级;termSearchBox z 30)
+.anchor-fs-exit
+  position fixed
+  top 8px
+  right 8px
+  z-index 60
+  height 26px
+  padding 0 12px
+  font-size 12px
+  color #8b98ab
+  background rgba(13, 17, 26, 0.72)
+  border 1px solid rgba(92, 141, 255, 0.25)
+  border-radius 6px
+  cursor pointer
+  opacity 0.35
+  transition all 0.15s
+  &:hover
+    opacity 1
+    color var(--amber, #5c8dff)
+    border-color var(--amber, #5c8dff)
+
+// 全屏时终端下移,避开 macOS 原生红绿灯(native 控件永远在 DOM 之上)
+// pane 类名为 term-wrap-N(N 按布局序,单会话也可能是 2),通配命中
+html body .fullscreen .session-wrap.session-current
+  [class*='term-wrap-']
+    top 40px !important
+    height calc(100% - 40px) !important
