@@ -5,6 +5,8 @@
  */
 import { auto } from 'manate/react'
 import { useState, useEffect } from 'react'
+import { pick } from 'lodash-es'
+import TermSearch from '../terminal/term-search'
 import ConnectionManager from '../anchor/connection-manager'
 import QuickConnect from '../anchor/quick-connect'
 import TermView from '../anchor/term-view'
@@ -108,6 +110,18 @@ export default auto(function Layout (props) {
         host={formHost}
         store={store}
         onClose={() => setFormOpen(false)}
+      />
+      <TermSearch
+        currentTab={currentTab}
+        config={store.config}
+        {...pick(store, [
+          'activeTabId',
+          'termSearchOpen',
+          'termSearch',
+          'termSearchOptions',
+          'termSearchMatchCount',
+          'termSearchMatchIndex'
+        ])}
       />
     </div>
   )
