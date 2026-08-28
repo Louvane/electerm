@@ -89,8 +89,9 @@ function computePoint (prev, cur) {
   return p
 }
 
+// 输入为 KB/s(计算已含 1.024 系数),单位按 K/M 标注
 function fmtB (n) {
-  return n > 1024 ? (n / 1024).toFixed(1) + 'K' : n.toFixed(0) + 'B'
+  return n >= 1024 ? (n / 1024).toFixed(1) + 'M' : n.toFixed(0) + 'K'
 }
 
 function Spark ({ data, color }) {
@@ -210,16 +211,16 @@ export default function MonitorRail (props) {
       <div className='anchor-rail-sec'>
         <div className='gauge'>
           <div className='top'><span className='k'>CPU</span><span className='v'>{cpu}</span></div>
-          <div className='rail'><div style={{ width: last.cpu || 0 + '%', background: 'var(--amber,#5c8dff)' }} /></div>
+          <div className='rail'><div style={{ width: (last.cpu || 0) + '%', background: 'var(--amber,#5c8dff)' }} /></div>
         </div>
         <div className='gauge'>
           <div className='top'><span className='k'>内存</span><span className='v'>{mem}</span></div>
-          <div className='rail'><div style={{ width: last.mem || 0 + '%', background: 'var(--amber,#5c8dff)' }} /></div>
+          <div className='rail'><div style={{ width: (last.mem || 0) + '%', background: 'var(--amber,#5c8dff)' }} /></div>
           <div className='sub'>{memSub}</div>
         </div>
         <div className='gauge'>
           <div className='top'><span className='k'>交换</span><span className='v'>{swap}</span></div>
-          <div className='rail'><div style={{ width: last.swapPct || 0 + '%', background: 'var(--amber,#5c8dff)' }} /></div>
+          <div className='rail'><div style={{ width: (last.swapPct || 0) + '%', background: 'var(--amber,#5c8dff)' }} /></div>
         </div>
       </div>
       <div className='anchor-rail-sec'>
