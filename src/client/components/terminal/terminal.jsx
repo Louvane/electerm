@@ -56,7 +56,6 @@ import { refs, refsStatic } from '../common/ref.js'
 import ExternalLink from '../common/external-link.jsx'
 import createDefaultLogPath from '../../common/default-log-path.js'
 import SearchResultBar from './terminal-search-bar'
-import RemoteFloatControl from '../common/remote-float-control'
 import ReconnectOverlay from './reconnect-overlay.jsx'
 import TerminalErrorHandle from './terminal-error-handle.jsx'
 import {
@@ -2193,7 +2192,7 @@ class Term extends Component {
 
   render () {
     const { loading } = this.state
-    const { height, width, left, top, fullscreen } = this.props
+    const { height, width, left, top } = this.props
     const { id } = this.props.tab
     const isActive = this.isActiveTerminal()
     const cls = classnames(
@@ -2262,9 +2261,8 @@ class Term extends Component {
             close={this.closeNormalBuffer}
           />
           <SearchResultBar {...barProps} />
-          <RemoteFloatControl
-            isFullScreen={fullscreen}
-          />
+          {/* ANCHOR: electerm 的 ⋯ 浮钮在此只有重复的退出全屏菜单,
+          已由 anchor-shell 的「⤡ 退出全屏」按钮(带标签,单击)取代 */}
           <TerminalErrorHandle
             errorMessage={this.state.terminalError?.message}
             showEditBookmarkButton={this.state.terminalError?.from === 'bookmarks' && !!this.state.terminalError?.srcId}
