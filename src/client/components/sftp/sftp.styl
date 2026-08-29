@@ -222,7 +222,7 @@ body[data-anchor-theme=light] .sftp-item.sftp-dragover .sftp-file-prop
   background var(--amber, #b26a00) !important
   color #ffffff !important
 body[data-anchor-theme=light] .file-bg
-  background var(--ink1, #f7f9fb) !important
+  background transparent !important
 
 // 白天文件名单深（补遗）
 body[data-anchor-theme=light] .sftp-item,
@@ -269,3 +269,8 @@ html body[data-anchor-theme=light] .sftp-header-item,
 html body[data-anchor-theme=light] .sftp-file-prop
   color #1c2634 !important
   background #ffffff !important
+
+// 文字层须在 file-bg(z3) 之上,否则被背景盖住
+.sftp-file-prop
+  position relative
+  z-index 4
