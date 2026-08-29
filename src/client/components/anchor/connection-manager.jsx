@@ -36,7 +36,7 @@ export default function ConnectionManager (props) {
   const [kw, setKw] = useState('')
   const [expanded, setExpanded] = useState({ default: true })
   const [sel, setSel] = useState(() => { window._mounts = (window._mounts || 0) + 1; return null }) // {kind:'dir'|'host', id}
-  const [multiSel, setMultiSel] = useState(new Set())
+  const [multiSel, setMultiSel] = useState(new Set()) // Set<kind:id>
   const anchorRef = useRef(null)
   const [editId, setEditId] = useState(null) // 内联重命名的节点 id
   const [pendingDir, setPendingDir] = useState(null) // 内联新建文件夹的父 id
@@ -68,7 +68,6 @@ export default function ConnectionManager (props) {
     }
   }
   if (open) walk(tree, expanded, kw)
-  const flatHosts = flat.filter(n => n.kind === 'host')
 
   const closeMenu = useCallback(() => setMenu(null), [])
   useEffect(() => {
@@ -104,7 +103,7 @@ export default function ConnectionManager (props) {
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
         if (!sel) return
         e.preventDefault()
-        sel.kind === 'host' ? (multiSel.size > 1 && multiSel.has(sel.id) ? delHosts(new Set(multiSel)) : delHost(sel.id)) : askDelDir(sel.id)
+        sel.kind === 'host' ? (multiSel.size > 1 && multiSel.has(`${sel.kind}:${sel.id}`) ? delHosts(new Set(multiSel)) : delHost(sel.id)) : askDelDir(sel.id)
       }
     }
     window.addEventListener('keydown', h)
@@ -134,53 +133,69 @@ export default function ConnectionManager (props) {
     return found || ''
   }
 
-  function handleHostClick (e, id) {
+  function keyOf (node) { return `${node.kind}:${node.id}` }
+  function handleNodeClick (e, node) {
+    const key = keyOf(node)
     const isMulti = e.metaKey || e.ctrlKey
     const isRange = e.shiftKey && anchorRef.current
     if (isRange) {
-      const a = flatHosts.findIndex(n => n.id === anchorRef.current)
-      const b = flatHosts.findIndex(n => n.id === id)
+      const a = flat.findIndex(n => keyOf(n) === anchorRef.current)
+      const b = flat.findIndex(n => keyOf(n) === key)
       if (a >= 0 && b >= 0) {
         const [s0, s1] = a < b ? [a, b] : [b, a]
-        const ids = new Set(flatHosts.slice(s0, s1 + 1).map(n => n.id))
+        const ids = new Set(flat.slice(s0, s1 + 1).map(n => keyOf(n)))
         setMultiSel(ids)
-        setSel({ kind: 'host', id })
+        setSel(node)
         return
       }
     }
     if (isMulti) {
       const ns = new Set(multiSel)
-      if (ns.has(id)) ns.delete(id); else ns.add(id)
-      if (ns.size === 0) { setMultiSel(new Set()); setSel({ kind: 'host', id }); anchorRef.current = id; return }
+      if (ns.has(key)) ns.delete(key); else ns.add(key)
+      if (ns.size === 0) { setMultiSel(new Set()); setSel(node); anchorRef.current = key; return }
       setMultiSel(ns)
-      setSel({ kind: 'host', id })
-      anchorRef.current = id
+      setSel(node)
+      anchorRef.current = key
       return
     }
     setMultiSel(new Set())
-    setSel({ kind: 'host', id })
-    anchorRef.current = id
+    setSel(node)
+    anchorRef.current = key
   }
-  function delHosts (ids) {
-    const arr = [...ids]
-    const hosts = arr.map(id => bookmarks.find(b => b.id === id)).filter(Boolean)
-    if (!hosts.length) return
+  function handleHostClick (e, id) { handleNodeClick(e, { kind: 'host', id }) }
+  function handleDirClick (e, id) { handleNodeClick(e, { kind: 'dir', id }) }
+  function delSelected (keys) {
+    const arr = [...keys]
+    const hosts = []
+    const dirs = []
+    arr.forEach(k => {
+      const [kind, id] = k.split(':')
+      if (kind === 'host') {
+        const h = bookmarks.find(b => b.id === id)
+        if (h) hosts.push(h)
+      } else if (kind === 'dir') dirs.push(id)
+    })
     hosts.forEach(h => delBookmark(store, h.id))
-    const n = hosts.length
+    let dirDel = 0
+    dirs.forEach(id => {
+      const g = store.bookmarkGroups.find(x => x.id === id)
+      if (g && !(g.bookmarkIds || []).length && !(g.bookmarkGroupIds || []).length) { delGroup(store, id); dirDel++ }
+    })
+    const n = hosts.length + dirDel
+    if (!n) { message.info('仅可批量删除主机及空文件夹'); return }
     message.open({
       duration: 5,
       content: (
         <span style={{ display: 'inline-flex', gap: 14, alignItems: 'center' }}>
-          已删除 {n} 台主机
+          已删除 {hosts.length ? `${hosts.length} 台主机` : ''}{hosts.length && dirDel ? '、' : ''}{dirDel ? `${dirDel} 个空文件夹` : ''}
           <button
             style={{ border: 'none', background: 'none', color: '#ffb454', cursor: 'pointer' }}
             onClick={() => {
               hosts.forEach(h => {
                 const gid = getBookmarkGroupId(store, h.id) || 'default'
-                // 恢复时需重建 id 映射：直接 upsert 原对象
                 upsertBookmark(store, h, gid)
               })
-              message.success('已恢复')
+              message.success('已恢复主机')
             }}
           >撤销
           </button>
@@ -188,6 +203,10 @@ export default function ConnectionManager (props) {
       )
     })
     setMultiSel(new Set())
+  }
+  function delHosts (ids) {
+    const keys = new Set([...ids].map(id => `host:${id}`))
+    delSelected(keys)
   }
   function delHost (id) {
     const h = selHost(id)
@@ -264,14 +283,14 @@ export default function ConnectionManager (props) {
       const all = JSON.stringify(n).toLowerCase()
       if (kw && !all.includes(kw.toLowerCase())) return null
       const isOpen = n.id === 'root' ? true : (expanded[n.id] || !!kw)
-      const isSel = sel && sel.kind === 'dir' && sel.id === n.id
+      const isSel = multiSel.has(`dir:${n.id}`) || (sel && sel.kind === 'dir' && sel.id === n.id)
       const empty = !n.children.length && !n.hosts.length && !kw
       return (
         <React.Fragment key={n.id}>
           <div
             className={'tnode' + (isSel ? ' sel' : '')}
             style={{ paddingLeft: depth * 18 + 4 }}
-            onClick={() => { setMultiSel(new Set()); setSel({ kind: 'dir', id: n.id }) }}
+            onClick={(e) => handleDirClick(e, n.id)}
             onContextMenu={(e) => {
               e.preventDefault()
               setSel({ kind: 'dir', id: n.id })
@@ -313,7 +332,7 @@ export default function ConnectionManager (props) {
                 {renderTree(n.children, depth + 1, p)}
                 {
                   n.hosts.map(h => {
-                    const hostSel = multiSel.has(h.id) || (sel && sel.kind === 'host' && sel.id === h.id)
+                    const hostSel = multiSel.has(`host:${h.id}`) || (sel && sel.kind === 'host' && sel.id === h.id)
                     const editing = editId === h.id
                     return (
                       <div
@@ -324,7 +343,7 @@ export default function ConnectionManager (props) {
                         onDoubleClick={() => connect(h.id)}
                         onContextMenu={(e) => {
                           e.preventDefault()
-                          if (!multiSel.has(h.id)) handleHostClick(e, h.id)
+                          if (!multiSel.has(`host:${h.id}`)) handleHostClick(e, h.id)
                           setMenu({ x: e.clientX, y: e.clientY, node: { kind: 'host', id: h.id }, view: 'main' })
                         }}
                       >
@@ -393,7 +412,9 @@ export default function ConnectionManager (props) {
           <div onClick={() => { setMenu(null); setEditId(node.id); setExpanded(m => ({ ...m, [node.id]: true })) }}>重命名 <span className='sub'>F2</span></div>
           <div onClick={() => setMenu({ ...menu, view: 'move' })}>移动到… <span className='sub'>›</span></div>
           <div className='sep' />
-          <div className='danger' onClick={() => { setMenu(null); askDelDir(node.id) }}>删除 <span className='sub'>Del</span></div>
+          {multiSel.size > 1 && multiSel.has(`dir:${node.id}`)
+            ? <div className='danger' onClick={() => { setMenu(null); delSelected(new Set(multiSel)) }}>删除 ({[...multiSel].filter(k => k.startsWith('host:')).length + [...multiSel].filter(k => k.startsWith('dir:')).length}) <span className='sub'>Del</span></div>
+            : <div className='danger' onClick={() => { setMenu(null); askDelDir(node.id) }}>删除 <span className='sub'>Del</span></div>}
         </div>
       )
     }
@@ -405,7 +426,7 @@ export default function ConnectionManager (props) {
         <div onClick={() => { copyBookmark(store, node.id); setMenu(null); message.success('已创建副本') }}>复制主机</div>
         <div onClick={() => setMenu({ ...menu, view: 'move' })}>移动到… <span className='sub'>›</span></div>
         <div className='sep' />
-        {multiSel.size > 1 && multiSel.has(node.id)
+        {multiSel.size > 1 && multiSel.has(`${node.kind}:${node.id}`)
           ? <div className='danger' onClick={() => { setMenu(null); delHosts(new Set(multiSel)) }}>删除 ({multiSel.size}) <span className='sub'>Del</span></div>
           : <div className='danger' onClick={() => { setMenu(null); delHost(node.id) }}>删除 <span className='sub'>Del</span></div>}
       </div>
