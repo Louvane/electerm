@@ -60,7 +60,7 @@ export default auto(function QuickConnect (props) {
             ? rows.map(h => {
               return (
                 <div
-                  key={h.historyId}
+                  key={h.historyId || h.id}
                   className={'qc-row' + (openIds.has(bidOf(h)) ? ' open' : '')}
                   onDoubleClick={() => {
                     const bid = bidOf(h)
