@@ -1457,8 +1457,17 @@ class Term extends Component {
   }
 
   getRendererThemeConfig = (themeConfig = this.props.themeConfig) => {
+    const isLight = document.body?.dataset?.anchorTheme === 'light'
+    const cfg = deepCopy(themeConfig)
+    if (isLight) {
+      // 白天纸白黑字，保证白底可读（不改用户存的 preset，仅渲染层覆盖）
+      cfg.foreground = '#1c2634'
+      cfg.background = '#ffffff'
+      cfg.cursor = cfg.cursor || '#b26a00'
+      cfg.selectionBackground = cfg.selectionBackground || 'rgba(178,106,0,0.2)'
+    }
     return createRendererThemeConfig(
-      deepCopy(themeConfig),
+      cfg,
       this.props.config.rendererType,
       this.getVisibleTerminalBackground()
     )
