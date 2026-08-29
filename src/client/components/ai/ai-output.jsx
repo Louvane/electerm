@@ -1,7 +1,4 @@
 import { useRef, useEffect } from 'react'
-import ReactMarkdown from 'react-markdown'
-import { copy } from '../../common/clipboard'
-import Link from '../common/external-link'
 import { Tag, Popconfirm, Button, Alert } from 'antd'
 import {
   CopyOutlined,
@@ -10,9 +7,10 @@ import {
   FlagFilled
 } from '@ant-design/icons'
 import getBrand from './get-brand'
+import { copy } from '../../common/clipboard'
+import Link from '../common/external-link'
 
 const e = window.translate
-
 const enableAIFlag = !!(window.et && window.et.enableAIFlag)
 
 export default function AIOutput ({ item }) {
@@ -36,79 +34,15 @@ export default function AIOutput ({ item }) {
 
   const { brand, brandUrl } = getBrand(baseURLAI)
 
-  const renderCode = (props) => {
-    const { node, className = '', children, ...rest } = props
-    const code = String(children).replace(/\n$/, '')
-    const inline = !className.includes('language-')
-    if (inline) {
-      return (
-        <code className={className} {...props}>
-          {children}
-        </code>
-      )
-    }
-
-    const copyToClipboard = () => {
-      copy(code)
-    }
-
-    const runInTerminal = () => {
-      // Filter out comments from the code before running
-      const filteredCode = code
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => {
-          // Remove empty lines and comments
-          if (!line) {
-            return false
-          }
-          if (line.startsWith('#')) {
-            return false
-          }
-          return true
-        })
-        .join('\n') // Join multiple commands with &&
-
-      if (filteredCode) {
-        window.store.runCommandInTerminal(filteredCode)
-      }
-    }
-
-    return (
-      <div className='code-block'>
-        <div className='code-block-actions alignright'>
-          <CopyOutlined
-            className='code-action-icon pointer iblock'
-            onClick={copyToClipboard}
-            title={e('copy')}
-          />
-          <PlayCircleOutlined
-            className='code-action-icon pointer mg1l iblock'
-            onClick={runInTerminal}
-          />
-        </div>
-        <pre>
-          <code className={className} {...rest}>
-            {children}
-          </code>
-        </pre>
-      </div>
-    )
-  }
-
   function handleToggleFlag () {
     const index = window.store.aiChatHistory.findIndex(i => i.id === item.id)
-    if (index === -1) {
-      return
-    }
+    if (index === -1) return
     window.store.aiChatHistory[index].flagged = !window.store.aiChatHistory[index].flagged
     window.store.aiChatHistory = [...window.store.aiChatHistory]
   }
 
   function renderFlag () {
-    if (!enableAIFlag) {
-      return null
-    }
+    if (!enableAIFlag) return null
     return (
       <div className={'ai-stream-output-flag' + (item.flagged ? ' is-flagged' : '')}>
         <Popconfirm
@@ -129,9 +63,7 @@ export default function AIOutput ({ item }) {
   }
 
   function renderBrand () {
-    if (!brand) {
-      return null
-    }
+    if (!brand) return null
     const nameLabel = nameAI || modelAI
     const label = nameLabel ? `${brand}:${nameLabel}` : brand
     return (
@@ -143,13 +75,7 @@ export default function AIOutput ({ item }) {
     )
   }
 
-  const mdProps = {
-    children: response,
-    components: {
-      code: renderCode
-    }
-  }
-
+  // slim: render markdown as plain text to drop react-markdown dep
   return (
     <div className='ai-stream-output' ref={outputRef}>
       {renderFlag()}
@@ -159,7 +85,7 @@ export default function AIOutput ({ item }) {
           : (
             <>
               {renderBrand()}
-              <ReactMarkdown {...mdProps} />
+              <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{response}</pre>
             </>
             )}
       </div>

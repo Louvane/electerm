@@ -3,7 +3,8 @@
  */
 
 const fs = require('original-fs')
-const tar = require('tar')
+let tar
+try { tar = require('tar') } catch (e) { tar = null }
 const _ = require('../lib/lodash.js')
 const log = require('../common/log')
 
@@ -105,6 +106,7 @@ class Transfer {
   }
 
   ssh2ScpFolderTransfer = async (type) => {
+    if (!tar) throw new Error('slim: tar disabled for folder transfer')
     try {
       const remotePath = type === 'download' ? this.srcPath : this.dstPath
       const localPath = type === 'download' ? this.dstPath : this.srcPath

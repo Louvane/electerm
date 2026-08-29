@@ -8,7 +8,18 @@
  * @returns {Object} The loaded module
  */
 function loadModule (type) {
-  return require(`./session-${type}`)
+  try {
+    return require(`./session-${type}`)
+  } catch (e) {
+    // slim: disabled types fallback to ssh stub with clear error
+    if (['rdp', 'vnc', 'spice', 'serial', 'telnet', 'ftp'].includes(type)) {
+      return {
+        session: async () => { throw new Error(`slim: ${type} disabled`) },
+        test: async () => false
+      }
+    }
+    throw e
+  }
 }
 
 /**

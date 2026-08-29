@@ -16,7 +16,6 @@ const TabQuickCommands = lazy(() => import('./tab-quick-commands'))
 const TabSettings = lazy(() => import('./tab-settings'))
 const TabThemes = lazy(() => import('./tab-themes'))
 const TabProfiles = lazy(() => import('./tab-profiles'))
-const TabWidgets = lazy(() => import('./tab-widgets'))
 
 const Loading = () => <div style={{ padding: 20, textAlign: 'center' }}><Spin /></div>
 
@@ -48,7 +47,7 @@ export default auto(function SettingModalWrap (props) {
       shouldConfirmDel: tabsShouldConfirmDel.includes(settingTab),
       list
     }
-    const { bookmarks, bookmarkGroups, widgetInstances } = store
+    const { bookmarks, bookmarkGroups } = store
     const formProps = {
       store,
       formData: settingItem,
@@ -60,7 +59,6 @@ export default auto(function SettingModalWrap (props) {
       ]),
       bookmarkGroups,
       bookmarks,
-      widgetInstancesLength: widgetInstances.length,
       serials: store.serials,
       loaddingSerials: store.loaddingSerials
     }
@@ -104,11 +102,6 @@ export default auto(function SettingModalWrap (props) {
       {
         key: settingMap.profiles,
         label: e(settingMap.profiles),
-        children: null
-      },
-      {
-        key: settingMap.widgets,
-        label: <>{e(settingMap.widgets)} <sup>Beta</sup></>,
         children: null
       }
     ]
@@ -154,13 +147,6 @@ export default auto(function SettingModalWrap (props) {
             settingTab={settingTab}
           />
           <TabProfiles
-            listProps={props0}
-            settingItem={settingItem}
-            formProps={formProps}
-            store={store}
-            settingTab={settingTab}
-          />
-          <TabWidgets
             listProps={props0}
             settingItem={settingItem}
             formProps={formProps}

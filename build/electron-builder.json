@@ -12,6 +12,7 @@
   "asarUnpack": [
     "node_modules/node-pty/build/Release/**"
   ],
+  "compression": "maximum",
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
   "win": {
     "target": [
@@ -30,36 +31,6 @@
       "name": "SSH Protocol",
       "schemes": [
         "ssh"
-      ]
-    },
-    {
-      "name": "Telnet Protocol",
-      "schemes": [
-        "telnet"
-      ]
-    },
-    {
-      "name": "RDP Protocol",
-      "schemes": [
-        "rdp"
-      ]
-    },
-    {
-      "name": "VNC Protocol",
-      "schemes": [
-        "vnc"
-      ]
-    },
-    {
-      "name": "Serial Protocol",
-      "schemes": [
-        "serial"
-      ]
-    },
-    {
-      "name": "Spice Protocol",
-      "schemes": [
-        "spice"
       ]
     },
     {
@@ -96,6 +67,7 @@
     "identity": null
   },
   "dmg": {
+    "format": "UDBZ",
     "contents": [
       {
         "x": 110,

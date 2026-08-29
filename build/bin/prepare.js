@@ -19,6 +19,10 @@ delete pack.standard
 delete pack.files
 delete pack.engines
 delete pack.preferGlobal
+// slim: keep postinstall to prune heavy SM crypto after any work/app npm i (verification extra step)
+pack.scripts = {
+  postinstall: "node -e \"try{require('fs').rmSync('node_modules/sm-crypto-v2',{recursive:true,force:true})}catch(e){};try{require('fs').rmSync('node_modules/@noble',{recursive:true,force:true})}catch(e){};try{require('fs').rmSync('node_modules/node-forge',{recursive:true,force:true})}catch(e){};try{require('fs').rmSync('node_modules/tar',{recursive:true,force:true})}catch(e){};try{require('fs').rmSync('node_modules/node-pty/prebuilds/win32-x64',{recursive:true,force:true})}catch(e){};try{require('fs').rmSync('node_modules/node-pty/prebuilds/win32-arm64',{recursive:true,force:true})}catch(e){};try{require('fs').rmSync('node_modules/node-pty/prebuilds/linux-x64',{recursive:true,force:true})}catch(e){};try{require('fs').rmSync('node_modules/node-pty/prebuilds/linux-arm64',{recursive:true,force:true})}catch(e){};try{require('fs').rmSync('node_modules/node-pty/prebuilds/darwin-x64',{recursive:true,force:true})}catch(e){};\""
+}
 
 if (isWin) {
   delete pack.dependencies['node-bash']
@@ -50,7 +54,7 @@ require('fs').writeFileSync(
   )
 )
 
-exec(`cd work/app && npm i --omit=dev && cd ${cwd}`)
+exec(`cd work/app && npm i --omit=dev --legacy-peer-deps && cd ${cwd}`)
 rm('-rf', 'work/app/node_modules/.bin')
 // Remove axios browser/ESM builds and unnecessary files (keep only lib/ and node CJS)
 rm('-rf', 'work/app/node_modules/axios/dist/esm')
@@ -93,12 +97,26 @@ if (isWin) {
   rm('-rf', 'work/app/node_modules/node-pty/deps/winpty')
 }
 
+// slim: keep only darwin-arm64 prebuilds for node-pty (save ~23M)
+rm('-rf', 'work/app/node_modules/node-pty/prebuilds/win32-*')
+rm('-rf', 'work/app/node_modules/node-pty/prebuilds/linux-*')
+rm('-rf', 'work/app/node_modules/node-pty/prebuilds/darwin-x64')
 // Remove all test files from node-pty to reduce bundle size
 rm('-rf', 'work/app/node_modules/node-pty/lib/*.test.js')
 rm('-rf', 'work/app/node_modules/node-pty/lib/*.test.js.map')
 rm('-rf', 'work/app/node_modules/node-pty/lib/testUtils.test.js')
 rm('-rf', 'work/app/node_modules/node-pty/lib/testUtils.test.js.map')
 
+// slim: prune maps/docs to save asar size
+exec('find work/app/node_modules -name "*.map" -delete 2>/dev/null || true')
+exec('find work/app/node_modules -name "*.md" -delete 2>/dev/null || true')
+exec('find work/app/node_modules -name "LICENSE*" -delete 2>/dev/null || true')
+exec('find work/app/node_modules -name "CHANGELOG*" -delete 2>/dev/null || true')
+// slim: prune heavy SM crypto not needed for standard SSH (save ~7M)
+rm('-rf', 'work/app/node_modules/sm-crypto-v2')
+rm('-rf', 'work/app/node_modules/@noble')
+rm('-rf', 'work/app/node_modules/node-forge')
+rm('-rf', 'work/app/node_modules/tar')
 // yarn auto clean
 cp('-r', 'build/bin/.yarnclean', 'work/app/')
 exec(`cd work/app && yarn generate-lock-entry > yarn.lock && yarn autoclean --force && cd ${cwd}`)

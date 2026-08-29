@@ -37,11 +37,9 @@ export async function loadWebLinksAddon () {
   return window.xtermAddons.WebLinksAddon
 }
 
+// slim: webgl/ligatures/image disabled, fallback to dom renderer
 export async function loadWebglAddon () {
-  if (window.xtermAddons.WebglAddon) return window.xtermAddons.WebglAddon
-  const mod = await import('@xterm/addon-webgl')
-  window.xtermAddons.WebglAddon = mod.WebglAddon
-  return window.xtermAddons.WebglAddon
+  throw new Error('slim: webgl disabled')
 }
 
 export async function loadSearchAddon () {
@@ -52,10 +50,7 @@ export async function loadSearchAddon () {
 }
 
 export async function loadLigaturesAddon () {
-  if (window.xtermAddons.LigaturesAddon) return window.xtermAddons.LigaturesAddon
-  const mod = await import('@xterm/addon-ligatures')
-  window.xtermAddons.LigaturesAddon = mod.LigaturesAddon
-  return window.xtermAddons.LigaturesAddon
+  throw new Error('slim: ligatures disabled')
 }
 
 export async function loadUnicode11Addon () {
@@ -66,10 +61,7 @@ export async function loadUnicode11Addon () {
 }
 
 export async function loadImageAddon () {
-  if (window.xtermAddons.ImageAddon) return window.xtermAddons.ImageAddon
-  const mod = await import('@xterm/addon-image')
-  window.xtermAddons.ImageAddon = mod.ImageAddon
-  return window.xtermAddons.ImageAddon
+  throw new Error('slim: image disabled')
 }
 
 export function getTerminal () {
@@ -89,7 +81,7 @@ export function getWebLinksAddon () {
 }
 
 export function getWebglAddon () {
-  return window.xtermAddons.WebglAddon
+  return null
 }
 
 export function getSearchAddon () {
@@ -97,7 +89,7 @@ export function getSearchAddon () {
 }
 
 export function getLigaturesAddon () {
-  return window.xtermAddons.LigaturesAddon
+  return null
 }
 
 export function getUnicode11Addon () {
@@ -105,5 +97,5 @@ export function getUnicode11Addon () {
 }
 
 export function getImageAddon () {
-  return window.xtermAddons.ImageAddon
+  return null
 }
