@@ -182,3 +182,9 @@
   position absolute
   left 8px
   bottom 4px
+// 白天会话顶部栏浅（原 --main 仍炭黑）
+body[data-anchor-theme=light] .terminal-control,
+body[data-anchor-theme=light] .mobile-session-control
+  background var(--ink1, #f7f9fb) !important
+  border-bottom 1px solid var(--line, #d4dbe4) !important
+  color var(--snow, #1c2634) !important
