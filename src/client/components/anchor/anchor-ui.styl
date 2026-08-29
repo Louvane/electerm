@@ -984,3 +984,12 @@ body[data-anchor-theme=dark]
 .xterm-viewport,
 .xterm-screen
   background var(--termBg, #0f141d) !important
+
+// 管理器树亮模式淡灰，与弹窗纸白拉层级
+body[data-anchor-theme=light] .mg-tree
+  background var(--ink1, #f7f9fb)
+  border-color var(--line, #d4dbe4)
+
+// 右键菜单亮模式阴影收敛
+body[data-anchor-theme=light] .anchor-ctx
+  box-shadow 0 4px 12px rgba(0,0,0,0.15)
