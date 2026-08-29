@@ -4,8 +4,6 @@ import {
   Alert
 } from 'antd'
 
-const e = window.translate
-
 export default memo(function TerminalErrorHandle ({
   errorMessage,
   showEditBookmarkButton,
@@ -22,9 +20,10 @@ export default memo(function TerminalErrorHandle ({
     return (
       <div className='terminal-error-actions pd1y'>
         <Button
+          className='anchor-btn pri'
           onClick={onEditBookmark}
         >
-          {e('edit')} {e('bookmarks')}
+          编辑主机
         </Button>
       </div>
     )

@@ -64,9 +64,10 @@ export default function BookmarkFormDrawer (props) {
     onClose()
   }
 
+  // 跳板链仅来自 ANCHOR 内部书签(已禁用 ~/.ssh/config 扫描)
   const bookmarkOpts = getBookmarks(store)
     .filter(b => b.id !== (host && host.id))
-    .map(b => <Select.Option key={b.id} value={b.id}>{b.title} · {b.host}</Select.Option>)
+    .map(b => <Select.Option key={b.id} value={b.id}>{b.username ? `${b.username} · ` : ''}{b.host}</Select.Option>)
   const groupOpts = groupPaths(store).map(p => (
     <Select.Option key={p.id} value={p.id}>{p.path}</Select.Option>
   ))
@@ -136,9 +137,11 @@ export default function BookmarkFormDrawer (props) {
                 <div className='jump-row' key={i}>
                   <span className='seq'>{i + 1}</span>
                   <Select
+                    showSearch
+                    filterOption={(inp, opt) => String(opt.children).toLowerCase().includes(inp.toLowerCase())}
                     style={{ flex: 1 }}
                     value={hid || undefined}
-                    placeholder='选择跳板主机'
+                    placeholder='选择跳板主机(仅 ANCHOR 书签)'
                     onChange={v => setHops(hs => hs.map((x, j) => j === i ? v : x))}
                   >{bookmarkOpts}
                   </Select>

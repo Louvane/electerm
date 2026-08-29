@@ -14,12 +14,25 @@ export default auto(function QuickConnect (props) {
   const openIds = new Set(
     store.tabs.filter(t => t.srcId).map(t => t.srcId)
   )
+  // 去重:同一 host:port:username 仅保留最新一条
+  const dedupedRecents = (() => {
+    const seen = new Set()
+    const out = []
+    for (const h of recents) {
+      const k = `${h.host}:${h.port || 22}:${h.username || ''}`
+      if (!seen.has(k)) {
+        seen.add(k)
+        out.push(h)
+      }
+    }
+    return out
+  })()
   // 无历史时回退展示全部主机(按名称排序),消灭空尴尬态
   const allHosts = store.bookmarks.filter(b => !b.folder)
-  const useAll = recents.length === 0 && allHosts.length > 0
+  const useAll = dedupedRecents.length === 0 && allHosts.length > 0
   const rows = useAll
     ? [...allHosts].sort((a, b) => (a.title || '').localeCompare(b.title || ''))
-    : recents
+    : dedupedRecents
   // history 的 tab 副本不含 srcId(被 tabPropertiesExcludes 剥离),
   // 按 host+username 反查书签 id
   const bidOf = (h) => {

@@ -236,3 +236,26 @@ html body .fullscreen .session-wrap.session-current
 .anchor-tab-close:hover
   color #ff6b6b
   background rgba(255, 107, 107, 0.12)
+
+// Win 标题栏:无红绿灯占位,右置窗口控制,保留拖拽
+.anchor-titlebar.win
+  padding-left 16px
+  padding-right 0
+  justify-content space-between
+  .window-controls
+    -webkit-app-region no-drag
+    display flex
+    align-items center
+    height 40px
+    .window-control-box
+      width 46px
+      height 40px
+      display flex
+      align-items center
+      justify-content center
+      cursor pointer
+      &:hover
+        background var(--ink2, #1c2534)
+      &.window-control-close:hover
+        background #e81123
+        color #fff

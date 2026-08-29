@@ -14,6 +14,8 @@ import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
 import SettingsDrawer from '../anchor/settings-drawer'
 import CommandPalette from '../anchor/command-palette'
 import MonitorRail from '../anchor/monitor-rail'
+import { isMacJs } from '../../common/constants'
+import WindowControl from '../tabs/window-control'
 import { initAnchorTheme, toggleAnchorTheme } from '../anchor/anchor-theme'
 import './anchor.styl'
 import '../anchor/anchor-ui.styl'
@@ -35,6 +37,15 @@ export default auto(function Layout (props) {
   useEffect(() => {
     setTheme(initAnchorTheme())
   }, [])
+  // 劫持旧版“编辑书签”入口(HOST 失败→编辑)，统一走 ANCHOR 主机抽屉
+  useEffect(() => {
+    const orig = store.openBookmarkEdit
+    store.openBookmarkEdit = (item) => {
+      setFormHost(item || null)
+      setFormOpen(true)
+    }
+    return () => { store.openBookmarkEdit = orig }
+  }, [])
   // Esc 退出全屏(与右上角按钮、alt+f 三条退出路径)
   // capture 阶段监听:window 捕获是事件链第一环,不被任何 stopPropagation 拦截;
   // keyCode 27 兜底(IME 下 key 可能变形为 'Process'/229)
@@ -52,8 +63,9 @@ export default auto(function Layout (props) {
 
   return (
     <div className='anchor-shell'>
-      <div className='anchor-titlebar mac'>
+      <div className={`anchor-titlebar ${isMacJs ? 'mac' : 'win'}`}>
         <span className='anchor-titlebar-text'>ANCHOR<i>锚点终端</i></span>
+        {!isMacJs ? <WindowControl store={store} /> : null}
       </div>
       <div className='anchor-body'>
         <MonitorRail store={store} tab={currentTab} onOpenSettings={() => setSettingsOpen(true)} />

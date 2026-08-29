@@ -198,13 +198,9 @@ export default (Store) => {
     }
   }
   Store.prototype.fetchSshConfigItems = async function () {
-    const arr = await window.pre.runGlobalAsync('loadSshConfig')
-      .catch((err) => {
-        console.log('fetchSshConfigItems error', err)
-        return []
-      })
-    window.store.sshConfigs = arr
-    return arr
+    // ANCHOR: 禁用 ssh-config 扫描,仅用内部书签
+    window.store.sshConfigs = []
+    return []
   }
   Store.prototype.confirmLoad = function () {
     window.store.configLoaded = true

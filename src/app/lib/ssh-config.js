@@ -1,14 +1,7 @@
 /**
- * read ssh config
+ * read ssh config — ANCHOR 禁用:一切以内部书签为准,不扫描 ~/.ssh/config
  */
-
-// const { app } = require('electron')
-// const home = app.getPath('home')
-// const { resolve } = require('path')
-
 function loadSshConfig () {
-  const { loadAndConvert } = require('ssh-config-loader')
-  return loadAndConvert()
+  return []
 }
-
 module.exports = loadSshConfig

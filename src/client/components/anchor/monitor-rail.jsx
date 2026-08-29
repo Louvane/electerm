@@ -196,6 +196,19 @@ export default function MonitorRail (props) {
   const tx = last.txKb == null ? '—' : fmtB(last.txKb) + '/s'
   const userHost = tab && tab.username ? tab.username + '@' + tab.host : (tab && tab.host ? tab.host : '—')
 
+  if (!isActive) {
+    return (
+      <aside className='anchor-rail'>
+        <div className='anchor-rail-sec'>
+          <div className='anchor-cap'>TARGET</div>
+          <div className='anchor-hint'>暂无活动会话</div>
+        </div>
+        <div className='anchor-rail-foot'>
+          <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'>⚙ 设置</button>
+        </div>
+      </aside>
+    )
+  }
   return (
     <aside className='anchor-rail'>
       <div className='anchor-rail-sec'>

@@ -36,6 +36,8 @@ export default function ConnectionManager (props) {
   const [kw, setKw] = useState('')
   const [expanded, setExpanded] = useState({ default: true })
   const [sel, setSel] = useState(() => { window._mounts = (window._mounts || 0) + 1; return null }) // {kind:'dir'|'host', id}
+  const [multiSel, setMultiSel] = useState(new Set())
+  const anchorRef = useRef(null)
   const [editId, setEditId] = useState(null) // 内联重命名的节点 id
   const [pendingDir, setPendingDir] = useState(null) // 内联新建文件夹的父 id
   const [menu, setMenu] = useState(null) // {x,y,node,view:'main'|'move'}
@@ -66,6 +68,7 @@ export default function ConnectionManager (props) {
     }
   }
   if (open) walk(tree, expanded, kw)
+  const flatHosts = flat.filter(n => n.kind === 'host')
 
   const closeMenu = useCallback(() => setMenu(null), [])
   useEffect(() => {
@@ -101,7 +104,7 @@ export default function ConnectionManager (props) {
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
         if (!sel) return
         e.preventDefault()
-        sel.kind === 'host' ? delHost(sel.id) : askDelDir(sel.id)
+        sel.kind === 'host' ? (multiSel.size > 1 && multiSel.has(sel.id) ? delHosts(new Set(multiSel)) : delHost(sel.id)) : askDelDir(sel.id)
       }
     }
     window.addEventListener('keydown', h)
@@ -131,6 +134,61 @@ export default function ConnectionManager (props) {
     return found || ''
   }
 
+  function handleHostClick (e, id) {
+    const isMulti = e.metaKey || e.ctrlKey
+    const isRange = e.shiftKey && anchorRef.current
+    if (isRange) {
+      const a = flatHosts.findIndex(n => n.id === anchorRef.current)
+      const b = flatHosts.findIndex(n => n.id === id)
+      if (a >= 0 && b >= 0) {
+        const [s0, s1] = a < b ? [a, b] : [b, a]
+        const ids = new Set(flatHosts.slice(s0, s1 + 1).map(n => n.id))
+        setMultiSel(ids)
+        setSel({ kind: 'host', id })
+        return
+      }
+    }
+    if (isMulti) {
+      const ns = new Set(multiSel)
+      if (ns.has(id)) ns.delete(id); else ns.add(id)
+      if (ns.size === 0) { setMultiSel(new Set()); setSel({ kind: 'host', id }); anchorRef.current = id; return }
+      setMultiSel(ns)
+      setSel({ kind: 'host', id })
+      anchorRef.current = id
+      return
+    }
+    setMultiSel(new Set())
+    setSel({ kind: 'host', id })
+    anchorRef.current = id
+  }
+  function delHosts (ids) {
+    const arr = [...ids]
+    const hosts = arr.map(id => bookmarks.find(b => b.id === id)).filter(Boolean)
+    if (!hosts.length) return
+    hosts.forEach(h => delBookmark(store, h.id))
+    const n = hosts.length
+    message.open({
+      duration: 5,
+      content: (
+        <span style={{ display: 'inline-flex', gap: 14, alignItems: 'center' }}>
+          已删除 {n} 台主机
+          <button
+            style={{ border: 'none', background: 'none', color: '#ffb454', cursor: 'pointer' }}
+            onClick={() => {
+              hosts.forEach(h => {
+                const gid = getBookmarkGroupId(store, h.id) || 'default'
+                // 恢复时需重建 id 映射：直接 upsert 原对象
+                upsertBookmark(store, h, gid)
+              })
+              message.success('已恢复')
+            }}
+          >撤销
+          </button>
+        </span>
+      )
+    })
+    setMultiSel(new Set())
+  }
   function delHost (id) {
     const h = selHost(id)
     if (!h) return
@@ -213,7 +271,7 @@ export default function ConnectionManager (props) {
           <div
             className={'tnode' + (isSel ? ' sel' : '')}
             style={{ paddingLeft: depth * 18 + 4 }}
-            onClick={() => setSel({ kind: 'dir', id: n.id })}
+            onClick={() => { setMultiSel(new Set()); setSel({ kind: 'dir', id: n.id }) }}
             onContextMenu={(e) => {
               e.preventDefault()
               setSel({ kind: 'dir', id: n.id })
@@ -255,18 +313,18 @@ export default function ConnectionManager (props) {
                 {renderTree(n.children, depth + 1, p)}
                 {
                   n.hosts.map(h => {
-                    const hostSel = sel && sel.kind === 'host' && sel.id === h.id
+                    const hostSel = multiSel.has(h.id) || (sel && sel.kind === 'host' && sel.id === h.id)
                     const editing = editId === h.id
                     return (
                       <div
                         key={h.id}
                         className={'tnode' + (hostSel ? ' sel' : '')}
                         style={{ paddingLeft: (depth + 1) * 18 + 4 }}
-                        onClick={() => setSel({ kind: 'host', id: h.id })}
+                        onClick={(e) => handleHostClick(e, h.id)}
                         onDoubleClick={() => connect(h.id)}
                         onContextMenu={(e) => {
                           e.preventDefault()
-                          setSel({ kind: 'host', id: h.id })
+                          if (!multiSel.has(h.id)) handleHostClick(e, h.id)
                           setMenu({ x: e.clientX, y: e.clientY, node: { kind: 'host', id: h.id }, view: 'main' })
                         }}
                       >
@@ -347,7 +405,9 @@ export default function ConnectionManager (props) {
         <div onClick={() => { copyBookmark(store, node.id); setMenu(null); message.success('已创建副本') }}>复制主机</div>
         <div onClick={() => setMenu({ ...menu, view: 'move' })}>移动到… <span className='sub'>›</span></div>
         <div className='sep' />
-        <div className='danger' onClick={() => { setMenu(null); delHost(node.id) }}>删除 <span className='sub'>Del</span></div>
+        {multiSel.size > 1 && multiSel.has(node.id)
+          ? <div className='danger' onClick={() => { setMenu(null); delHosts(new Set(multiSel)) }}>删除 ({multiSel.size}) <span className='sub'>Del</span></div>
+          : <div className='danger' onClick={() => { setMenu(null); delHost(node.id) }}>删除 <span className='sub'>Del</span></div>}
       </div>
     )
   }
@@ -441,7 +501,7 @@ function InlineInput ({ initial, onCommit, onCancel, autoFocus, placeholder }) {
         if (e.key === 'Enter') onCommit(v)
         if (e.key === 'Escape') onCancel()
       }}
-      onBlur={() => onCancel()}
+      onBlur={() => (v.trim() ? onCommit(v) : onCancel())}
     />
   )
 }
