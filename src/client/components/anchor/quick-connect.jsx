@@ -29,10 +29,11 @@ export default auto(function QuickConnect (props) {
   })()
   // 无历史时回退展示全部主机(按名称排序),消灭空尴尬态
   const allHosts = store.bookmarks.filter(b => !b.folder)
-  const useAll = dedupedRecents.length === 0 && allHosts.length > 0
+  const visibleRecents = dedupedRecents.filter(h => store.bookmarks.some(b => b.host === h.host && (b.port || 22) === (h.port || 22) && (b.username || '') === (h.username || '')))
+  const useAll = visibleRecents.length === 0 && allHosts.length > 0
   const rows = useAll
     ? [...allHosts].sort((a, b) => (a.title || '').localeCompare(b.title || ''))
-    : dedupedRecents
+    : visibleRecents
   // history 的 tab 副本不含 srcId(被 tabPropertiesExcludes 剥离),
   // 按 host+username 反查书签 id
   const bidOf = (h) => {

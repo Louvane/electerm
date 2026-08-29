@@ -81,6 +81,7 @@ export function upsertBookmark (s, item, groupId) {
 /** 删除主机并从所有分组的 bookmarkIds 摘除 */
 export function delBookmark (s, id) {
   const store = st(s)
+  const target = store.bookmarks.find(b => b.id === id)
   const i = store.bookmarks.findIndex(b => b.id === id)
   if (i >= 0) store.bookmarks.splice(i, 1)
   store.bookmarkGroups.forEach(g => {
@@ -88,6 +89,9 @@ export function delBookmark (s, id) {
       g.bookmarkIds = g.bookmarkIds.filter(x => x !== id)
     }
   })
+  if (target && store.history) {
+    store.history = store.history.filter(h => !(h.tab && h.tab.host === target.host && (h.tab.port || 22) === (target.port || 22) && (h.tab.username || '') === (target.username || '')))
+  }
 }
 
 /** 复制主机,返回新 id */
