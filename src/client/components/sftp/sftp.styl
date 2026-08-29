@@ -199,3 +199,27 @@
   padding 4px 0
   flex-wrap wrap
   gap 4px
+
+// 白天 SFTP 纸白黑字（原 --main 炭）
+body[data-anchor-theme=light] .sftp-panel,
+body[data-anchor-theme=light] .sftp-wrap,
+body[data-anchor-theme=light] .sftp-section,
+body[data-anchor-theme=light] .sftp-header-item,
+body[data-anchor-theme=light] .sftp-table,
+body[data-anchor-theme=light] .sftp-history,
+body[data-anchor-theme=light] .file-list,
+body[data-anchor-theme=light] .pager-wrap,
+body[data-anchor-theme=light] .sftp-addr
+  background var(--ink2, #ffffff) !important
+  color var(--snow, #1c2634) !important
+  border-color var(--line, #d4dbe4) !important
+body[data-anchor-theme=light] .sftp-file-prop
+  background var(--ink2, #ffffff) !important
+  color var(--snow, #1c2634) !important
+body[data-anchor-theme=light] .sftp-item:hover .sftp-file-prop,
+body[data-anchor-theme=light] .sftp-item.selected .sftp-file-prop,
+body[data-anchor-theme=light] .sftp-item.sftp-dragover .sftp-file-prop
+  background var(--amber, #b26a00) !important
+  color #ffffff !important
+body[data-anchor-theme=light] .file-bg
+  background var(--ink1, #f7f9fb) !important
