@@ -61,7 +61,7 @@ export default function TermView ({ store }) {
   }
 
   return (
-    <div ref={ref} style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+    <div ref={ref} className='no-fade' style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
       {
         dim.w > 0 && <SessionsWrap {...sessionsProps} />
       }

@@ -766,7 +766,7 @@ body[data-anchor-theme=dark]
 
 // ===== 动画层(P6.5)=====
 // 视图/页面切入
-.anchor-content > *
+.anchor-content > *:not(.no-fade)
   animation anchor-fade-in 0.18s ease
 @keyframes anchor-fade-in
   from
@@ -790,6 +790,19 @@ body[data-anchor-theme=dark]
 // 列表行渐入(快速连接/管理器树首层)
 .qc-row
   animation row-in 0.2s ease both
+  &:nth-child(1)
+    animation-delay 0ms
+  &:nth-child(2)
+    animation-delay 18ms
+  &:nth-child(3)
+    animation-delay 36ms
+  &:nth-child(4)
+    animation-delay 54ms
+  &:nth-child(n+5)
+    animation-delay 72ms
+html
+  transition background-color 0.18s ease, color 0.18s ease
+
 @keyframes row-in
   from
     opacity 0
@@ -798,12 +811,22 @@ body[data-anchor-theme=dark]
     opacity 1
     transform none
 
+// 弹层统一 0.18s（对齐自定动效，覆盖 antd 0.3s）
+.ant-drawer-content,
+.ant-modal-content
+  transition transform 0.18s ease, opacity 0.18s ease
+
 // 尊重减弱动效偏好
 @media (prefers-reduced-motion: reduce)
   .anchor-content > *
   .anchor-ctx
   .qc-row
     animation none !important
+  .ant-drawer-content,
+  .ant-modal-content
+    transition none !important
+  html
+    transition none !important
 
 // 弹框 header:去掉 antd 默认底色横带,✕ 对齐
 body[data-anchor-theme=dark]
