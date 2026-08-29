@@ -15,6 +15,9 @@ export default auto(function SettingsDrawer (props) {
     <Drawer
       open={open}
       onClose={onClose}
+      closable
+      maskClosable
+      keyboard
       zIndex={1100}
       styles={{ wrapper: { width: 410 } }}
       title='设置'

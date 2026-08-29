@@ -937,3 +937,9 @@ body[data-anchor-theme=dark]
     font-weight 600
     &:hover
       background #ffc472
+
+// 设置抽屉关闭图标可点：排除拖拽区干扰
+.settings-drawer .ant-drawer-header,
+.settings-drawer .ant-drawer-close
+  -webkit-app-region no-drag
+  pointer-events auto
