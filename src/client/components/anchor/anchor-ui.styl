@@ -918,3 +918,22 @@ body[data-anchor-theme=dark]
 // 设置抽屉:标签略宽,防“退出前确认”换行
 .settings-drawer .fld label
   width 64px
+
+// 兼容空态旧类 .btn → 同 .anchor-btn
+.btn
+  padding 6px 18px
+  border-radius 5px
+  border 1px solid var(--line, #2a3547)
+  color var(--snow, #e6edf5)
+  font-size 12px
+  cursor pointer
+  background none
+  &:hover
+    border-color var(--fog, #8b98ab)
+  &.pri
+    background var(--amber, #ffb454)
+    border-color var(--amber, #ffb454)
+    color #1a1206
+    font-weight 600
+    &:hover
+      background #ffc472

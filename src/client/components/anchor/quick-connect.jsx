@@ -90,8 +90,8 @@ export default auto(function QuickConnect (props) {
               <div className='qc-empty'>
                 <div className='big'>暂无主机</div>
                 <div className='acts'>
-                  <button className='btn pri' onClick={onOpenManager}>打开连接管理器</button>
-                  <button className='btn' onClick={onNewHost}>新建主机</button>
+                  <button className='anchor-btn pri' onClick={onOpenManager}>打开连接管理器</button>
+                  <button className='anchor-btn' onClick={onNewHost}>新建主机</button>
                 </div>
               </div>
               )
