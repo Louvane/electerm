@@ -5,6 +5,7 @@
  */
 export const ANCHOR_THEMES = {
   dark: {
+    '--termBg': '#0f141d',
     '--ink0': '#0f141d',
     '--ink1': '#151c28',
     '--ink2': '#1c2534',
@@ -19,6 +20,7 @@ export const ANCHOR_THEMES = {
     '--dot': '#3a465a'
   },
   light: {
+    '--termBg': '#ffffff',
     '--ink0': '#eef1f5',
     '--ink1': '#f7f9fb',
     '--ink2': '#ffffff',

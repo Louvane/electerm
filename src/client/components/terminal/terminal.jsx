@@ -182,6 +182,12 @@ class Term extends Component {
         }
       })
     }
+    // ANCHOR 明暗切换跟随
+    const curAnchor = document.body?.dataset?.anchorTheme
+    if (this._prevAnchorTheme !== curAnchor) {
+      this._prevAnchorTheme = curAnchor
+      this.applyTerminalTheme()
+    }
     this.checkConfigChange(
       prevProps,
       this.props
@@ -1411,14 +1417,12 @@ class Term extends Component {
   }
 
   getVisibleTerminalBackground = () => {
-    const uiThemeConfig = window.store?.getUiThemeConfig?.() || {}
-    // The store value (uiThemeConfig.main) is always immediately up-to-date
-    // when the theme changes, because it reads directly from store.config.theme.
-    // The CSS --main variable lags behind because UiTheme's useEffect runs
-    // asynchronously after componentDidUpdate. So we prioritise the store
-    // value, and only fall back to CSS (for custom-CSS edge cases) or the
-    // terminal theme background (last resort).
     const root = document.documentElement
+    const anchorBg = root && window.getComputedStyle
+      ? window.getComputedStyle(root).getPropertyValue('--termBg').trim()
+      : ''
+    if (anchorBg) return anchorBg
+    const uiThemeConfig = window.store?.getUiThemeConfig?.() || {}
     const cssMain = root && window.getComputedStyle
       ? window.getComputedStyle(root).getPropertyValue('--main').trim()
       : ''
@@ -1426,6 +1430,11 @@ class Term extends Component {
   }
 
   getVisibleTerminalForeground = () => {
+    const root = document.documentElement
+    const anchorFg = root && window.getComputedStyle
+      ? window.getComputedStyle(root).getPropertyValue('--snow').trim()
+      : ''
+    if (anchorFg) return anchorFg
     const uiThemeConfig = window.store?.getUiThemeConfig?.() || {}
     return uiThemeConfig.text
   }
@@ -1522,6 +1531,7 @@ class Term extends Component {
   }
 
   initTerminal = async () => {
+    this._prevAnchorTheme = document.body?.dataset?.anchorTheme
     const { themeConfig, tab = {}, config = {} } = this.props
     const tc = this.getRendererThemeConfig(themeConfig)
     const Terminal = await loadTerminal()
@@ -1567,13 +1577,17 @@ class Term extends Component {
     })
     const SearchAddon = await loadSearchAddon()
     this.searchAddon = new SearchAddon()
-    const LigaturesAddon = await loadLigaturesAddon()
-    const ligtureAddon = new LigaturesAddon()
+    // slim: ligatures disabled fallback to dom
+    try {
+      const LigaturesAddon = await loadLigaturesAddon()
+      const ligtureAddon = new LigaturesAddon()
+      term.loadAddon(ligtureAddon)
+    } catch (e) { console.log('ligatures disabled', e.message) }
     this.searchAddon.onDidChangeResults(this.onSearchResultsChange)
     const Unicode11Addon = await loadUnicode11Addon()
     const unicode11Addon = new Unicode11Addon()
     term.loadAddon(unicode11Addon)
-    term.loadAddon(ligtureAddon)
+
     term.unicode.activeVersion = '11'
     term.loadAddon(this.fitAddon)
     term.loadAddon(this.searchAddon)
@@ -1581,11 +1595,13 @@ class Term extends Component {
     this.osc52Addon = new Osc52Addon()
     term.loadAddon(this.osc52Addon)
     if (tab.enableTerminalImage) {
-      const ImageAddon = await loadImageAddon()
-      this.imageAddon = new ImageAddon({
-        pixelLimit: 33554432
-      })
-      term.loadAddon(this.imageAddon)
+      try {
+        const ImageAddon = await loadImageAddon()
+        this.imageAddon = new ImageAddon({
+          pixelLimit: 33554432
+        })
+        term.loadAddon(this.imageAddon)
+      } catch (e) { console.log('image disabled', e.message) }
     }
     term.onData(this.onData)
     this.term = term
