@@ -293,6 +293,7 @@
     font-size 19px
     font-weight 600
     letter-spacing 1px
+    color var(--snow, #e6edf5)
   .sub
     color var(--fog, #8b98ab)
     font-size 12px
@@ -1000,3 +1001,19 @@ body[data-anchor-theme=light] .ant-drawer-content
 body[data-anchor-theme=light] .ant-drawer-header
   background var(--ink1, #f7f9fb)
   border-bottom-color var(--line, #d4dbe4)
+
+// 白天强制亮底（修复抽屉/弹窗残黑 + 标题不可见）
+body[data-anchor-theme=light] .ant-drawer-content
+  background var(--ink2, #ffffff) !important
+body[data-anchor-theme=light] .ant-drawer-header
+  background var(--ink1, #f7f9fb) !important
+  border-bottom-color var(--line, #d4dbe4) !important
+body[data-anchor-theme=light] .ant-drawer-title
+  color var(--snow, #1c2634) !important
+body[data-anchor-theme=light] .ant-modal-content
+  background var(--ink2, #ffffff) !important
+body[data-anchor-theme=light] .ant-modal-header
+  background var(--ink1, #f7f9fb) !important
+  border-bottom-color var(--line, #d4dbe4) !important
+body[data-anchor-theme=light] .ant-modal-title
+  color var(--snow, #1c2634) !important
