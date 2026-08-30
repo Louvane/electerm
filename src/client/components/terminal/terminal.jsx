@@ -1459,12 +1459,32 @@ class Term extends Component {
   getRendererThemeConfig = (themeConfig = this.props.themeConfig) => {
     const isLight = document.body?.dataset?.anchorTheme === 'light'
     const cfg = deepCopy(themeConfig)
+    // 琥珀光标/选区跟 accent（两主题统一，替换 electerm 蓝）
+    cfg.cursor = isLight ? '#b26a00' : '#ffb454'
+    cfg.cursorAccent = isLight ? '#ffffff' : '#0f141d'
+    cfg.selectionBackground = isLight
+      ? 'rgba(178,106,0,0.25)'
+      : 'rgba(255,180,84,0.30)'
     if (isLight) {
-      // 白天纸白黑字，保证白底可读（不改用户存的 preset，仅渲染层覆盖）
+      // 白天纸白黑字 + light ANSI（暗色 pastel 在白底不可读）
       cfg.foreground = '#1c2634'
       cfg.background = '#ffffff'
-      cfg.cursor = cfg.cursor || '#b26a00'
-      cfg.selectionBackground = cfg.selectionBackground || 'rgba(178,106,0,0.2)'
+      cfg.black = '#3a4356'
+      cfg.red = '#c04343'
+      cfg.green = '#177a4c'
+      cfg.yellow = '#9a5b00'
+      cfg.blue = '#20599e'
+      cfg.magenta = '#7a3f9e'
+      cfg.cyan = '#0c6a74'
+      cfg.white = '#77839a'
+      cfg.brightBlack = '#5d6b7e'
+      cfg.brightRed = '#d43741'
+      cfg.brightGreen = '#1e9e63'
+      cfg.brightYellow = '#b26a00'
+      cfg.brightBlue = '#2f6fc4'
+      cfg.brightMagenta = '#9350bd'
+      cfg.brightCyan = '#128391'
+      cfg.brightWhite = '#4a5568'
     }
     return createRendererThemeConfig(
       cfg,

@@ -127,7 +127,7 @@
   z-index 2
   &:hover
     ::-webkit-scrollbar
-      width 12px
+      width 8px
 .sftp-item
   &.sftp-dragover
     .sftp-file-prop
@@ -159,7 +159,7 @@
 
 .file-list
   ::-webkit-scrollbar-thumb
-    background-color var(--primary) !important
+    background-color var(--dot, #3a465a) !important
 
 .pager-wrap
   z-index 4
@@ -274,3 +274,12 @@ html body[data-anchor-theme=light] .sftp-file-prop
 .sftp-file-prop
   position relative
   z-index 4
+
+// 白天 SFTP 地址栏白底深字(原 antd 暗色 token 黑条)
+body[data-anchor-theme=light] .sftp-title .ant-input-affix-wrapper,
+body[data-anchor-theme=light] .sftp-title .ant-input
+  background var(--ink1, #f7f9fb) !important
+  color var(--snow, #1c2634) !important
+  border-color var(--line, #d4dbe4) !important
+body[data-anchor-theme=light] .sftp-title .anticon
+  color var(--fog, #5d6b7e) !important
