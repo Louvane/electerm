@@ -90,10 +90,10 @@ export default function BookmarkFormDrawer (props) {
       <details className='dr-sec' open>
         <summary>基本 <span style={{ color: 'var(--alert,#f2555a)', fontSize: 10 }}>*必填</span></summary>
         <div className='inner'>
-          <div className='fld'><label>名称</label><input value={title} onChange={e => setTitle(e.target.value)} id='fName' placeholder='web-01' /></div>
-          <div className='fld'><label>地址</label><input value={hostAddr} onChange={e => setHostAddr(e.target.value)} id='fIp' placeholder='10.241.6.203' /></div>
-          <div className='fld'><label>端口</label><input value={port} onChange={e => setPort(e.target.value)} id='fPort' placeholder='22' /></div>
-          <div className='fld'><label>用户名</label><input value={username} onChange={e => setUsername(e.target.value)} id='fUser' placeholder='root' /></div>
+          <div className='fld'><label>名称</label><input value={title} onChange={e => setTitle(e.target.value)} id='fName' placeholder='' /></div>
+          <div className='fld'><label>地址</label><input value={hostAddr} onChange={e => setHostAddr(e.target.value)} id='fIp' placeholder='' /></div>
+          <div className='fld'><label>端口</label><input value={port} onChange={e => setPort(e.target.value)} id='fPort' placeholder='' /></div>
+          <div className='fld'><label>用户名</label><input value={username} onChange={e => setUsername(e.target.value)} id='fUser' placeholder='' /></div>
           <div className='fld'><label>分组</label>
             <Select
               style={{ flex: 1 }}
