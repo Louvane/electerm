@@ -24,8 +24,7 @@
     "publish": {
       "provider": "github",
       "channel": "${env.WORKFLOW_NAME}"
-    },
-    "publisherName": "lvdong"
+    }
   },
   "protocols": [
     {
