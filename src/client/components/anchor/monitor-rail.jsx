@@ -9,18 +9,53 @@ import { SettingOutlined } from '@ant-design/icons'
 import { execCmd } from '../terminal/terminal-apis'
 
 const INTERVAL = 2000
+// 跨平台采集: Linux /proc + Windows PowerShell(输出 KEY=VAL)
+const STATS_LINUX = 'cat /proc/loadavg /proc/uptime /proc/stat /proc/meminfo /proc/net/dev | head -200'
+const STATS_WIN = 'powershell -NoProfile -Command "\'CPU=\'+((Get-CimInstance Win32_Processor|Measure-Object LoadPercentage -Average).Average)+\';MT=\'+(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize+\';MA=\'+(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory+\';UP=\'+[int](((Get-Date)-(Get-CimInstance Win32_OperatingSystem).LastBootUpTime).TotalSeconds)+\';RX=\'+(Get-NetAdapterStatistics|Measure-Object ReceivedBytes -Sum).Sum+\';TX=\'+(Get-NetAdapterStatistics|Measure-Object SentBytes -Sum).Sum+\';ST=\'+(Get-CimInstance Win32_OperatingSystem).TotalVirtualMemorySize+\';SF=\'+(Get-CimInstance Win32_OperatingSystem).FreeVirtualMemory"'
+const DISK_LINUX = 'df -k / | tail -1'
+const DISK_WIN = 'powershell -NoProfile -Command "(Get-PSDrive C).Used+\' \'+(Get-PSDrive C).Free"'
+
+function statsCmdFor (os) {
+  return os === 'win' ? STATS_WIN : STATS_LINUX
+}
+
+function diskCmdFor (os) {
+  return os === 'win' ? DISK_WIN : DISK_LINUX
+}
+
+// Windows KEY=VAL 解析
+function parseWinSample (txt) {
+  const kv = {}
+  String(txt).replace(/\r/g, '').split(';').forEach(seg => {
+    const m = seg.match(/(CPU|MT|MA|UP|RX|TX|ST|SF)=(-?[\d.]+)/)
+    if (m) kv[m[1]] = parseFloat(m[2])
+  })
+  if (!Object.keys(kv).length) return null
+  return {
+    cpuIdle: 0,
+    cpuTotal: 0,
+    cpuPct: isFinite(kv.CPU) ? kv.CPU : null,
+    memTotal: kv.MT || 0,
+    memAvail: kv.MA || 0,
+    swapTotal: kv.ST || 0,
+    swapFree: kv.SF || 0,
+    rx: kv.RX || 0,
+    tx: kv.TX || 0,
+    load: '',
+    uptimeSec: kv.UP || null
+  }
+}
 const TIMEOUT = 4000
 const MAX_POINTS = 60
 // loadavg/uptime 放最前,防 net/dev 行多(K8s veth)把 head 配额吃光
-const STATS_CMD = 'cat /proc/loadavg /proc/uptime /proc/stat /proc/meminfo /proc/net/dev 2>/dev/null | head -200'
-const DISK_CMD = 'df -k / 2>/dev/null | tail -1'
 
 function parseInt10 (n) {
   return parseInt(n, 10) || 0
 }
 
 // 解析一次采样
-function parseSample (txt) {
+function parseSample (txt, os) {
+  if (os === 'win') return parseWinSample(txt)
   if (!txt) return null
   const sm = {
     cpuTotal: 0,
@@ -79,7 +114,9 @@ function computePoint (prev, cur) {
     rxKb: null,
     txKb: null
   }
-  if (prev && cur.cpuTotal > prev.cpuTotal) {
+  if (cur.cpuPct != null) {
+    p.cpu = cur.cpuPct
+  } else if (prev && cur.cpuTotal > prev.cpuTotal) {
     p.cpu = (cur.cpuTotal - cur.cpuIdle - (prev.cpuTotal - prev.cpuIdle)) * 100 /
       (cur.cpuTotal - prev.cpuTotal)
   }
@@ -128,16 +165,27 @@ export default function MonitorRail (props) {
 
   const isActive = !!(tab && tab.host && store.tabs.some(t => t.id === tab.id))
 
+  const osRef = useRef('')
+
   useEffect(() => {
     if (!isActive) return undefined
     const pid = tab.id
+    // 切换主机: 清旧数据, 防止上一台残留
+    setPoints([])
+    setLive(false)
+    osRef.current = ''
     aliveRef.current = true
     let timer = null
     const tick = async () => {
       try {
-        const res = await execCmd(pid, STATS_CMD, TIMEOUT, { silent: true })
+        if (!osRef.current) {
+          const probe = await execCmd(pid, 'uname -s', TIMEOUT, { silent: true })
+          const po = probe && typeof probe === 'object' && 'stdout' in probe ? probe.stdout : probe
+          osRef.current = /Linux/i.test(String(po)) ? 'linux' : 'win'
+        }
+        const res = await execCmd(pid, statsCmdFor(osRef.current), TIMEOUT, { silent: true })
         const out = res && typeof res === 'object' && 'stdout' in res ? res.stdout : res
-        const sample = parseSample(out)
+        const sample = parseSample(out, osRef.current)
         if (sample && aliveRef.current) {
           const point = computePoint(prevRef.current, sample)
           point.swap = sample.swapPct
@@ -164,13 +212,22 @@ export default function MonitorRail (props) {
   // 低频刷新磁盘
   useEffect(() => {
     if (!isActive) return undefined
+    setDisk('—')
     const tick = async () => {
       try {
-        const res = await execCmd(tab.id, DISK_CMD, TIMEOUT, { silent: true })
+        const os = osRef.current || 'linux'
+        const res = await execCmd(tab.id, diskCmdFor(os), TIMEOUT, { silent: true })
         const out = res && typeof res === 'object' && 'stdout' in res ? res.stdout : res
-        const f = String(out).trim().split(/\s+/)
-        if (f.length >= 4) {
-          setDisk(`${(parseInt10(f[2]) / 1048576).toFixed(0)}G / ${(parseInt10(f[1]) / 1048576).toFixed(0)}G`)
+        if (os === 'win') {
+          const f = String(out).replace(/\r/g, '').trim().split(/\s+/)
+          if (f.length >= 2) {
+            setDisk(`${(parseInt10(f[0]) / 1073741824).toFixed(0)}G / ${(parseInt10(f[0]) / 1073741824 + parseInt10(f[1]) / 1073741824).toFixed(0)}G`)
+          }
+        } else {
+          const f = String(out).trim().split(/\s+/)
+          if (f.length >= 4) {
+            setDisk(`${(parseInt10(f[2]) / 1048576).toFixed(0)}G / ${(parseInt10(f[1]) / 1048576).toFixed(0)}G`)
+          }
         }
       } catch (e) {}
     }
