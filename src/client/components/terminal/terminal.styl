@@ -170,13 +170,53 @@
   pointer-events none
   z-index 110
 
+// 连接失败: 居中卡片(token 自适应明暗)
 .terminal-error-handle
   position absolute
-  left 0
-  top 0
+  inset 0
   z-index 100
-  background var(--main)
-  max-width calc(100% - 24px)
+  display flex
+  align-items center
+  justify-content center
+  .teh-card
+    display flex
+    flex-direction column
+    align-items center
+    gap 10px
+    padding 28px 36px
+    min-width 300px
+    max-width 82%
+    background var(--ink1, #151c28)
+    border 1px solid var(--line, #2a3547)
+    border-radius 10px
+    box-shadow 0 8px 28px rgba(0,0,0,0.25)
+  .teh-icon
+    width 44px
+    height 44px
+    border-radius 50%
+    display flex
+    align-items center
+    justify-content center
+    font-size 20px
+    font-weight 700
+    color #fff
+    background var(--alert, #f2555a)
+  .teh-title
+    font-size 15px
+    font-weight 600
+    letter-spacing 2px
+    color var(--snow, #e6edf5)
+  .teh-msg
+    font-family 'IBM Plex Mono', ui-monospace, monospace
+    font-size 12px
+    line-height 1.6
+    word-break break-all
+    text-align center
+    color var(--fog, #8b98ab)
+  .teh-actions
+    display flex
+    gap 10px
+    margin-top 6px
 
 .terminal-fontsize-reset
   position absolute
