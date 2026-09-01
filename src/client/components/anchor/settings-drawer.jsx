@@ -5,11 +5,18 @@
 import React from 'react'
 import { auto } from 'manate/react'
 import { Drawer, Select, Switch, InputNumber } from 'antd'
+import { TERM_PRESETS, applyTermBg } from './anchor-theme.js'
 
 export default auto(function SettingsDrawer (props) {
   const { open, onClose, store } = props
   const cfg = store.config || {}
-  const set = (k, v) => store.setConfig({ [k]: v })
+  const set = (k, v) => {
+    store.setConfig({ [k]: v })
+    if (k === 'terminalPreset') {
+      // 终端底/字色 var 即时跟 preset
+      applyTermBg()
+    }
+  }
 
   return (
     <Drawer
@@ -27,6 +34,14 @@ export default auto(function SettingsDrawer (props) {
       <details className='dr-sec' open>
         <summary>终端</summary>
         <div className='inner'>
+          <div className='fld'>
+            <label>终端配色</label>
+            <Select style={{ flex: 1 }} value={cfg.terminalPreset || 'anchor-dark'} onChange={v => set('terminalPreset', v)}>
+              {Object.entries(TERM_PRESETS).map(([k, p]) => (
+                <Select.Option key={k} value={k}>{p.name}</Select.Option>
+              ))}
+            </Select>
+          </div>
           <div className='fld'>
             <label>字体大小</label>
             <InputNumber min={10} max={24} value={cfg.fontSize || 16} onChange={v => set('fontSize', v || 16)} style={{ flex: 1 }} />

@@ -24,6 +24,7 @@ import {
   connectionMap,
   terminalSerialType
 } from '../../common/constants.js'
+import { getTermPreset, applyTermBg } from '../anchor/anchor-theme.js'
 import deepCopy from 'json-deep-copy'
 import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
 import AttachAddon from './attach-addon-custom.js'
@@ -141,6 +142,7 @@ class Term extends Component {
   domRef = createRef()
 
   componentDidMount () {
+    applyTermBg()
     this.initTerminal()
     if (this.props.tab.enableSsh === false) {
       this.props.tab.pane = paneMap.fileManager
@@ -273,6 +275,10 @@ class Term extends Component {
     {
       name: 'scrollback',
       type: 'glob'
+    },
+    {
+      name: 'terminalPreset',
+      type: 'glob'
     }
   ]
 
@@ -305,6 +311,11 @@ class Term extends Component {
       if (
         prev !== curr
       ) {
+        if (name === 'terminalPreset') {
+          applyTermBg()
+          this.applyTerminalTheme()
+          return
+        }
         this.term.options[name] = curr
         if (['fontFamily', 'fontSize'].includes(name)) {
           this.onResize()
@@ -1432,7 +1443,7 @@ class Term extends Component {
   getVisibleTerminalForeground = () => {
     const root = document.documentElement
     const anchorFg = root && window.getComputedStyle
-      ? window.getComputedStyle(root).getPropertyValue('--snow').trim()
+      ? window.getComputedStyle(root).getPropertyValue('--termFg').trim()
       : ''
     if (anchorFg) return anchorFg
     const uiThemeConfig = window.store?.getUiThemeConfig?.() || {}
@@ -1457,35 +1468,10 @@ class Term extends Component {
   }
 
   getRendererThemeConfig = (themeConfig = this.props.themeConfig) => {
-    const isLight = document.body?.dataset?.anchorTheme === 'light'
     const cfg = deepCopy(themeConfig)
-    // 琥珀光标/选区跟 accent（两主题统一，替换 electerm 蓝）
-    cfg.cursor = isLight ? '#b26a00' : '#ffb454'
-    cfg.cursorAccent = isLight ? '#ffffff' : '#0f141d'
-    cfg.selectionBackground = isLight
-      ? 'rgba(178,106,0,0.25)'
-      : 'rgba(255,180,84,0.30)'
-    if (isLight) {
-      // 白天纸白黑字 + light ANSI（暗色 pastel 在白底不可读）
-      cfg.foreground = '#1c2634'
-      cfg.background = '#ffffff'
-      cfg.black = '#3a4356'
-      cfg.red = '#c04343'
-      cfg.green = '#177a4c'
-      cfg.yellow = '#9a5b00'
-      cfg.blue = '#20599e'
-      cfg.magenta = '#7a3f9e'
-      cfg.cyan = '#0c6a74'
-      cfg.white = '#77839a'
-      cfg.brightBlack = '#5d6b7e'
-      cfg.brightRed = '#d43741'
-      cfg.brightGreen = '#1e9e63'
-      cfg.brightYellow = '#b26a00'
-      cfg.brightBlue = '#2f6fc4'
-      cfg.brightMagenta = '#9350bd'
-      cfg.brightCyan = '#128391'
-      cfg.brightWhite = '#4a5568'
-    }
+    // 终端配色独立于应用主题: 跟 store.config.terminalPreset 预设
+    const preset = getTermPreset(this.props.config?.terminalPreset)
+    Object.assign(cfg, preset)
     return createRendererThemeConfig(
       cfg,
       this.props.config.rendererType,
