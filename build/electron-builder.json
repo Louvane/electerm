@@ -20,11 +20,12 @@
       "appx",
       "nsis"
     ],
-    "icon": "node_modules/@electerm/electerm-resource/build/icons-win.ico",
+    "icon": "build/resources/anchor512.png",
     "publish": {
       "provider": "github",
       "channel": "${env.WORKFLOW_NAME}"
-    }
+    },
+    "publisherName": "lvdong"
   },
   "protocols": [
     {
@@ -54,7 +55,7 @@
   "mac": {
     "category": "public.app-category.developer-tools",
     "target": "dmg",
-    "icon": "node_modules/@electerm/electerm-resource/build/icons.icns",
+    "icon": "build/resources/anchor.icns",
     "publish": {
       "provider": "github",
       "channel": "${env.WORKFLOW_NAME}"
