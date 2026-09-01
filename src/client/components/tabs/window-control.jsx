@@ -2,7 +2,7 @@
  * btns
  */
 
-import { CloseOutlined, MinusOutlined, BorderOutlined, CopyOutlined } from '@ant-design/icons'
+import { CloseOutlined, MinusOutlined, BorderOutlined } from '@ant-design/icons'
 import { auto } from 'manate/react'
 import {
   isMacJs
@@ -43,11 +43,10 @@ export default auto(function WindowControl (props) {
           isMaximized ? unmaximize : maximize
         }
       >
-        {
-          isMaximized
-            ? <CopyOutlined title={e('unmaximize')} className='iblock font12 widnow-control-icon' />
-            : <BorderOutlined title={e('maximize')} className='iblock font12 widnow-control-icon' />
-        }
+        <BorderOutlined
+          title={isMaximized ? e('unmaximize') : e('maximize')}
+          className='iblock font12 widnow-control-icon'
+        />
       </div>
       <div className='window-control-box window-control-close' onClick={closeApp}>
         <CloseOutlined title={e('close')} className='iblock font12 widnow-control-icon' />
