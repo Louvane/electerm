@@ -14,6 +14,7 @@ import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
 import SettingsDrawer from '../anchor/settings-drawer'
 import CommandPalette from '../anchor/command-palette'
 import MonitorRail from '../anchor/monitor-rail'
+import { FolderOpenOutlined, ThunderboltOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { isMacJs } from '../../common/constants'
 import WindowControl from '../tabs/window-control'
 import { initAnchorTheme, toggleAnchorTheme } from '../anchor/anchor-theme'
@@ -71,7 +72,7 @@ export default auto(function Layout (props) {
         <MonitorRail store={store} tab={currentTab} onOpenSettings={() => setSettingsOpen(true)} />
         <main className='anchor-main'>
           <div className='anchor-tabbar'>
-            <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}>📁 连接管理器</button>
+            <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}><FolderOpenOutlined /> 连接管理器</button>
             <div className='anchor-tabs'>
               {
               tabs.map(t => {
@@ -106,14 +107,14 @@ export default auto(function Layout (props) {
               title='常用命令'
               onClick={() => setCmdOpen(true)}
             >
-              ⚡ 命令
+              <ThunderboltOutlined /> 命令
             </button>
             <button
               className='anchor-theme-btn'
               title='切换昼夜主题'
               onClick={() => setTheme(toggleAnchorTheme())}
             >
-              {theme === 'light' ? '☾ 黑夜' : '☀ 白天'}
+              {theme === 'light' ? <><MoonOutlined /> 黑夜</> : <><SunOutlined /> 白天</>}
             </button>
           </div>
           <div className='anchor-content'>

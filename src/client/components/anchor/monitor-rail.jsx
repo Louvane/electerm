@@ -5,6 +5,7 @@
  * 非 Linux/未就绪:静默重试,显示占位。
  */
 import React, { useEffect, useRef, useState } from 'react'
+import { SettingOutlined } from '@ant-design/icons'
 import { execCmd } from '../terminal/terminal-apis'
 
 const INTERVAL = 2000
@@ -204,7 +205,7 @@ export default function MonitorRail (props) {
           <div className='anchor-hint'>暂无活动会话</div>
         </div>
         <div className='anchor-rail-foot'>
-          <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'>⚙ 设置</button>
+          <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'><SettingOutlined /> 设置</button>
         </div>
       </aside>
     )
@@ -289,7 +290,7 @@ export default function MonitorRail (props) {
       <div className='anchor-rail-foot'>
         <div className='anchor-cap'>DISK</div>
         <div className='anchor-kv'><span>/</span><b>{disk || '—'}</b></div>
-        <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'>⚙ 设置</button>
+        <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'><SettingOutlined /> 设置</button>
       </div>
     </aside>
   )

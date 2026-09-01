@@ -5,6 +5,7 @@
  * 跳板链=引用已有主机列表,保存时解析为 connectionHoppings。
  */
 import React, { useState, useEffect } from 'react'
+import { CloseOutlined, PlusOutlined } from '@ant-design/icons'
 import { Drawer, Select, message } from 'antd'
 import {
   getBookmarks,
@@ -147,12 +148,12 @@ export default function BookmarkFormDrawer (props) {
                   </Select>
                   <button className='jump-btn' title='上移' onClick={() => moveHop(i, -1)}>↑</button>
                   <button className='jump-btn' title='下移' onClick={() => moveHop(i, 1)}>↓</button>
-                  <button className='jump-btn' title='移除' onClick={() => setHops(hs => hs.filter((_, j) => j !== i))}>✕</button>
+                  <button className='jump-btn' title='移除' onClick={() => setHops(hs => hs.filter((_, j) => j !== i))}><CloseOutlined /></button>
                 </div>
               ))
               : <div className='jump-hint'>无跳板,直连目标机</div>
           }
-          <button className='add-jump' onClick={() => setHops(hs => [...hs, null])}>＋ 添加跳板(引用已有主机)</button>
+          <button className='add-jump' onClick={() => setHops(hs => [...hs, null])}><PlusOutlined /> 添加跳板(引用已有主机)</button>
         </div>
       </details>
       <details className='dr-sec'>

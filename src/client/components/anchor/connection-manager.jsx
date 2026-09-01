@@ -5,6 +5,7 @@
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Modal, message } from 'antd'
+import { FolderOutlined, DesktopOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons'
 import {
   getBookmarkTree,
   getBookmarks,
@@ -300,9 +301,9 @@ export default function ConnectionManager (props) {
             <span
               className={'arrow' + (isOpen ? ' open' : '')}
               onClick={(e) => { e.stopPropagation(); setExpanded(m => ({ ...m, [n.id]: !m[n.id] })) }}
-            >▶
+            ><CaretRightOutlined />
             </span>
-            <span>📁</span>
+            <span className='ticon'><FolderOutlined /></span>
             {
               editId === n.id
                 ? <InlineInput initial={n.title} onCommit={v => commitRename(n.id, 'dir', v)} onCancel={() => setEditId(null)} />
@@ -316,7 +317,7 @@ export default function ConnectionManager (props) {
                 {
                   pendingDir === n.id && (
                     <div className='tnode' style={{ paddingLeft: (depth + 1) * 18 + 4 }}>
-                      <span className='arrow leaf'>▶</span><span>📁</span>
+                      <span className='arrow leaf'><CaretRightOutlined /></span><span className='ticon'><FolderOutlined /></span>
                       <InlineInput
                         initial='' onCommit={(v) => {
                           if (v.trim()) {
@@ -347,7 +348,7 @@ export default function ConnectionManager (props) {
                           setMenu({ x: e.clientX, y: e.clientY, node: { kind: 'host', id: h.id }, view: 'main' })
                         }}
                       >
-                        <span className='arrow leaf'>▶</span><span>🖥</span>
+                        <span className='arrow leaf'><CaretRightOutlined /></span><span className='ticon'><DesktopOutlined /></span>
                         {
                           editing
                             ? <InlineInput initial={h.title} onCommit={v => commitRename(h.id, 'host', v)} onCancel={() => setEditId(null)} />
@@ -451,14 +452,14 @@ export default function ConnectionManager (props) {
     >
       <div className='anchor-mgr'>
         <div className='mg-tools'>
-          <button className='tl' onClick={() => { setFormHost(null); setFormGroupId(sel && sel.kind === 'dir' ? sel.id : null); setFormOpen(true) }}>＋ 主机</button>
+          <button className='tl' onClick={() => { setFormHost(null); setFormGroupId(sel && sel.kind === 'dir' ? sel.id : null); setFormOpen(true) }}><PlusOutlined /> 主机</button>
           <button
             className='tl' onClick={() => {
               const parent = sel && sel.kind === 'dir' ? sel.id : 'default'
               setPendingDir(parent)
               setExpanded(m => ({ ...m, [parent]: true }))
             }}
-          >＋ 文件夹
+          ><PlusOutlined /> 文件夹
           </button>
           <input
             className='mg-search'
