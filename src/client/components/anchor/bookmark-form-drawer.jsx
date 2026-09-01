@@ -30,7 +30,7 @@ export default function BookmarkFormDrawer (props) {
     if (!open) return
     setTitle(host ? host.title : '')
     setHostAddr(host ? host.host : '')
-    setPort(host && host.port ? String(host.port) : '')
+    setPort(host && host.port ? String(host.port) : '22')
     setUsername(host ? host.username || '' : '')
     setGroupId(host ? getBookmarkGroupId(store, host.id) : (defaultGroupId || ''))
     setAuthType(host && host.authType ? host.authType : 'password')
@@ -125,7 +125,7 @@ export default function BookmarkFormDrawer (props) {
           {
             authType === 'password'
               ? (
-                <div className='fld'><label>密码</label><input type='password' value={password} onChange={e => setPassword(e.target.value)} placeholder='••••••••' /></div>
+                <div className='fld'><label>密码</label><input type='password' value={password} onChange={e => setPassword(e.target.value)} placeholder='' /></div>
                 )
               : (
                 <div className='fld'><label>私钥</label><input placeholder='~/.ssh/id_rsa(路径)' disabled /></div>
