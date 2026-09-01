@@ -9,27 +9,39 @@ function generateErrorHtml (port) {
       <title>Connection Error</title>
       <style>
         body {
-          font-family: Arial, sans-serif;
-          margin: 40px;
-          line-height: 1.6;
-          background: #fff;
-          color: #333;
+          font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+          margin: 40px auto;
+          max-width: 720px;
+          line-height: 1.7;
+          background: #0f141d;
+          color: #e6edf5;
         }
         h1 {
-          color: #d32f2f;
+          color: #ffb454;
+          font-size: 20px;
+          letter-spacing: 2px;
         }
         .section {
-          margin-bottom: 20px;
+          margin-bottom: 32px;
+          padding: 24px 28px;
+          border: 1px solid #2a3547;
+          border-radius: 8px;
+          background: #151c28;
         }
         ul {
           margin: 10px 0;
           padding-left: 20px;
         }
+        li {
+          margin: 6px 0;
+          color: #8b98ab;
+        }
         .chinese {
-          font-family: 'Noto Sans SC', sans-serif;
+          font-family: 'Noto Sans SC', 'IBM Plex Mono', sans-serif;
         }
         img {
           max-width: 200px;
+          border-radius: 6px;
         }
       </style>
     </head>
