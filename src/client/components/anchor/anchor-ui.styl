@@ -1134,3 +1134,17 @@ body[data-anchor-theme=dark]
     font-weight 600
   .ant-select-item-option-active
     background #1c2534 !important
+
+// 连接失败错误条跟主题(antd dark token 泄漏黑底)
+body[data-anchor-theme=light] .terminal-error-handle
+  background #fbe9e9 !important
+  border-color #f0c4c6 !important
+  color #8f2328 !important
+  .ant-alert-message, .ant-alert-description, .ant-alert-content
+    color #8f2328 !important
+body[data-anchor-theme=dark] .terminal-error-handle
+  background #2a1a1c !important
+  border-color #4a2830 !important
+  color #ff9ba0 !important
+  .ant-alert-message, .ant-alert-description, .ant-alert-content
+    color #ff9ba0 !important
