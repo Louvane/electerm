@@ -447,7 +447,7 @@ export default function ConnectionManager (props) {
       footer={null}
       width={660}
       styles={{ body: { padding: 0 } }}
-      title='🗂 连接管理器'
+      title={<><FolderOutlined /> 连接管理器</>}
       destroyOnHidden
     >
       <div className='anchor-mgr'>
