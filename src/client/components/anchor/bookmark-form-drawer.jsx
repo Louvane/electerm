@@ -60,6 +60,11 @@ export default function BookmarkFormDrawer (props) {
       connectionHoppings: resolveHops(store, hops)
     }
     if (host) item.id = host.id
+    // electerm v1.50.65+ 语义: 有跳板必须标记 hasHopping,
+    // 否则主进程按直连处理, 跳板链反向执行(假通/黑洞挂起)
+    if (item.connectionHoppings.length) {
+      item.hasHopping = true
+    }
     upsertBookmark(store, item, groupId || null)
     message.success((host ? '已保存 ' : '已创建 ') + item.title)
     onClose()
