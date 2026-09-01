@@ -1118,3 +1118,19 @@ body[data-anchor-theme=light] .anchor-btn.pri
   margin-right 2px
 .mg-tree .arrow .anticon
   font-size 9px
+
+// Select 选中/悬停项跟主题(组件token派生链压不住, 直覆)
+body[data-anchor-theme=light]
+  .ant-select-item-option-selected
+    background #f7ecd9 !important
+    color #b26a00 !important
+    font-weight 600
+  .ant-select-item-option-active
+    background #f0f3f7 !important
+body[data-anchor-theme=dark]
+  .ant-select-item-option-selected
+    background #2a2216 !important
+    color #ffb454 !important
+    font-weight 600
+  .ant-select-item-option-active
+    background #1c2534 !important

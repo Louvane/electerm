@@ -61,6 +61,22 @@ html
         0% { left: -30%; }
         100% { left: 100%; }
       }
+      html[data-anchor-theme=light] body,
+      html[data-anchor-theme=light] #content-loading {
+        background: #eef1f5;
+      }
+      html[data-anchor-theme=light] .anchor-splash-word {
+        color: #b26a00;
+      }
+      html[data-anchor-theme=light] .anchor-splash-sub {
+        color: #5d6b7e;
+      }
+      html[data-anchor-theme=light] .anchor-splash-track {
+        background: #d4dbe4;
+      }
+      html[data-anchor-theme=light] .anchor-splash-track::after {
+        background: #b26a00;
+      }
 
     - if (!isDev)
       link(rel='stylesheet', href='css/style-' + version + '.css')
@@ -70,6 +86,13 @@ html
     - if (isDev)
       style(id='theme-css').
       style(id='custom-css').
+    script.
+      // 启动屏即按上次主题渲染(与渲染层同一 key)
+      (function () {
+        var t = 'light'
+        try { t = window.localStorage.getItem('anchor-theme') || 'light' } catch (e) {}
+        document.documentElement.dataset.anchorTheme = t
+      })()
     #container
     #content-loading
       .anchor-splash-word ANCHOR
