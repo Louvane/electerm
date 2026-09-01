@@ -1,6 +1,6 @@
 {
   "name": "anchor",
-  "version": "5.3.4",
+  "version": "5.3.5",
   "description": "Terminal/ssh/sftp client(linux, mac, win) - slim",
   "main": "app.js",
   "bin": "npm/electerm",
