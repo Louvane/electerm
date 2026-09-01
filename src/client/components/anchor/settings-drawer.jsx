@@ -101,6 +101,9 @@ export default auto(function SettingsDrawer (props) {
           </div>
         </div>
       </details>
+      <div style={{ padding: '14px 4px 4px', color: 'var(--fog,#8b98ab)', fontSize: 11, letterSpacing: 1 }}>
+        ANCHOR v{(window.et && window.et.version) || '5.3.3'}
+      </div>
     </Drawer>
   )
 })
