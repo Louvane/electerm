@@ -15,6 +15,7 @@ import SettingsDrawer from '../anchor/settings-drawer'
 import CommandPalette from '../anchor/command-palette'
 import MonitorRail from '../anchor/monitor-rail'
 import { FolderOpenOutlined, ThunderboltOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
+import { ConfigProvider } from 'antd'
 import { isMacJs } from '../../common/constants'
 import WindowControl from '../tabs/window-control'
 import { initAnchorTheme, toggleAnchorTheme } from '../anchor/anchor-theme'
@@ -38,6 +39,35 @@ export default auto(function Layout (props) {
   useEffect(() => {
     setTheme(initAnchorTheme())
   }, [])
+  // antd token 跟 ANCHOR 主题(css-var 模式下 body 级覆盖无效, 须内嵌 Provider)
+  const antdTheme = {
+    token: theme === 'light'
+      ? {
+          colorPrimary: '#b26a00',
+          colorInfo: '#b26a00',
+          colorLink: '#b26a00',
+          colorBgContainer: '#ffffff',
+          colorBgElevated: '#ffffff',
+          colorText: '#1c2634',
+          colorBorder: '#d4dbe4',
+          colorBorderSecondary: '#e6ebf1',
+          colorFillSecondary: '#f0f3f7',
+          colorFillTertiary: '#f7f9fb',
+          colorFillQuaternary: '#fafbfd',
+          colorFillContentHover: '#e6ebf1',
+          colorTextTertiary: '#8b98ab',
+          colorTextQuaternary: '#aab4c2'
+        }
+      : {
+          colorPrimary: '#ffb454',
+          colorInfo: '#ffb454',
+          colorLink: '#ffb454',
+          colorFillContentHover: '#2a3547',
+          colorFillSecondary: '#1c2534',
+          colorFillTertiary: '#151c28',
+          colorTextTertiary: '#8b98ab'
+        }
+  }
   // 劫持旧版“编辑书签”入口(HOST 失败→编辑)，统一走 ANCHOR 主机抽屉
   useEffect(() => {
     const orig = store.openBookmarkEdit
@@ -63,18 +93,19 @@ export default auto(function Layout (props) {
   }, [])
 
   return (
-    <div className='anchor-shell'>
-      <div className={`anchor-titlebar ${isMacJs ? 'mac' : 'win'}`}>
-        <span className='anchor-titlebar-text'>ANCHOR<i>锚点终端</i></span>
-        {!isMacJs ? <WindowControl store={store} /> : null}
-      </div>
-      <div className='anchor-body'>
-        <MonitorRail store={store} tab={currentTab} onOpenSettings={() => setSettingsOpen(true)} />
-        <main className='anchor-main'>
-          <div className='anchor-tabbar'>
-            <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}><FolderOpenOutlined /> 连接管理器</button>
-            <div className='anchor-tabs'>
-              {
+    <ConfigProvider theme={antdTheme}>
+      <div className='anchor-shell'>
+        <div className={`anchor-titlebar ${isMacJs ? 'mac' : 'win'}`}>
+          <span className='anchor-titlebar-text'>ANCHOR<i>锚点终端</i></span>
+          {!isMacJs ? <WindowControl store={store} /> : null}
+        </div>
+        <div className='anchor-body'>
+          <MonitorRail store={store} tab={currentTab} onOpenSettings={() => setSettingsOpen(true)} />
+          <main className='anchor-main'>
+            <div className='anchor-tabbar'>
+              <button className='anchor-mgr-btn' onClick={() => setMgrOpen(true)}><FolderOpenOutlined /> 连接管理器</button>
+              <div className='anchor-tabs'>
+                {
               tabs.map(t => {
                 return (
                   <div
@@ -99,26 +130,26 @@ export default auto(function Layout (props) {
                 )
               })
             }
+              </div>
+              <button className='anchor-newtab' title='快速连接' onClick={() => setView('home')}>+</button>
+              <div className='anchor-spacer' />
+              <button
+                className='anchor-theme-btn'
+                title='常用命令'
+                onClick={() => setCmdOpen(true)}
+              >
+                <ThunderboltOutlined /> 命令
+              </button>
+              <button
+                className='anchor-theme-btn'
+                title='切换昼夜主题'
+                onClick={() => setTheme(toggleAnchorTheme())}
+              >
+                {theme === 'light' ? <><MoonOutlined /> 黑夜</> : <><SunOutlined /> 白天</>}
+              </button>
             </div>
-            <button className='anchor-newtab' title='快速连接' onClick={() => setView('home')}>+</button>
-            <div className='anchor-spacer' />
-            <button
-              className='anchor-theme-btn'
-              title='常用命令'
-              onClick={() => setCmdOpen(true)}
-            >
-              <ThunderboltOutlined /> 命令
-            </button>
-            <button
-              className='anchor-theme-btn'
-              title='切换昼夜主题'
-              onClick={() => setTheme(toggleAnchorTheme())}
-            >
-              {theme === 'light' ? <><MoonOutlined /> 黑夜</> : <><SunOutlined /> 白天</>}
-            </button>
-          </div>
-          <div className='anchor-content'>
-            {
+            <div className='anchor-content'>
+              {
             view === 'term' && store.tabs.length
               ? <TermView store={store} />
               : (
@@ -130,29 +161,29 @@ export default auto(function Layout (props) {
                 />
                 )
           }
-          </div>
-        </main>
-      </div>
-      <ConnectionManager
-        open={mgrOpen}
-        onClose={() => setMgrOpen(false)}
-        store={store}
-        onNewHost={() => { setFormHost(null); setFormOpen(true) }}
-        onConnect={() => setView('term')}
-      />
-      <CommandPalette
-        open={cmdOpen}
-        onClose={() => setCmdOpen(false)}
-        store={store}
-      />
-      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} store={store} />
-      <BookmarkFormDrawer
-        open={formOpen}
-        host={formHost}
-        store={store}
-        onClose={() => setFormOpen(false)}
-      />
-      {
+            </div>
+          </main>
+        </div>
+        <ConnectionManager
+          open={mgrOpen}
+          onClose={() => setMgrOpen(false)}
+          store={store}
+          onNewHost={() => { setFormHost(null); setFormOpen(true) }}
+          onConnect={() => setView('term')}
+        />
+        <CommandPalette
+          open={cmdOpen}
+          onClose={() => setCmdOpen(false)}
+          store={store}
+        />
+        <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} store={store} />
+        <BookmarkFormDrawer
+          open={formOpen}
+          host={formHost}
+          store={store}
+          onClose={() => setFormOpen(false)}
+        />
+        {
         store.fullscreen && (
           <button
             className='anchor-fs-exit'
@@ -168,18 +199,19 @@ export default auto(function Layout (props) {
           </button>
         )
       }
-      <TermSearch
-        currentTab={currentTab}
-        config={store.config}
-        {...pick(store, [
-          'activeTabId',
-          'termSearchOpen',
-          'termSearch',
-          'termSearchOptions',
-          'termSearchMatchCount',
-          'termSearchMatchIndex'
-        ])}
-      />
-    </div>
+        <TermSearch
+          currentTab={currentTab}
+          config={store.config}
+          {...pick(store, [
+            'activeTabId',
+            'termSearchOpen',
+            'termSearch',
+            'termSearchOptions',
+            'termSearchMatchCount',
+            'termSearchMatchIndex'
+          ])}
+        />
+      </div>
+    </ConfigProvider>
   )
 })
