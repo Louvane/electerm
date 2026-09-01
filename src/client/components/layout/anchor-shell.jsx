@@ -111,7 +111,7 @@ export default auto(function Layout (props) {
                   <div
                     key={t.id}
                     className={'anchor-tab' + (currentTab && currentTab.id === t.id ? ' on' : '')}
-                    onClick={() => { store.activeTabId = t.id; setView('term') }}
+                    onClick={() => { store.clickTab(t.id, t.batch ?? store.currentLayoutBatch); setView('term') }}
                   >
                     <span className='dot' />
                     <span>{t.title}</span>
