@@ -7,6 +7,9 @@
  * for linux list groups: `cat /etc/group`
  * for windows list users: do not know yet
  * for windows list groups: do not know yet
+ *
+ * 失败静默: mac dscl 可能报 -14071 (eDSInvalidReference),
+ * 属主列回退显示数字 uid, 无需刷控制台
  */
 
 import { runCmd } from '../terminal/terminal-apis'
@@ -28,7 +31,7 @@ const linuxListGroup = 'cat /etc/group'
 
 export async function remoteListUsers (pid) {
   const users = await runCmd(pid, linuxListUser)
-    .catch(console.error)
+    .catch(() => '')
   if (users) {
     return parseNames(users)
   }
@@ -37,7 +40,7 @@ export async function remoteListUsers (pid) {
 
 export async function remoteListGroups (pid) {
   const groups = await runCmd(pid, linuxListGroup)
-    .catch(console.error)
+    .catch(() => '')
   if (groups) {
     return parseNames(groups)
   }
@@ -49,7 +52,7 @@ export async function localListUsers () {
     return {}
   } else if (isMac) {
     const g = await window.fs.run('dscl . -list /Users UniqueID')
-      .catch(console.error)
+      .catch(() => '')
     return g
       ? g.split('\n')
         .reduce((p, s) => {
@@ -64,7 +67,7 @@ export async function localListUsers () {
         }, {})
       : {}
   } else {
-    const g = await window.fs.run(linuxListUser).catch(console.error)
+    const g = await window.fs.run(linuxListUser).catch(() => '')
     return g
       ? parseNames(g)
       : {}
@@ -76,7 +79,7 @@ export async function localListGroups () {
     return {}
   } else if (isMac) {
     const g = await window.fs.run('dscl . list /Groups PrimaryGroupID')
-      .catch(console.error)
+      .catch(() => '')
     return g
       ? g.split('\n')
         .reduce((p, s) => {
@@ -88,7 +91,7 @@ export async function localListGroups () {
         }, {})
       : {}
   } else {
-    const g = await window.fs.run(linuxListGroup).catch(console.error)
+    const g = await window.fs.run(linuxListGroup).catch(() => '')
     return g
       ? parseNames(g)
       : {}
