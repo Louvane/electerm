@@ -135,6 +135,10 @@ class TerminalSshBase extends TerminalBase {
     ])
     Object.assign(initOptions, pickProps)
     initOptions.connectionHoppings = [...restHoppings, currentHostHopping]
+    // 跳板腿快失败: 黑洞跳板等 50s 才报错体验差, 收紧到 15s
+    // 最终目标腿在 hopping() 里恢复用户原值
+    this.hopReadyTimeoutOrig = initOptions.readyTimeout
+    initOptions.readyTimeout = Math.min(initOptions.readyTimeout || 15000, 15000)
   }
 
   isLikely2FAPrompts (prompts) {
@@ -405,12 +409,16 @@ class TerminalSshBase extends TerminalBase {
     for (let i = 0; i < len; i++) {
       const hopping = connectionHoppings[i]
       this.conns.push(this.conn)
+      this.isLast = i === len - 1
       this.initHoppingOptions = {
         ...hopping,
         agent: this.getAgent(),
-        ...this.getShareOptions()
+        ...this.getShareOptions(),
+        // 最终目标恢复用户超时, 只对跳板腿快失败
+        ...(this.isLast && this.hopReadyTimeoutOrig
+          ? { readyTimeout: this.hopReadyTimeoutOrig }
+          : {})
       }
-      this.isLast = i === len - 1
       const conn = await this.jump()
       if (conn) {
         this.conn = conn
