@@ -159,7 +159,8 @@ export default function ConnectionManager (props) {
       anchorRef.current = key
       return
     }
-    setMultiSel(new Set())
+    // 单击也作为单选取中(惯例: ctrl/cmd 点在单选基础上追加)
+    setMultiSel(new Set([key]))
     setSel(node)
     anchorRef.current = key
   }
@@ -206,8 +207,8 @@ export default function ConnectionManager (props) {
     setMultiSel(new Set())
   }
   function delHosts (ids) {
-    const keys = new Set([...ids].map(id => `host:${id}`))
-    delSelected(keys)
+    // 入参已是 'host:xxx' 复合键(来自 multiSel), 直接转发; 勿二次加前缀
+    delSelected(new Set(ids))
   }
   function delHost (id) {
     const h = selHost(id)

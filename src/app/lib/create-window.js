@@ -40,8 +40,9 @@ exports.createWindow = async function (userConfig) {
     minHeight: minWindowHeight,
     title: packInfo.name,
     frame: useSystemTitleBar,
-    transparent: !useSystemTitleBar,
-    backgroundColor: '#333333',
+    // 透明窗仅 mac(红绿灯隐藏/圆角); Windows 透明窗合成器不绘制->黑区/控件不可见
+    transparent: process.platform === 'darwin' && !useSystemTitleBar,
+    backgroundColor: '#0f141d',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
