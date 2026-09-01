@@ -20,7 +20,7 @@ export default memo(function TerminalErrorHandle ({
             showEditBookmarkButton
               ? (
                 <button className='anchor-btn pri' onClick={onEditBookmark}>编辑主机</button>
-              )
+                )
               : null
           }
           <button
@@ -28,7 +28,8 @@ export default memo(function TerminalErrorHandle ({
               const tab = window.store?.tabs?.find(t => t.id === window.store?.activeTabId)
               if (tab) window.store.delTab(tab.id)
             }}
-          >关闭标签</button>
+          >关闭标签
+          </button>
         </div>
       </div>
     </div>
