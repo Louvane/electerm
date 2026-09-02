@@ -64,7 +64,7 @@ export const TERM_PRESETS = {
   },
   'solarized-dark': {
     name: 'Solarized Dark', bg: '#002b36', fg: '#839496',
-    cursor: '#93a1a1', cursorAccent: '#002b36', selectionBackground: 'rgba(147,161,161,0.30)',
+    cursor: '#93a1a1', cursorAccent: '#002b36', selectionBackground: 'rgba(147,161,161,0.55)',
     black: '#073642', red: '#dc322f', green: '#859900', yellow: '#b58900',
     blue: '#268bd2', magenta: '#d33682', cyan: '#2aa198', white: '#eee8d5',
     brightBlack: '#002b36', brightRed: '#cb4b16', brightGreen: '#586e75', brightYellow: '#657b83',
@@ -72,7 +72,7 @@ export const TERM_PRESETS = {
   },
   'solarized-light': {
     name: 'Solarized Light', bg: '#fdf6e3', fg: '#657b83',
-    cursor: '#93a1a1', cursorAccent: '#fdf6e3', selectionBackground: 'rgba(147,161,161,0.30)',
+    cursor: '#93a1a1', cursorAccent: '#fdf6e3', selectionBackground: 'rgba(147,161,161,0.55)',
     black: '#073642', red: '#dc322f', green: '#859900', yellow: '#b58900',
     blue: '#268bd2', magenta: '#d33682', cyan: '#2aa198', white: '#eee8d5',
     brightBlack: '#eee8d5', brightRed: '#cb4b16', brightGreen: '#93a1a1', brightYellow: '#839496',
@@ -80,7 +80,7 @@ export const TERM_PRESETS = {
   },
   'one-dark': {
     name: 'One Dark', bg: '#282c34', fg: '#abb2bf',
-    cursor: '#528bff', cursorAccent: '#282c34', selectionBackground: 'rgba(62,68,81,0.80)',
+    cursor: '#528bff', cursorAccent: '#282c34', selectionBackground: 'rgba(75,84,99,0.95)',
     black: '#282c34', red: '#e06c75', green: '#98c379', yellow: '#e5c07b',
     blue: '#61afef', magenta: '#c678dd', cyan: '#56b6c2', white: '#abb2bf',
     brightBlack: '#5c6370', brightRed: '#e06c75', brightGreen: '#98c379', brightYellow: '#e5c07b',
@@ -88,7 +88,7 @@ export const TERM_PRESETS = {
   },
   nord: {
     name: 'Nord', bg: '#2e3440', fg: '#d8dee9',
-    cursor: '#d8dee9', cursorAccent: '#2e3440', selectionBackground: 'rgba(136,192,208,0.30)',
+    cursor: '#d8dee9', cursorAccent: '#2e3440', selectionBackground: 'rgba(136,192,208,0.50)',
     black: '#3b4252', red: '#bf616a', green: '#a3be8c', yellow: '#ebcb8b',
     blue: '#81a1c1', magenta: '#b48ead', cyan: '#88c0d0', white: '#e5e9f0',
     brightBlack: '#4c566a', brightRed: '#bf616a', brightGreen: '#a3be8c', brightYellow: '#ebcb8b',

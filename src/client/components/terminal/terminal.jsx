@@ -1519,7 +1519,8 @@ class Term extends Component {
    * translucent even when the user configured an opaque one.
    */
   fixSelectionColors = (term) => {
-    const themeConfig = this.props.themeConfig || {}
+    // 用 preset 覆盖后的渲染配置(琥珀等), 而非 electerm 默认主题(蓝)
+    const themeConfig = this.getRendererThemeConfig(this.props.themeConfig)
     const themeService = term?._core?._themeService
     if (!themeService?.modifyColors) {
       return
