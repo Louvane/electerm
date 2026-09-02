@@ -65,6 +65,10 @@ export default class Sftp extends Component {
         ready: true
       })
     }, 0)
+    this._transferTimer = setInterval(() => {
+      const has = window.store && window.store.fileTransfers && window.store.fileTransfers.some(t => t.tabId === this.props.tab.id && t.inited)
+      if (has) this.forceUpdate()
+    }, 500)
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -106,6 +110,8 @@ export default class Sftp extends Component {
     this.sftp = null
     clearTimeout(this.timer4)
     this.timer4 = null
+    clearInterval(this._transferTimer)
+    this._transferTimer = null
     // Clear sort cache to prevent memory leaks
     this._sortCache?.clear()
     this._lastSortArgs = null
@@ -1330,6 +1336,24 @@ export default class Sftp extends Component {
     })
   }
 
+  renderProgress () {
+    const { tab } = this.props
+    const list = (window.store && window.store.fileTransfers) ? window.store.fileTransfers.filter(t => t.tabId === tab.id && t.inited && !t.error) : []
+    if (!list.length) return null
+    const t = list[0]
+    const pct = t.percent || 0
+    const name = (t.fromPath || t.fromPathReal || t.toPath || '').split('/').pop() || t.fromPath || ''
+    return (
+      <div className='sftp-progress'>
+        <div className='sftp-progress-top'>
+          <span className='sftp-progress-name' title={t.fromPath + ' → ' + t.toPath}>{name}</span>
+          <span className='sftp-progress-meta'>{pct}%{t.speed ? ` · ${t.speed}` : ''}{t.leftTime ? ` · ${t.leftTime}` : ''}</span>
+        </div>
+        <div className='sftp-progress-rail'><div className='sftp-progress-bar' style={{ width: pct + '%' }} /></div>
+      </div>
+    )
+  }
+
   render () {
     const {
       id,
@@ -1352,6 +1376,7 @@ export default class Sftp extends Component {
       <div
         {...all}
       >
+        {this.renderProgress()}
         {
           this.renderSections()
         }
