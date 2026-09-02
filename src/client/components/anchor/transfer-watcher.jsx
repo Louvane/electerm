@@ -97,7 +97,7 @@ export default function TransferWatcher (props) {
 
   const openPanel = () => {
     store.activeTabId = mini.tabId
-    store.editTab(mini.tabId, { pane: 'fileManager' })
+    store.updateTab(mini.tabId, { pane: 'fileManager' })
   }
 
   return (
