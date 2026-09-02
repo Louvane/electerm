@@ -1968,6 +1968,13 @@ class Term extends Component {
     this.socket = socket
     this.initSocketEvents()
     this.term = term
+    // 选中即复制(配合各预设的 selectionBackground, 选中即可粘贴)
+    term.onSelectionChange(() => {
+      if (this.term && this.term.hasSelection()) {
+        const txt = this.term.getSelection()
+        if (txt) copy(txt)
+      }
+    })
     socket.onopen = async () => {
       await this.initAttachAddon()
       this.runInitScript()
