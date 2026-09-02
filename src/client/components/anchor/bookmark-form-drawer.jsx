@@ -127,7 +127,7 @@ export default function BookmarkFormDrawer (props) {
           {
             authType === 'password'
               ? (
-                <div className='fld'><label>密码</label><input type={showPwd ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder='' style={{ flex: 1 }} /><span onClick={() => setShowPwd(v => !v)} style={{ cursor: 'pointer', color: 'var(--fog, #8b98ab)', padding: '0 6px', display: 'flex', alignItems: 'center' }} title={showPwd ? '隐藏密码' : '显示密码'}>{showPwd ? <EyeInvisibleOutlined /> : <EyeOutlined />}</span></div>
+                <div className='fld'><label>密码</label><div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}><input type={showPwd ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder='' style={{ flex: 1, paddingRight: 28 }} /><span onClick={() => setShowPwd(v => !v)} style={{ position: 'absolute', right: 8, cursor: 'pointer', color: 'var(--fog, #8b98ab)', display: 'flex', alignItems: 'center' }} title={showPwd ? '隐藏密码' : '显示密码'}>{showPwd ? <EyeInvisibleOutlined /> : <EyeOutlined />}</span></div></div>
                 )
               : (
                 <div className='fld'><label>私钥</label><input placeholder='~/.ssh/id_rsa(路径)' disabled /></div>
