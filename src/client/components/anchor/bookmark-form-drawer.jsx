@@ -37,13 +37,30 @@ export default function BookmarkFormDrawer (props) {
     setAuthType(host && host.authType ? host.authType : 'password')
     setPassword(host && host.password ? host.password : '')
     setShowPwd(false)
-    // 已有跳板链回填:按 host 匹配引用
-    if (host && host.connectionHoppings && host.connectionHoppings.length) {
+    // 已有跳板链回填:优先用显式保存的 hoppingIds, 否则从 expanded 的 connectionHoppings 反推(兼容旧数据, 尝试去重展开)
+    if (host && (host.connectionHoppingIds || host.hopIds)) {
+      const ids = host.connectionHoppingIds || host.hopIds
+      setHops(ids.filter(Boolean))
+    } else if (host && host.connectionHoppings && host.connectionHoppings.length) {
       const all = getBookmarks(store)
-      setHops(host.connectionHoppings.map(hp => {
-        const ref = all.find(b => b.host === hp.host && (b.port || 22) === (hp.port || 22))
-        return ref ? ref.id : null
-      }))
+      const stored = host.connectionHoppings
+      // 尝试推断原始单选: 若某书签展开后恰等于 stored, 则原始为该单选
+      let deduced = null
+      for (const b of all) {
+        if (b.id === host.id) continue
+        const exp = resolveHops(store, [b.id])
+        if (exp.length === stored.length && exp.every((h, i) => h.host === stored[i].host && (h.port || 22) === (stored[i].port || 22))) {
+          deduced = [b.id]
+          break
+        }
+      }
+      if (deduced) setHops(deduced)
+      else {
+        setHops(stored.map(hp => {
+          const ref = all.find(b => b.host === hp.host && (b.port || 22) === (hp.port || 22))
+          return ref ? ref.id : null
+        }).filter(Boolean))
+      }
     } else {
       setHops([])
     }
@@ -59,13 +76,16 @@ export default function BookmarkFormDrawer (props) {
       authType,
       password: authType === 'password' ? password : undefined,
       authFailConfirm: false,
-      connectionHoppings: resolveHops(store, hops)
+      connectionHoppings: resolveHops(store, hops),
+      connectionHoppingIds: hops.filter(Boolean)
     }
     if (host) item.id = host.id
     // electerm v1.50.65+ 语义: 有跳板必须标记 hasHopping,
     // 否则主进程按直连处理, 跳板链反向执行(假通/黑洞挂起)
     if (item.connectionHoppings.length) {
       item.hasHopping = true
+    } else {
+      item.hasHopping = false
     }
     upsertBookmark(store, item, groupId || null)
     message.success((host ? '已保存 ' : '已创建 ') + item.title)
