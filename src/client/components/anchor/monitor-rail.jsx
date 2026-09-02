@@ -13,7 +13,7 @@ const INTERVAL = 2000
 const STATS_LINUX = 'cat /proc/loadavg /proc/uptime /proc/stat /proc/meminfo /proc/net/dev | head -200'
 const STATS_WIN = 'powershell -NoProfile -Command "\'CPU=\'+((Get-CimInstance Win32_Processor|Measure-Object LoadPercentage -Average).Average)+\';MT=\'+(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize+\';MA=\'+(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory+\';UP=\'+[int](((Get-Date)-(Get-CimInstance Win32_OperatingSystem).LastBootUpTime).TotalSeconds)+\';RX=\'+(Get-NetAdapterStatistics|Measure-Object ReceivedBytes -Sum).Sum+\';TX=\'+(Get-NetAdapterStatistics|Measure-Object SentBytes -Sum).Sum+\';ST=\'+(Get-CimInstance Win32_OperatingSystem).TotalVirtualMemorySize+\';SF=\'+(Get-CimInstance Win32_OperatingSystem).FreeVirtualMemory"'
 const DISK_LINUX = 'df -kP -x tmpfs -x devtmpfs -x squashfs -x overlay -x shm -x iso9660 | tail -n +2'
-const DISK_WIN = 'powershell -NoProfile -Command "(Get-PSDrive C).Used+\' \'+(Get-PSDrive C).Free"'
+const DISK_WIN = `powershell -NoProfile -Command "Get-PSDrive -PSProvider FileSystem | ForEach-Object { $_.Name + '|' + [long]$_.Used + '|' + [long]$_.Free + '|' + $_.Root }"`
 
 function statsCmdFor (os) {
   return os === 'win' ? STATS_WIN : STATS_LINUX
