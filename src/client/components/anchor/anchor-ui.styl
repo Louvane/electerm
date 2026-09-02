@@ -1135,3 +1135,104 @@ body[data-anchor-theme=dark]
   .ant-select-item-option-active
     background #1c2534 !important
 
+// ===== 统一提示分级(P8) =====
+.anchor-notify
+  .ant-message-notice-content
+    background var(--ink2, #1c2534) !important
+    border 1px solid var(--line, #2a3547)
+    color var(--snow, #e6edf5) !important
+    border-radius 7px
+    box-shadow 0 6px 18px rgba(0,0,0,0.35)
+    font-size 12.5px
+  .anticon
+    color var(--fog, #8b98ab) !important
+  &.ok .anticon
+    color var(--signal, #3fd68f) !important
+  &.warn .anticon
+    color var(--amber, #ffb454) !important
+  &.err .anticon, &.err
+    .anticon
+      color var(--alert, #f2555a) !important
+    .ant-message-notice-content
+      border-color rgba(242, 85, 90, 0.55)
+.anchor-notify-row
+  display inline-flex
+  align-items center
+  gap 12px
+.anchor-notify-act
+  color var(--amber, #ffb454)
+  cursor pointer
+body[data-anchor-theme=light] .anchor-notify
+  .ant-message-notice-content
+    background var(--ink2, #ffffff) !important
+    border-color var(--line, #d4dbe4)
+    color var(--snow, #1c2634) !important
+    box-shadow 0 4px 14px rgba(0,0,0,0.12)
+
+// ===== 传输迷你浮条(面板关闭时) =====
+.anchor-transfer-float
+  position fixed
+  right 14px
+  bottom 14px
+  z-index 900
+  width 264px
+  padding 9px 12px
+  border-radius 8px
+  background var(--ink2, #1c2534)
+  border 1px solid var(--line, #2a3547)
+  box-shadow 0 8px 24px rgba(0,0,0,0.4)
+  cursor pointer
+  user-select none
+  transition opacity 0.15s
+  &:hover
+    border-color var(--amber, #ffb454)
+  .atf-top
+    display flex
+    justify-content space-between
+    align-items center
+    gap 8px
+    font-size 12px
+  .atf-name
+    flex 1
+    min-width 0
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+    color var(--snow, #e6edf5)
+  .atf-meta
+    flex-shrink 0
+    color var(--amber, #ffb454)
+    font-family "IBM Plex Mono", monospace
+    font-size 11px
+  .atf-rail
+    height 3px
+    margin-top 7px
+    background var(--rail, #232d3e)
+    border-radius 2px
+    overflow hidden
+    .atf-bar
+      height 100%
+      background var(--amber, #ffb454)
+      border-radius 2px
+      transition width 0.4s
+  .atf-close
+    position absolute
+    top 4px
+    right 6px
+    color var(--fog, #8b98ab)
+    font-size 11px
+    padding 2px
+    border-radius 3px
+    opacity 0
+    transition opacity 0.12s
+  &:hover .atf-close
+    opacity 1
+  .atf-close:hover
+    color var(--alert, #f2555a)
+body[data-anchor-theme=light] .anchor-transfer-float
+  background var(--ink2, #ffffff)
+  border-color var(--line, #d4dbe4)
+  box-shadow 0 6px 16px rgba(0,0,0,0.12)
+  .atf-name
+    color var(--snow, #1c2634)
+

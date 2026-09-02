@@ -14,6 +14,7 @@ import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
 import SettingsDrawer from '../anchor/settings-drawer'
 import CommandPalette from '../anchor/command-palette'
 import MonitorRail from '../anchor/monitor-rail'
+import TransferWatcher from '../anchor/transfer-watcher'
 import { FolderOpenOutlined, ThunderboltOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { ConfigProvider } from 'antd'
 import { isMacJs } from '../../common/constants'
@@ -177,6 +178,7 @@ export default auto(function Layout (props) {
           store={store}
         />
         <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} store={store} />
+        <TransferWatcher store={store} />
         <BookmarkFormDrawer
           open={formOpen}
           host={formHost}

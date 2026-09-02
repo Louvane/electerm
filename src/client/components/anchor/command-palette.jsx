@@ -8,6 +8,7 @@ import { auto } from 'manate/react'
 import { CloseOutlined, ThunderboltOutlined, FormOutlined, EditOutlined } from '@ant-design/icons'
 import message from '../common/message'
 import { addQuickCommand, editQuickCommand, delQuickCommand } from './anchor-qm-api'
+import { notify } from './anchor-notify'
 
 export default auto(function CommandPalette (props) {
   const { open, onClose, store } = props
@@ -64,7 +65,7 @@ export default auto(function CommandPalette (props) {
 
   function run (id) {
     if (!store.tabs.some(t => t.id === store.activeTabId)) {
-      message.warning('请先连接一个会话')
+      notify('warning', '请先连接一个会话')
       return
     }
     bumpFreq(id)
@@ -74,14 +75,14 @@ export default auto(function CommandPalette (props) {
 
   function saveEditing () {
     const command = (editing.command || '').trim()
-    if (!command) { message.warning('命令不能为空'); return }
+    if (!command) { notify('warning', '命令不能为空'); return }
     const name = (editing.name || '').trim() || command
     if (editing.id) {
       editQuickCommand(store, editing.id, { name, command })
-      message.success('已保存')
+      notify('success', '已保存')
     } else {
       addQuickCommand(store, { name, command })
-      message.success('已添加')
+      notify('success', '已添加')
     }
     setEditing(null)
   }
@@ -98,7 +99,7 @@ export default auto(function CommandPalette (props) {
         label: '撤销',
         onClick: () => {
           addQuickCommand(store, q)
-          message.success('已恢复')
+          notify('success', '已恢复')
         }
       }
     })

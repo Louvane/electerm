@@ -6,7 +6,7 @@
  */
 import React, { useState, useEffect } from 'react'
 import { CloseOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons'
-import { Drawer, Select, message } from 'antd'
+import { Drawer, Select } from 'antd'
 import {
   getBookmarks,
   upsertBookmark,
@@ -73,7 +73,7 @@ export default function BookmarkFormDrawer (props) {
   }, [open, host])
 
   function save () {
-    if (!hostAddr.trim()) { message.error('地址必填'); return }
+    if (!hostAddr.trim()) { notify('error', '地址必填'); return }
     const item = {
       title: title.trim() || hostAddr.trim(),
       host: hostAddr.trim(),
@@ -97,7 +97,7 @@ export default function BookmarkFormDrawer (props) {
       item.hasHopping = false
     }
     upsertBookmark(store, item, groupId || null)
-    message.success((host ? '已保存 ' : '已创建 ') + item.title)
+    notify('success', (host ? '已保存 ' : '已创建 ') + item.title)
     onClose()
   }
 

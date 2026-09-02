@@ -7,6 +7,7 @@ import React from 'react'
 import { auto } from 'manate/react'
 import message from '../common/message'
 import { getRecents, clearRecents } from '../../common/anchor-api'
+import { notify } from './anchor-notify'
 
 export default auto(function QuickConnect (props) {
   const { store, onOpenManager, onNewHost } = props
@@ -69,7 +70,7 @@ export default auto(function QuickConnect (props) {
                       store.onSelectBookmark(bid)
                       props.onConnect && props.onConnect()
                     } else {
-                      message.info('该记录对应的主机已不存在')
+                      notify('info', '该记录对应的主机已不存在')
                     }
                   }}
                   onContextMenu={(e) => {

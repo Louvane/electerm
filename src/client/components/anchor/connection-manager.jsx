@@ -21,6 +21,7 @@ import {
   getBookmarkGroupId
 } from '../../common/anchor-api'
 import BookmarkFormDrawer from './bookmark-form-drawer'
+import { notify } from './anchor-notify'
 
 const esc = str => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
 
@@ -113,7 +114,7 @@ export default function ConnectionManager (props) {
 
   function connect (hostId) {
     store.onSelectBookmark(hostId)
-    message.success('已连接')
+    notify('success', '已连接')
     props.onConnect && props.onConnect()
     if (closeAfterRef.current) onClose()
   }
@@ -184,7 +185,7 @@ export default function ConnectionManager (props) {
       if (g && !(g.bookmarkIds || []).length && !(g.bookmarkGroupIds || []).length) { delGroup(store, id); dirDel++ }
     })
     const n = hosts.length + dirDel
-    if (!n) { message.info('仅可批量删除主机及空文件夹'); return }
+    if (!n) { notify('info', '仅可批量删除主机及空文件夹'); return }
     message.open({
       duration: 5,
       content: (
@@ -197,7 +198,7 @@ export default function ConnectionManager (props) {
                 const gid = getBookmarkGroupId(store, h.id) || 'default'
                 upsertBookmark(store, h, gid)
               })
-              message.success('已恢复主机')
+              notify('success', '已恢复主机')
             }}
           >撤销
           </button>
@@ -224,7 +225,7 @@ export default function ConnectionManager (props) {
             style={{ border: 'none', background: 'none', color: '#ffb454', cursor: 'pointer' }}
             onClick={() => {
               upsertBookmark(store, h, gid)
-              message.success('已恢复')
+              notify('success', '已恢复')
             }}
           >撤销
           </button>
@@ -255,7 +256,7 @@ export default function ConnectionManager (props) {
     count(tree)
     if (!hosts && !dirs) {
       delGroup(store, id)
-      message.success('已删除空分组')
+      notify('success', '已删除空分组')
       return
     }
     Modal.confirm({
@@ -266,7 +267,7 @@ export default function ConnectionManager (props) {
       cancelText: '取消',
       onOk: () => {
         delGroup(store, id)
-        message.success('已删除分组,子项已上移')
+        notify('success', '已删除分组,子项已上移')
       }
     })
   }
@@ -425,7 +426,7 @@ export default function ConnectionManager (props) {
         <div className='cap'>HOST</div>
         <div onClick={() => { setMenu(null); connect(node.id) }}>连接 <span className='sub'>↵</span></div>
         <div onClick={() => { setMenu(null); setFormHost(selHost(node.id)); setFormOpen(true) }}>编辑</div>
-        <div onClick={() => { copyBookmark(store, node.id); setMenu(null); message.success('已创建副本') }}>复制主机</div>
+        <div onClick={() => { copyBookmark(store, node.id); setMenu(null); notify('success', '已创建副本') }}>复制主机</div>
         <div onClick={() => setMenu({ ...menu, view: 'move' })}>移动到… <span className='sub'>›</span></div>
         <div className='sep' />
         {multiSel.size > 1 && multiSel.has(`${node.kind}:${node.id}`)
@@ -438,7 +439,7 @@ export default function ConnectionManager (props) {
   function doMove (node, toGroupId) {
     node.kind === 'dir' ? moveGroup(store, node.id, toGroupId) : moveBookmark(store, node.id, toGroupId)
     setMenu(null)
-    message.success('已移动')
+    notify('success', '已移动')
   }
 
   return (
