@@ -4,7 +4,8 @@
  * 数据操作全部走 anchor-api(见 SPEC.md §4 交互规格)。
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { Modal, message } from 'antd'
+import { Modal } from 'antd'
+import message from '../common/message'
 import { FolderOutlined, DesktopOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons'
 import {
   getBookmarkTree,

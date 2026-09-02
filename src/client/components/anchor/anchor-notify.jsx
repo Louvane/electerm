@@ -4,21 +4,13 @@
  * 全部走 antd message, 定制 class 跟琥珀 token, top 48px 避开标题栏。
  */
 import React from 'react'
-import { message } from 'antd'
-
-let inited = false
-function ensureInit () {
-  if (inited) return
-  inited = true
-  // 避开 40px 标题栏 drag 带
-  message.config({ top: 48 })
-}
+import message from '../common/message'
 
 const LEVELS = {
-  success: { dur: 1.5, cls: 'anchor-notify ok' },
-  info: { dur: 2, cls: 'anchor-notify' },
-  warning: { dur: 3, cls: 'anchor-notify warn' },
-  error: { dur: 4, cls: 'anchor-notify err' }
+  success: { dur: 1.5 },
+  info: { dur: 2 },
+  warning: { dur: 3 },
+  error: { dur: 4 }
 }
 
 /**
@@ -26,7 +18,6 @@ const LEVELS = {
  * opts.duration 覆盖时长; opts.action ReactNode 渲染右侧操作区(如 撤销/重试)
  */
 export function notify (level, text, opts = {}) {
-  ensureInit()
   const conf = LEVELS[level] || LEVELS.info
   const content = opts.action
     ? (
@@ -37,8 +28,8 @@ export function notify (level, text, opts = {}) {
       )
     : text
   message.open({
+    type: level,
     content,
-    duration: opts.duration != null ? opts.duration : conf.dur,
-    className: conf.cls
+    duration: opts.duration != null ? opts.duration : conf.dur
   })
 }

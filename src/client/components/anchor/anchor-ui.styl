@@ -1135,26 +1135,22 @@ body[data-anchor-theme=dark]
   .ant-select-item-option-active
     background #1c2534 !important
 
-// ===== 统一提示分级(P8) =====
-.anchor-notify
-  .ant-message-notice-content
-    background var(--ink2, #1c2534) !important
-    border 1px solid var(--line, #2a3547)
-    color var(--snow, #e6edf5) !important
-    border-radius 7px
-    box-shadow 0 6px 18px rgba(0,0,0,0.35)
-    font-size 12.5px
-  .anticon
-    color var(--fog, #8b98ab) !important
-  &.ok .anticon
-    color var(--signal, #3fd68f) !important
-  &.warn .anticon
-    color var(--amber, #ffb454) !important
-  &.err .anticon, &.err
-    .anticon
-      color var(--alert, #f2555a) !important
-    .ant-message-notice-content
-      border-color rgba(242, 85, 90, 0.55)
+// ===== 统一提示分级(P8) — electerm 自研 message 容器 =====
+.message-container
+  z-index 1200
+.message-item
+  border-radius 7px
+  border 1px solid var(--line, #2a3547)
+  background var(--ink2, #1c2534)
+  color var(--snow, #e6edf5)
+  box-shadow 0 6px 18px rgba(0,0,0,0.35)
+  font-size 12.5px
+  &.success
+    border-color rgba(63, 214, 143, 0.45)
+  &.warning
+    border-color rgba(255, 180, 84, 0.55)
+  &.error
+    border-color rgba(242, 85, 90, 0.55)
 .anchor-notify-row
   display inline-flex
   align-items center
@@ -1162,12 +1158,11 @@ body[data-anchor-theme=dark]
 .anchor-notify-act
   color var(--amber, #ffb454)
   cursor pointer
-body[data-anchor-theme=light] .anchor-notify
-  .ant-message-notice-content
-    background var(--ink2, #ffffff) !important
-    border-color var(--line, #d4dbe4)
-    color var(--snow, #1c2634) !important
-    box-shadow 0 4px 14px rgba(0,0,0,0.12)
+body[data-anchor-theme=light] .message-item
+  background var(--ink2, #ffffff) !important
+  border-color var(--line, #d4dbe4)
+  color var(--snow, #1c2634) !important
+  box-shadow 0 4px 14px rgba(0,0,0,0.12)
 
 // ===== 传输迷你浮条(面板关闭时) =====
 .anchor-transfer-float
