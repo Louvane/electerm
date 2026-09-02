@@ -12,8 +12,8 @@ const INTERVAL = 2000
 // 跨平台采集: Linux /proc + Windows PowerShell(输出 KEY=VAL)
 const STATS_LINUX = 'cat /proc/loadavg /proc/uptime /proc/stat /proc/meminfo /proc/net/dev | head -200'
 const STATS_WIN = 'powershell -NoProfile -Command "\'CPU=\'+((Get-CimInstance Win32_Processor|Measure-Object LoadPercentage -Average).Average)+\';MT=\'+(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize+\';MA=\'+(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory+\';UP=\'+[int](((Get-Date)-(Get-CimInstance Win32_OperatingSystem).LastBootUpTime).TotalSeconds)+\';RX=\'+(Get-NetAdapterStatistics|Measure-Object ReceivedBytes -Sum).Sum+\';TX=\'+(Get-NetAdapterStatistics|Measure-Object SentBytes -Sum).Sum+\';ST=\'+(Get-CimInstance Win32_OperatingSystem).TotalVirtualMemorySize+\';SF=\'+(Get-CimInstance Win32_OperatingSystem).FreeVirtualMemory"'
-const DISK_LINUX = 'df -kP -x tmpfs -x devtmpfs -x squashfs -x overlay -x shm -x iso9660 | tail -n +2'
-const DISK_WIN = `powershell -NoProfile -Command "Get-PSDrive -PSProvider FileSystem | ForEach-Object { $_.Name + '|' + [long]$_.Used + '|' + [long]$_.Free + '|' + $_.Root }"`
+const DISK_LINUX = 'df -kP -x tmpfs -x devtmpfs -x overlay -x shm | tail -n +2'
+const DISK_WIN = 'powershell -NoProfile -Command "Get-PSDrive -PSProvider FileSystem | ForEach-Object { $_.Name + \'|\' + [long]$_.Used + \'|\' + [long]$_.Free + \'|\' + $_.Root }"'
 
 function statsCmdFor (os) {
   return os === 'win' ? STATS_WIN : STATS_LINUX
@@ -158,6 +158,14 @@ export default function MonitorRail (props) {
   const { store, tab, onOpenSettings } = props
   const [points, setPoints] = useState([])
   const [disks, setDisks] = useState([])
+  const [diskExpanded, setDiskExpanded] = useState(false)
+  const [diskOs, setDiskOs] = useState('linux')
+  const shortMount = m => {
+    if (m === '/') return '/'
+    if (m.startsWith('/var/lib/')) return '…/' + m.split('/').pop()
+    if (m.length > 16) return '…' + m.slice(-15)
+    return m
+  }
   const [live, setLive] = useState(false)
   const [chartMode, setChartMode] = useState('mem')
   const prevRef = useRef(null)
@@ -220,6 +228,7 @@ export default function MonitorRail (props) {
   useEffect(() => {
     if (!isActive) return undefined
     setDisks([])
+    setDiskExpanded(false)
     const tick = async () => {
       try {
         const os = osRef.current || 'linux'
@@ -237,13 +246,17 @@ export default function MonitorRail (props) {
           String(out).trim().split('\n').forEach(line => {
             const f = line.trim().split(/\s+/)
             if (f.length < 6) return
+            const mount = f[5]
+            // 极端过滤: k8s 容器内部挂载 + 伪挂载兜底(df -x 已滤大部分)
+            if (mount === '/dev' || mount === '/dev/shm' || mount === '/run' || mount.startsWith('/run/user') || mount === '/sys/fs/cgroup' || mount === '/tmp' || mount.includes('kubelet/pods') || mount.includes('containers/storage') || mount.includes('docker/containers') || mount.endsWith('/mounts/shm') || mount.includes('overlay2')) return
             const total = parseInt10(f[1]); const used = parseInt10(f[2])
             if (!isFinite(total) || !isFinite(used) || total === 0) return
-            rows.push({ mount: f[5], usedG: used / 1048576, totalG: total / 1048576 })
+            rows.push({ mount, usedG: used / 1048576, totalG: total / 1048576 })
           })
         }
         rows.sort((a, b) => b.totalG - a.totalG)
-        setDisks(rows.slice(0, 3))
+        setDisks(rows)
+        setDiskOs(os)
       } catch (e) {}
     }
     tick()
@@ -361,16 +374,76 @@ export default function MonitorRail (props) {
       </div>
       <div className='anchor-rail-foot'>
         <div className='anchor-cap'>DISK</div>
-        {(
-          disks.length
-            ? disks.map(d => (
-              <div className='anchor-kv' key={d.mount}>
-                <span title={d.mount}>{d.mount === '/' ? '/' : d.mount.replace(/\/$/, '')}</span>
-                <b>{d.usedG.toFixed(0)}G / {d.totalG.toFixed(0)}G</b>
-              </div>
-            ))
-            : <div className='anchor-kv'><span>/</span><b>—</b></div>
-        )}
+        {(() => {
+          if (!disks.length) return <div className='anchor-kv'><span>/</span><b>—</b></div>
+          const isWin = (diskOs === 'win')
+          if (isWin) {
+            // Windows: 盘符列表, 超3折叠
+            const show = diskExpanded ? disks : disks.slice(0, 3)
+            return (
+              <>
+                {show.map(d => {
+                  const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
+                  return (
+                    <div className='anchor-kv' key={d.mount}>
+                      <span title={d.mount}>{shortMount(d.mount)}</span>
+                      <b>{d.usedG.toFixed(0)}/{d.totalG.toFixed(0)}G {pct.toFixed(0)}%</b>
+                    </div>
+                  )
+                })}
+                {disks.length > 3 && (
+                  <button className='disk-toggle' onClick={() => setDiskExpanded(v => !v)}>
+                    {diskExpanded ? '收起 ▴' : `其他 ${disks.length - 3} 个盘符 ▸`}
+                  </button>
+                )}
+              </>
+            )
+          }
+          const root = disks.find(d => d.mount === '/')
+          const others = disks.filter(d => d.mount !== '/')
+          const rootPct = root ? (root.usedG * 100 / root.totalG) : 0
+          const rootColor = rootPct > 85 ? 'var(--alert, #f2555a)' : rootPct > 70 ? 'var(--amber, #ffb454)' : 'var(--signal, #3fd68f)'
+          return (
+            <>
+              {root
+                ? (
+                  <div className='disk-root gauge'>
+                    <div className='top'><span className='k'>/</span><span className='v' style={{ color: rootColor }}>{rootPct.toFixed(0)}%</span></div>
+                    <div className='rail'><div style={{ width: rootPct + '%', background: rootColor }} /></div>
+                    <div className='sub'>{root.usedG.toFixed(0)}G / {root.totalG.toFixed(0)}G</div>
+                  </div>
+                  )
+                : null}
+              {others.length
+                ? (
+                  <>
+                    <button className='disk-toggle' onClick={() => setDiskExpanded(v => !v)}>
+                      {diskExpanded ? '收起 ▴' : `其他 ${others.length} 个挂载 ▸`}
+                    </button>
+                    {diskExpanded && (
+                      <div className='disk-list'>
+                        {others.map(d => {
+                          const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
+                          const c = pct > 85
+                            ? 'var(--alert, #f2555a)'
+                            : pct > 70
+                              ? 'var(--amber, #ffb454)'
+                              : 'var(--fog, #8b98ab)'
+                          return (
+                            <div className='anchor-kv' key={d.mount}>
+                              <span title={d.mount} style={{ color: c }}>{d.mount.replace(/\/$/, '')}</span>
+                              <b>{d.usedG.toFixed(0)}/{d.totalG.toFixed(0)}G {pct.toFixed(0)}%</b>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </>
+                  )
+                : null}
+            </>
+          )
+        })()}
         <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'><SettingOutlined /> 设置</button>
       </div>
     </aside>
