@@ -305,6 +305,12 @@ class Term extends Component {
   }
 
   checkConfigChange = (prevProps, props) => {
+    // manate 响应式 prevProps 读出即新值, prev!==curr 恒假 -> preset 切换检测失效
+    if (this.__lastPreset !== props.config?.terminalPreset) {
+      this.__lastPreset = props.config?.terminalPreset
+      applyTermBg()
+      this.applyTerminalTheme()
+    }
     for (const k of this.terminalConfigProps) {
       const { name, type } = k
       const prev = this.getValue(prevProps, type, name)
@@ -1472,7 +1478,11 @@ class Term extends Component {
     const cfg = deepCopy(themeConfig)
     // 终端配色独立于应用主题: 跟 store.config.terminalPreset 预设
     const preset = getTermPreset(this.props.config?.terminalPreset)
-    Object.assign(cfg, preset)
+    // preset 用简写 fg/bg, xterm 需全名 foreground/background
+    Object.assign(cfg, preset, {
+      foreground: preset.fg,
+      background: preset.bg
+    })
     return createRendererThemeConfig(
       cfg,
       this.props.config.rendererType,
@@ -1492,7 +1502,8 @@ class Term extends Component {
     if (!term || this.onClose) {
       return
     }
-    term.options.theme = this.getRendererThemeConfig(this.props.themeConfig)
+    const __t = this.getRendererThemeConfig(this.props.themeConfig)
+    term.options.theme = __t
     this.fixSelectionColors(term)
     term.refresh(0, term.rows - 1)
     if (deferred && this.props.config.rendererType === rendererTypes.webGL) {
