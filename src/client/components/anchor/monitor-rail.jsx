@@ -12,7 +12,7 @@ const INTERVAL = 2000
 // 跨平台采集: Linux /proc + Windows PowerShell(输出 KEY=VAL)
 const STATS_LINUX = 'cat /proc/loadavg /proc/uptime /proc/stat /proc/meminfo /proc/net/dev | head -200'
 const STATS_WIN = 'powershell -NoProfile -Command "\'CPU=\'+((Get-CimInstance Win32_Processor|Measure-Object LoadPercentage -Average).Average)+\';MT=\'+(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize+\';MA=\'+(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory+\';UP=\'+[int](((Get-Date)-(Get-CimInstance Win32_OperatingSystem).LastBootUpTime).TotalSeconds)+\';RX=\'+(Get-NetAdapterStatistics|Measure-Object ReceivedBytes -Sum).Sum+\';TX=\'+(Get-NetAdapterStatistics|Measure-Object SentBytes -Sum).Sum+\';ST=\'+(Get-CimInstance Win32_OperatingSystem).TotalVirtualMemorySize+\';SF=\'+(Get-CimInstance Win32_OperatingSystem).FreeVirtualMemory"'
-const DISK_LINUX = 'df -k / | tail -1'
+const DISK_LINUX = 'df -kP -x tmpfs -x devtmpfs -x squashfs -x overlay -x shm -x iso9660 | tail -n +2'
 const DISK_WIN = 'powershell -NoProfile -Command "(Get-PSDrive C).Used+\' \'+(Get-PSDrive C).Free"'
 
 function statsCmdFor (os) {
@@ -157,7 +157,7 @@ function Spark ({ data, color }) {
 export default function MonitorRail (props) {
   const { store, tab, onOpenSettings } = props
   const [points, setPoints] = useState([])
-  const [disk, setDisk] = useState('')
+  const [disks, setDisks] = useState([])
   const [live, setLive] = useState(false)
   const [chartMode, setChartMode] = useState('mem')
   const prevRef = useRef(null)
@@ -219,23 +219,31 @@ export default function MonitorRail (props) {
   // 低频刷新磁盘
   useEffect(() => {
     if (!isActive) return undefined
-    setDisk('—')
+    setDisks([])
     const tick = async () => {
       try {
         const os = osRef.current || 'linux'
         const res = await execCmdDirect(tab.id, diskCmdFor(os), TIMEOUT, { silent: true }).catch(() => null)
         const out = res && typeof res === 'object' && 'stdout' in res ? res.stdout : res
+        const rows = []
         if (os === 'win') {
-          const f = String(out).replace(/\r/g, '').trim().split(/\s+/)
-          if (f.length >= 2) {
-            setDisk(`${(parseInt10(f[0]) / 1073741824).toFixed(0)}G / ${(parseInt10(f[0]) / 1073741824 + parseInt10(f[1]) / 1073741824).toFixed(0)}G`)
-          }
+          String(out).replace(/\r/g, '').trim().split('\n').forEach(line => {
+            const [name, used, free, root] = line.split('|')
+            const u = parseInt10(used); const fr = parseInt10(free)
+            if (!name || !isFinite(u) || !isFinite(fr) || u + fr === 0) return
+            rows.push({ mount: (root || name + ':').replace(/\\$/, ''), usedG: u / 1073741824, totalG: (u + fr) / 1073741824 })
+          })
         } else {
-          const f = String(out).trim().split(/\s+/)
-          if (f.length >= 4) {
-            setDisk(`${(parseInt10(f[2]) / 1048576).toFixed(0)}G / ${(parseInt10(f[1]) / 1048576).toFixed(0)}G`)
-          }
+          String(out).trim().split('\n').forEach(line => {
+            const f = line.trim().split(/\s+/)
+            if (f.length < 6) return
+            const total = parseInt10(f[1]); const used = parseInt10(f[2])
+            if (!isFinite(total) || !isFinite(used) || total === 0) return
+            rows.push({ mount: f[5], usedG: used / 1048576, totalG: total / 1048576 })
+          })
         }
+        rows.sort((a, b) => b.totalG - a.totalG)
+        setDisks(rows.slice(0, 3))
       } catch (e) {}
     }
     tick()
@@ -353,7 +361,16 @@ export default function MonitorRail (props) {
       </div>
       <div className='anchor-rail-foot'>
         <div className='anchor-cap'>DISK</div>
-        <div className='anchor-kv'><span>/</span><b>{disk || '—'}</b></div>
+        {(
+          disks.length
+            ? disks.map(d => (
+              <div className='anchor-kv' key={d.mount}>
+                <span title={d.mount}>{d.mount === '/' ? '/' : d.mount.replace(/\/$/, '')}</span>
+                <b>{d.usedG.toFixed(0)}G / {d.totalG.toFixed(0)}G</b>
+              </div>
+            ))
+            : <div className='anchor-kv'><span>/</span><b>—</b></div>
+        )}
         <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'><SettingOutlined /> 设置</button>
       </div>
     </aside>
