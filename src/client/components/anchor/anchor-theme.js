@@ -40,7 +40,7 @@ export const ANCHOR_THEMES = {
 export const TERM_PRESETS = {
   'anchor-dark': {
     name: '琥珀暗(默认)', bg: '#0f141d', fg: '#dce1f0',
-    cursor: '#ffb454', cursorAccent: '#0f141d', selectionBackground: 'rgba(255,180,84,0.30)',
+    cursor: '#ffb454', cursorAccent: '#0f141d', selectionBackground: 'rgba(255,180,84,0.48)',
     black: '#3a3d52', red: '#ff6b6b', green: '#3fd68f', yellow: '#ffd483',
     blue: '#5c8dff', magenta: '#c792ea', cyan: '#7fdbca', white: '#e8ebf4',
     brightBlack: '#565a7a', brightRed: '#ff8b8b', brightGreen: '#6ee7a8', brightYellow: '#ffe3a3',
