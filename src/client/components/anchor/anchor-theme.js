@@ -48,7 +48,7 @@ export const TERM_PRESETS = {
   },
   'anchor-light': {
     name: '纸白', bg: '#ffffff', fg: '#1c2634',
-    cursor: '#b26a00', cursorAccent: '#ffffff', selectionBackground: 'rgba(178,106,0,0.25)',
+    cursor: '#b26a00', cursorAccent: '#ffffff', selectionBackground: 'rgba(178,106,0,0.45)',
     black: '#3a4356', red: '#c04343', green: '#177a4c', yellow: '#9a5b00',
     blue: '#20599e', magenta: '#7a3f9e', cyan: '#0c6a74', white: '#77839a',
     brightBlack: '#5d6b7e', brightRed: '#d43741', brightGreen: '#1e9e63', brightYellow: '#b26a00',
@@ -64,7 +64,7 @@ export const TERM_PRESETS = {
   },
   'solarized-dark': {
     name: 'Solarized Dark', bg: '#002b36', fg: '#839496',
-    cursor: '#93a1a1', cursorAccent: '#002b36', selectionBackground: 'rgba(147,161,161,0.55)',
+    cursor: '#93a1a1', cursorAccent: '#002b36', selectionBackground: 'rgba(181,137,0,0.55)', selectionForeground: '#fdf6e3',
     black: '#073642', red: '#dc322f', green: '#859900', yellow: '#b58900',
     blue: '#268bd2', magenta: '#d33682', cyan: '#2aa198', white: '#eee8d5',
     brightBlack: '#002b36', brightRed: '#cb4b16', brightGreen: '#586e75', brightYellow: '#657b83',
@@ -72,7 +72,7 @@ export const TERM_PRESETS = {
   },
   'solarized-light': {
     name: 'Solarized Light', bg: '#fdf6e3', fg: '#657b83',
-    cursor: '#93a1a1', cursorAccent: '#fdf6e3', selectionBackground: 'rgba(147,161,161,0.55)',
+    cursor: '#93a1a1', cursorAccent: '#fdf6e3', selectionBackground: 'rgba(181,137,0,0.45)', selectionForeground: '#073642',
     black: '#073642', red: '#dc322f', green: '#859900', yellow: '#b58900',
     blue: '#268bd2', magenta: '#d33682', cyan: '#2aa198', white: '#eee8d5',
     brightBlack: '#eee8d5', brightRed: '#cb4b16', brightGreen: '#93a1a1', brightYellow: '#839496',
@@ -88,7 +88,7 @@ export const TERM_PRESETS = {
   },
   nord: {
     name: 'Nord', bg: '#2e3440', fg: '#d8dee9',
-    cursor: '#d8dee9', cursorAccent: '#2e3440', selectionBackground: 'rgba(136,192,208,0.50)',
+    cursor: '#d8dee9', cursorAccent: '#2e3440', selectionBackground: 'rgba(136,192,208,0.75)', selectionForeground: '#2e3440',
     black: '#3b4252', red: '#bf616a', green: '#a3be8c', yellow: '#ebcb8b',
     blue: '#81a1c1', magenta: '#b48ead', cyan: '#88c0d0', white: '#e5e9f0',
     brightBlack: '#4c566a', brightRed: '#bf616a', brightGreen: '#a3be8c', brightYellow: '#ebcb8b',
