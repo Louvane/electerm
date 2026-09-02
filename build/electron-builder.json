@@ -20,7 +20,7 @@
       "appx",
       "nsis"
     ],
-    "icon": "build/resources/anchor512.png",
+    "icon": "build/resources/anchor.ico",
     "publish": {
       "provider": "github",
       "channel": "${env.WORKFLOW_NAME}"
