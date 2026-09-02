@@ -35,7 +35,7 @@ import { XmodemClient } from './xmodem-client.js'
 import DropFileModal from './drop-file-modal.jsx'
 import keyControlPressed from '../../common/key-control-pressed.js'
 import NormalBuffer from './normal-buffer.jsx'
-import { createTerm, resizeTerm, startTerminalLogFile, toggleTerminalLog } from './terminal-apis.js'
+import { createTerm, resizeTerm, startTerminalLogFile, toggleTerminalLog, registerTermPort, unregisterTermPort } from './terminal-apis.js'
 import { shortcutExtend, shortcutDescExtend } from '../shortcuts/shortcut-handler.js'
 import { KeywordHighlighterAddon } from './highlight-addon.js'
 import { getFilePath, isUnsafeFilename } from '../../common/file-drop-utils.js'
@@ -210,6 +210,7 @@ class Term extends Component {
   }
 
   componentWillUnmount () {
+    unregisterTermPort(this.pid)
     refs.remove(this.id)
     clearTimeout(this.longPressTimer)
     this.longPressTimer = null
@@ -1955,6 +1956,7 @@ class Term extends Component {
       return
     }
     this.port = r.port
+    registerTermPort(id, r.port)
     this.setStatus(statusMap.success)
     refs.get('sftp-' + id)?.initData(id, r.port)
     term.pid = id

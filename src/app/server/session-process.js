@@ -145,7 +145,6 @@ exports.terminal = async function (initOptions, ws, uid) {
     activeTerminals.delete(pid)
   }
 
-  // Store the terminal process in the map
   activeTerminals.set(pid, {
     child,
     port,

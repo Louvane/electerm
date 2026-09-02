@@ -5,8 +5,8 @@
  * 非 Linux/未就绪:静默重试,显示占位。
  */
 import React, { useEffect, useRef, useState } from 'react'
+import { execCmdDirect } from '../terminal/terminal-apis.js'
 import { SettingOutlined } from '@ant-design/icons'
-import { execCmd } from '../terminal/terminal-apis'
 
 const INTERVAL = 2000
 // 跨平台采集: Linux /proc + Windows PowerShell(输出 KEY=VAL)
@@ -179,11 +179,15 @@ export default function MonitorRail (props) {
     const tick = async () => {
       try {
         if (!osRef.current) {
-          const probe = await execCmd(pid, 'uname -s', TIMEOUT, { silent: true }).catch(e => { window.__unameErr = e.message; return '' })
+          const probe = await execCmdDirect(pid, 'uname -s', TIMEOUT, { silent: true }).catch(() => null)
           const po = probe && typeof probe === 'object' && 'stdout' in probe ? probe.stdout : probe
-          osRef.current = /Linux/i.test(String(po)) ? 'linux' : 'win'
+          const txt = String(po || '').trim()
+          if (txt) {
+            osRef.current = /linux/i.test(txt) ? 'linux' : 'win'
+          }
+          // 探测失败: 本轮按 linux 采样, osRef 留空下轮重探
         }
-        const res = await execCmd(pid, statsCmdFor(osRef.current), TIMEOUT, { silent: true }).catch(e => { window.__statsErr = e.message; return '' })
+        const res = await execCmdDirect(pid, statsCmdFor(osRef.current), TIMEOUT, { silent: true }).catch(() => '')
         const out = res && typeof res === 'object' && 'stdout' in res ? res.stdout : res
         const sample = parseSample(out, osRef.current)
         if (sample && aliveRef.current) {
@@ -216,8 +220,7 @@ export default function MonitorRail (props) {
     const tick = async () => {
       try {
         const os = osRef.current || 'linux'
-        window.__diskRaw = await execCmd(tab.id, diskCmdFor(os), TIMEOUT, { silent: true }).catch(e => 'EXE-ERR:' + e.message)
-        const res = window.__diskRaw
+        const res = await execCmdDirect(tab.id, diskCmdFor(os), TIMEOUT, { silent: true }).catch(() => null)
         const out = res && typeof res === 'object' && 'stdout' in res ? res.stdout : res
         if (os === 'win') {
           const f = String(out).replace(/\r/g, '').trim().split(/\s+/)

@@ -15,7 +15,7 @@
  */
 
 /* eslint-disable no-template-curly-in-string, no-useless-escape */
-import { runCmd } from './terminal-apis.js'
+import { runCmdDirect } from './terminal-apis.js'
 
 /**
  * Get inline shell integration command for bash (one-liner format)
@@ -161,7 +161,7 @@ export async function detectRemoteShell (pid) {
 
   // { silent: true } so this best-effort probe does not emit a transport-level
   // fetch warning; a single, clearer warning is logged below if it fails.
-  const r = await runCmd(pid, cmd, { silent: true })
+  const r = await runCmdDirect(pid, cmd, { silent: true })
     .catch((err) => {
       // Non-fatal: the interactive shell already opened, so the terminal keeps
       // working. We just can't inject OSC 633 shell integration for command

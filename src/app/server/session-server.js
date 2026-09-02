@@ -519,14 +519,48 @@ if (type === 'rdp') {
   })
 }
 
-// Add a process message handler instead
+// 统一 action 分发(主进程 IPC 与终端直连 ws 共用)
+async function handleAction (msg, ws) {
+  const { action, id, body } = msg
+  let promise
+  if (action === 'create-terminal') {
+    promise = createTerm(body, ws)
+  } else if (action === 'test-terminal') {
+    promise = testTerm(body, ws)
+  } else if (action === 'resize-terminal') {
+    promise = resize(body)
+  } else if (action === 'toggle-terminal-log') {
+    promise = toggleTerminalLog(body)
+  } else if (action === 'toggle-terminal-log-timestamp') {
+    promise = toggleTerminalLogTimestamp(body)
+  } else if (action === 'set-terminal-log-path') {
+    promise = setTerminalLogPath(body)
+  } else if (action === 'start-terminal-log-file') {
+    promise = startTerminalLogFile(body)
+  } else if (action === 'run-cmd') {
+    promise = runCmd(body)
+  } else if (action === 'exec-cmd') {
+    promise = execCmd(body)
+  } else {
+    promise = Promise.reject(new Error('unknown action: ' + action))
+  }
+  return promise
+    .then(r => ({ id, data: r }))
+    .catch(err => {
+      log.error('common message error', err)
+      return {
+        id,
+        error: {
+          message: err.message,
+          stack: err.stack
+        }
+      }
+    })
+}
+
+// IPC: 主进程转发的终端生命周期请求
 process.on('message', async (message) => {
   if (message.type === 'common') {
-    const msg = message.data
-    const { action, id, body } = msg
-
-    let promise
-
     const ws = {
       s: (data) => {
         process.send({
@@ -544,48 +578,26 @@ process.on('message', async (message) => {
         process.on('message', func)
       }
     }
-
-    if (action === 'create-terminal') {
-      promise = createTerm(body, ws)
-    } else if (action === 'test-terminal') {
-      promise = testTerm(body, ws)
-    } else if (action === 'resize-terminal') {
-      promise = resize(body)
-    } else if (action === 'toggle-terminal-log') {
-      promise = toggleTerminalLog(body)
-    } else if (action === 'toggle-terminal-log-timestamp') {
-      promise = toggleTerminalLogTimestamp(body)
-    } else if (action === 'set-terminal-log-path') {
-      promise = setTerminalLogPath(body)
-    } else if (action === 'start-terminal-log-file') {
-      promise = startTerminalLogFile(body)
-    } else if (action === 'run-cmd') {
-      promise = runCmd(body)
-    } else if (action === 'exec-cmd') {
-      promise = execCmd(body)
-    }
-
-    const result = await promise
-      .then(r => {
-        return {
-          id,
-          data: r
-        }
-      })
-      .catch(err => {
-        log.error('common message error', err)
-        return {
-          id,
-          error: {
-            message: err.message,
-            stack: err.stack
-          }
-        }
-      })
-
-    // Send the result back to the parent process
+    const result = await handleAction(message.data, ws)
     process.send(result)
   }
+})
+
+// 终端专属 fetch ws: 渲染层按终端端口直连本进程(run/exec 等),
+// 避开主进程 map 中转链路(上游 MCP 重构后响应不稳定)
+app.ws('/x/:id', function (ws, req) {
+  verify(req)
+  markConnected()
+  ws.on('message', async (raw) => {
+    let msg
+    try {
+      msg = JSON.parse(raw.toString())
+    } catch (e) {
+      return
+    }
+    const result = await handleAction(msg, ws)
+    ws.send(JSON.stringify(result))
+  })
 })
 
 const runServer = function () {
