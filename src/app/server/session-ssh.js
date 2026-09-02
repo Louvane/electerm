@@ -367,13 +367,31 @@ class TerminalSshBase extends TerminalBase {
   }
 
   forwardOut (conn, hopping) {
+    // forwardOut 无内建超时: 目标不可达时 sshd 可能既不 confirm 也不 fail,
+    // Promise 悬挂 -> 整条链卡死. 加 readyTimeout 级别的兜底.
+    const timeoutMs = hopping.readyTimeout || this.initOptions.readyTimeout || 15000
     return new Promise((resolve, reject) => {
+      let settled = false
+      const timer = setTimeout(() => {
+        if (settled) return
+        settled = true
+        const err = new Error(`forwardOut timeout: ${hopping.host}:${hopping.port} (${timeoutMs}ms)`)
+        log.error('forwardOut timeout', hopping.host, hopping.port)
+        this.endConns()
+        reject(err)
+      }, timeoutMs)
       conn.forwardOut('127.0.0.1', 0, hopping.host, hopping.port, async (err, stream) => {
+        if (settled) {
+          stream && stream.end && stream.end()
+          return
+        }
         if (err) {
           log.error(`forwardOut to ${hopping.host}:${hopping.port} error: ` + err)
+          clearTimeout(timer)
           this.endConns()
           return reject(err)
         }
+        clearTimeout(timer)
         resolve(stream)
       })
     })
