@@ -21,7 +21,6 @@ async function execCmd (body) {
   const { pid, cmd, timeoutMs } = body
   const term = terminals(pid)
   if (!term || typeof term.execCommand !== 'function') {
-    require('../common/log').info('== anchor exec debug: pid=', pid, 'term=', !!term, 'hasFn=', typeof term?.execCommand, 'allPids=', require('./session-process').debugPids ? require('./session-process').debugPids().join(',') : 'n/a')
     throw new Error('Exec channel not supported for this session type')
   }
   return term.execCommand(cmd, { timeoutMs })
