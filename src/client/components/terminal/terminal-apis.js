@@ -113,16 +113,28 @@ function fetchViaTerm (pid, payload, timeoutMs = 12000) {
   })
 }
 
+// 端口未注册(会话建立中)时短轮询等待, 避免瞬时请求落回旧中转通道
+function withTermPort (pid, build, fallback, tries = 8) {
+  const p = fetchViaTerm(pid, build())
+  if (p) return p
+  if (tries <= 0) return Promise.resolve().then(fallback)
+  return new Promise(resolve => setTimeout(() => {
+    resolve(withTermPort(pid, build, fallback, tries - 1))
+  }, 500))
+}
+
 export function runCmdDirect (pid, cmd, options = {}) {
-  const p = fetchViaTerm(pid, { id: 'r' + Date.now() + Math.random(), action: 'run-cmd', body: { pid, cmd } })
-  return p || runCmd(pid, cmd, options)
+  return withTermPort(
+    pid,
+    () => ({ id: 'r' + Date.now() + Math.random(), action: 'run-cmd', body: { pid, cmd } }),
+    () => runCmd(pid, cmd, options)
+  )
 }
 
 export function execCmdDirect (pid, cmd, timeoutMs, options = {}) {
-  const p = fetchViaTerm(pid, {
-    id: 'e' + Date.now() + Math.random(),
-    action: 'exec-cmd',
-    body: { pid, cmd, timeoutMs }
-  }, (timeoutMs || 12000) + 4000)
-  return p || execCmd(pid, cmd, timeoutMs, options)
+  return withTermPort(
+    pid,
+    () => ({ id: 'e' + Date.now() + Math.random(), action: 'exec-cmd', body: { pid, cmd, timeoutMs } }),
+    () => execCmd(pid, cmd, timeoutMs, options)
+  )
 }
