@@ -238,20 +238,40 @@ export function groupPaths (s) {
   return out
 }
 
-/** 把表单里引用的跳板主机 id 列表解析成 connectionHoppings 配置 */
+/**
+ * 把表单里引用的跳板主机 id 列表解析成 connectionHoppings 配置。
+ * 递归展开: 引用的主机自己也有跳板时, 先放它的跳板(离本地更近)再放它,
+ * 否则首连会直连到不可达的中间机 -> Timed out while waiting for handshake。
+ * host:port 去重防循环引用。
+ */
 export function resolveHops (s, bookmarkIds) {
   const store = st(s)
-  return (bookmarkIds || [])
+  const out = []
+  const seen = new Set()
+  const keyOf = (h) => `${h.host}:${h.port || 22}`
+  const push = (h) => {
+    if (!h || !h.host) return
+    const k = keyOf(h)
+    if (seen.has(k)) return
+    seen.add(k)
+    out.push(h)
+  }
+  const toCfg = b => ({
+    host: b.host,
+    port: b.port,
+    username: b.username,
+    authType: b.authType,
+    password: b.password,
+    privateKey: b.privateKey,
+    passphrase: b.passphrase
+  })
+  const expand = (b) => {
+    if (!b) return
+    ;(b.connectionHoppings || []).forEach(push)
+    push(toCfg(b))
+  }
+  ;(bookmarkIds || [])
     .filter(Boolean)
-    .map(id => store.bookmarks.find(b => b.id === id))
-    .filter(Boolean)
-    .map(b => ({
-      host: b.host,
-      port: b.port,
-      username: b.username,
-      authType: b.authType,
-      password: b.password,
-      privateKey: b.privateKey,
-      passphrase: b.passphrase
-    }))
+    .forEach(id => expand(store.bookmarks.find(b => b.id === id)))
+  return out
 }
