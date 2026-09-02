@@ -179,11 +179,11 @@ export default function MonitorRail (props) {
     const tick = async () => {
       try {
         if (!osRef.current) {
-          const probe = await execCmd(pid, 'uname -s', TIMEOUT, { silent: true })
+          const probe = await execCmd(pid, 'uname -s', TIMEOUT, { silent: true }).catch(e => { window.__unameErr = e.message; return '' })
           const po = probe && typeof probe === 'object' && 'stdout' in probe ? probe.stdout : probe
           osRef.current = /Linux/i.test(String(po)) ? 'linux' : 'win'
         }
-        const res = await execCmd(pid, statsCmdFor(osRef.current), TIMEOUT, { silent: true })
+        const res = await execCmd(pid, statsCmdFor(osRef.current), TIMEOUT, { silent: true }).catch(e => { window.__statsErr = e.message; return '' })
         const out = res && typeof res === 'object' && 'stdout' in res ? res.stdout : res
         const sample = parseSample(out, osRef.current)
         if (sample && aliveRef.current) {
@@ -216,7 +216,8 @@ export default function MonitorRail (props) {
     const tick = async () => {
       try {
         const os = osRef.current || 'linux'
-        const res = await execCmd(tab.id, diskCmdFor(os), TIMEOUT, { silent: true })
+        window.__diskRaw = await execCmd(tab.id, diskCmdFor(os), TIMEOUT, { silent: true }).catch(e => 'EXE-ERR:' + e.message)
+        const res = window.__diskRaw
         const out = res && typeof res === 'object' && 'stdout' in res ? res.stdout : res
         if (os === 'win') {
           const f = String(out).replace(/\r/g, '').trim().split(/\s+/)

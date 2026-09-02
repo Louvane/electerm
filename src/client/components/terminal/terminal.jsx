@@ -1774,6 +1774,10 @@ class Term extends Component {
     }
 
     const integrationCmd = getShellIntegrationCommand(shellType)
+    // cmd/PowerShell 无集成命令 -> 不注入(避免 eval 语法报错)
+    if (!integrationCmd) {
+      return Promise.resolve()
+    }
 
     return new Promise((resolve) => {
       // Wait for initial data (prompt/banner) to arrive before injecting

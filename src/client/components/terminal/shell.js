@@ -156,7 +156,8 @@ export function getShellIntegrationCommand (shellType = 'bash') {
 export async function detectRemoteShell (pid) {
   // SSH exec runs under the account shell, so prefer the configured shell path
   // instead of probing for any shell binary installed on the host.
-  const cmd = 'printf "%s\n" "$SHELL"'
+  // Windows cmd 无 printf/$SHELL, 靠 uname 的报错文本识别后跳过注入
+  const cmd = 'uname -s; printf "%s\n" "$SHELL"'
 
   // { silent: true } so this best-effort probe does not emit a transport-level
   // fetch warning; a single, clearer warning is logged below if it fails.
@@ -172,11 +173,18 @@ export async function detectRemoteShell (pid) {
       return 'sh'
     })
 
+  const txt = String(r || '').toLowerCase()
+  if (
+    txt.includes('不是内部或外部命令') ||
+    txt.includes('not recognized') ||
+    txt.includes('microsoft windows')
+  ) {
+    return 'cmd'
+  }
+  // PowerShell: uname 报错但 $SHELL 无值, 无 cmd 特征文本
   const shell = r.trim().toLowerCase()
-
   if (!shell) {
     return 'sh'
   }
-
   return detectShellType(shell)
 }

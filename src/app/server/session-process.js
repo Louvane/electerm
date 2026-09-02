@@ -93,6 +93,10 @@ async function sendMsgToChildProcess (pid, msg) {
   })
 }
 
+exports.debugPids = function () {
+  return [...activeTerminals.keys()]
+}
+
 exports.terminal = async function (initOptions, ws, uid) {
   const type = initOptions.termType || initOptions.type || 'terminal'
   const port = await getPort()
@@ -122,6 +126,7 @@ exports.terminal = async function (initOptions, ws, uid) {
     // Remove all pending message listeners to prevent memory leaks
     // if the child exits before responding to sendMsgToChildProcess calls
     child.removeAllListeners('message')
+    require('../common/log').info('== anchor map: EXIT delete pid=', pid, 'proc=', process.pid)
     activeTerminals.delete(pid)
   })
   if (type !== 'ftp') {
@@ -146,6 +151,7 @@ exports.terminal = async function (initOptions, ws, uid) {
   }
 
   // Store the terminal process in the map
+  require('../common/log').info('== anchor map: SET pid=', pid, 'proc=', process.pid)
   activeTerminals.set(pid, {
     child,
     port,
