@@ -80,8 +80,8 @@ export default function TransferWatcher (props) {
           pct: all > 0 ? Math.min(99, Math.floor(done * 100 / all)) : 0,
           speed: first.speed || ''
         })
-      } else if (mini) {
-        setMini(null)
+      } else {
+        setMini(m => (m ? null : m))
       }
       if (!closedRef.current) timer = setTimeout(tick, POLL)
     }
