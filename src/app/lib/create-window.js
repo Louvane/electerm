@@ -42,7 +42,7 @@ exports.createWindow = async function (userConfig) {
     frame: useSystemTitleBar,
     // 透明窗仅 mac(红绿灯隐藏/圆角); Windows 透明窗合成器不绘制->黑区/控件不可见
     transparent: process.platform === 'darwin' && !useSystemTitleBar,
-    backgroundColor: '#0f141d',
+    backgroundColor: '#eef1f5',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,

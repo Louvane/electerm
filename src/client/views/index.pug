@@ -1,4 +1,3 @@
-
 doctype html
 html
   head
@@ -37,6 +36,38 @@ html
         letter-spacing: 6px;
         text-indent: 6px;
         color: #8b98ab;
+      }
+      .anchor-splash-controls {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 40px;
+        display: none;
+        align-items: center;
+      }
+      .anchor-splash-controls button {
+        width: 46px;
+        height: 40px;
+        border: none;
+        background: transparent;
+        color: #8b98ab;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .anchor-splash-controls button:hover {
+        background: rgba(255,255,255,0.08);
+        color: #e6edf5;
+      }
+      html[data-anchor-theme=light] .anchor-splash-controls button {
+        color: #5d6b7e;
+      }
+      html[data-anchor-theme=light] .anchor-splash-controls button:hover {
+        background: rgba(0,0,0,0.06);
+        color: #1c2634;
+      }
+      html[data-anchor-theme=dark] .anchor-splash-controls button:hover {
+        background: rgba(255,255,255,0.08);
+        color: #e6edf5;
       }
       .anchor-splash-track {
         width: 132px;
@@ -92,9 +123,30 @@ html
         var t = 'light'
         try { t = window.localStorage.getItem('anchor-theme') || 'light' } catch (e) {}
         document.documentElement.dataset.anchorTheme = t
+        var isMac = /Macintosh|Mac|Mac OS|MacIntel/gi.test(navigator.userAgent)
+        if (!isMac && window.pre && window.pre.runGlobalAsync) {
+          window.addEventListener('DOMContentLoaded', function () {
+            var el = document.getElementById('anchor-splash-controls')
+            if (!el) return
+            el.style.display = 'flex'
+            var min = el.querySelector('.sp-min')
+            var max = el.querySelector('.sp-max')
+            var close = el.querySelector('.sp-close')
+            min.addEventListener('click', function () { window.pre.runGlobalAsync('minimize') })
+            max.addEventListener('click', function () {
+              window.pre.runGlobalAsync(max.dataset.max === '1' ? 'unmaximize' : 'maximize')
+              max.dataset.max = max.dataset.max === '1' ? '0' : '1'
+            })
+            close.addEventListener('click', function () { window.pre.runGlobalAsync('closeApp') })
+          })
+        }
       })()
     #container
     #content-loading
+      #anchor-splash-controls.anchor-splash-controls
+        button.sp-min(title='最小化') –
+        button.sp-max(title='最大化', data-max='0') ▢
+        button.sp-close(title='关闭') ×
       .anchor-splash-word ANCHOR
       .anchor-splash-sub 锚点终端
       .anchor-splash-track
