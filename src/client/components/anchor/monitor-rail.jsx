@@ -180,7 +180,10 @@ export default function MonitorRail (props) {
       try {
         if (!osRef.current) {
           const probe = await execCmdDirect(pid, 'uname -s', TIMEOUT, { silent: true }).catch(() => null)
-          const po = probe && typeof probe === 'object' && 'stdout' in probe ? probe.stdout : probe
+          // Windows 上 uname 报错只在 stderr, 必须合并才能识别出 win
+          const po = probe && typeof probe === 'object' && ('stdout' in probe || 'stderr' in probe)
+            ? `${probe.stdout || ''}${probe.stderr || ''}`
+            : probe
           const txt = String(po || '').trim()
           if (txt) {
             osRef.current = /linux/i.test(txt) ? 'linux' : 'win'

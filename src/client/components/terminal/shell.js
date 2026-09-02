@@ -173,7 +173,9 @@ export async function detectRemoteShell (pid) {
       return 'sh'
     })
 
-  const txt = String(r || '').toLowerCase()
+  // runCmdDirect 返回 {stdout, stderr}; Windows 的报错在 stderr
+  const raw = r && typeof r === 'object' ? `${r.stdout || ''}${r.stderr || ''}` : r
+  const txt = String(raw || '').toLowerCase()
   if (
     txt.includes('不是内部或外部命令') ||
     txt.includes('not recognized') ||
@@ -182,7 +184,7 @@ export async function detectRemoteShell (pid) {
     return 'cmd'
   }
   // PowerShell: uname 报错但 $SHELL 无值, 无 cmd 特征文本
-  const shell = r.trim().toLowerCase()
+  const shell = raw.trim().toLowerCase()
   if (!shell) {
     return 'sh'
   }
