@@ -5,7 +5,7 @@
  * 跳板链=引用已有主机列表,保存时解析为 connectionHoppings。
  */
 import React, { useState, useEffect } from 'react'
-import { CloseOutlined, PlusOutlined } from '@ant-design/icons'
+import { CloseOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons'
 import { Drawer, Select, message } from 'antd'
 import {
   getBookmarks,
@@ -24,6 +24,7 @@ export default function BookmarkFormDrawer (props) {
   const [groupId, setGroupId] = useState('')
   const [authType, setAuthType] = useState('password')
   const [password, setPassword] = useState('')
+  const [showPwd, setShowPwd] = useState(false)
   const [hops, setHops] = useState([]) // bookmarkId 列表(有序)
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function BookmarkFormDrawer (props) {
     setGroupId(host ? getBookmarkGroupId(store, host.id) : (defaultGroupId || ''))
     setAuthType(host && host.authType ? host.authType : 'password')
     setPassword(host && host.password ? host.password : '')
+    setShowPwd(false)
     // 已有跳板链回填:按 host 匹配引用
     if (host && host.connectionHoppings && host.connectionHoppings.length) {
       const all = getBookmarks(store)
@@ -125,7 +127,7 @@ export default function BookmarkFormDrawer (props) {
           {
             authType === 'password'
               ? (
-                <div className='fld'><label>密码</label><input type='password' value={password} onChange={e => setPassword(e.target.value)} placeholder='' /></div>
+                <div className='fld'><label>密码</label><input type={showPwd ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder='' style={{ flex: 1 }} /><span onClick={() => setShowPwd(v => !v)} style={{ cursor: 'pointer', color: 'var(--fog, #8b98ab)', padding: '0 6px', display: 'flex', alignItems: 'center' }} title={showPwd ? '隐藏密码' : '显示密码'}>{showPwd ? <EyeInvisibleOutlined /> : <EyeOutlined />}</span></div>
                 )
               : (
                 <div className='fld'><label>私钥</label><input placeholder='~/.ssh/id_rsa(路径)' disabled /></div>
