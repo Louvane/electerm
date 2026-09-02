@@ -24,8 +24,11 @@ export default function BookmarkFormDrawer (props) {
   const [groupId, setGroupId] = useState('')
   const [authType, setAuthType] = useState('password')
   const [password, setPassword] = useState('')
+  const [privateKey, setPrivateKey] = useState('')
   const [showPwd, setShowPwd] = useState(false)
   const [hops, setHops] = useState([]) // bookmarkId 列表(有序)
+  const [encoding, setEncoding] = useState('UTF-8')
+  const [keepalive, setKeepalive] = useState('10')
 
   useEffect(() => {
     if (!open) return
@@ -36,7 +39,10 @@ export default function BookmarkFormDrawer (props) {
     setGroupId(host ? getBookmarkGroupId(store, host.id) : (defaultGroupId || ''))
     setAuthType(host && host.authType ? host.authType : 'password')
     setPassword(host && host.password ? host.password : '')
+    setPrivateKey(host && host.privateKey ? host.privateKey : '')
     setShowPwd(false)
+    setEncoding(host && host.encoding ? host.encoding : 'UTF-8')
+    setKeepalive(host && host.keepaliveInterval ? String(Math.round(host.keepaliveInterval / 1000)) : '10')
     // 已有跳板链回填:优先用显式保存的 hoppingIds, 否则从 expanded 的 connectionHoppings 反推(兼容旧数据, 尝试去重展开)
     if (host && (host.connectionHoppingIds || host.hopIds)) {
       const ids = host.connectionHoppingIds || host.hopIds
@@ -75,7 +81,10 @@ export default function BookmarkFormDrawer (props) {
       username: username.trim() || 'root',
       authType,
       password: authType === 'password' ? password : undefined,
+      privateKey: authType === 'privateKey' ? privateKey : undefined,
       authFailConfirm: false,
+      encoding: encoding || 'UTF-8',
+      keepaliveInterval: (Number(keepalive) || 10) * 1000,
       connectionHoppings: resolveHops(store, hops),
       connectionHoppingIds: hops.filter(Boolean)
     }
@@ -150,7 +159,7 @@ export default function BookmarkFormDrawer (props) {
                 <div className='fld'><label>密码</label><div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}><input type={showPwd ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder='' style={{ flex: 1, paddingRight: 28 }} /><span onClick={() => setShowPwd(v => !v)} style={{ position: 'absolute', right: 8, cursor: 'pointer', color: 'var(--fog, #8b98ab)', display: 'flex', alignItems: 'center' }} title={showPwd ? '隐藏密码' : '显示密码'}>{showPwd ? <EyeInvisibleOutlined /> : <EyeOutlined />}</span></div></div>
                 )
               : (
-                <div className='fld'><label>私钥</label><input placeholder='~/.ssh/id_rsa(路径)' disabled /></div>
+                <div className='fld'><label>私钥</label><input value={privateKey} onChange={e => setPrivateKey(e.target.value)} placeholder='~/.ssh/id_rsa' /></div>
                 )
           }
         </div>
@@ -186,8 +195,8 @@ export default function BookmarkFormDrawer (props) {
       <details className='dr-sec'>
         <summary>高级</summary>
         <div className='inner'>
-          <div className='fld'><label>编码</label><input defaultValue='UTF-8' disabled /></div>
-          <div className='fld'><label>保活</label><input defaultValue='10s' disabled /></div>
+          <div className='fld'><label>编码</label><Select style={{ flex: 1 }} value={encoding} onChange={v => setEncoding(v)}><Select.Option value='UTF-8'>UTF-8</Select.Option><Select.Option value='GBK'>GBK</Select.Option><Select.Option value='BIG5'>BIG5</Select.Option><Select.Option value='ISO-8859-1'>ISO-8859-1</Select.Option></Select></div>
+          <div className='fld'><label>保活</label><div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}><input value={keepalive} onChange={e => setKeepalive(e.target.value.replace(/[^0-9]/g, ''))} placeholder='10' style={{ flex: 1 }} /><span style={{ color: 'var(--fog)', fontSize: 12 }}>秒</span></div></div>
         </div>
       </details>
     </Drawer>
