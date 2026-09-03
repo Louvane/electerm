@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react'
 import { CloseOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons'
 import { Drawer, Select } from 'antd'
+import { notify } from './anchor-notify'
 import {
   getBookmarks,
   upsertBookmark,
