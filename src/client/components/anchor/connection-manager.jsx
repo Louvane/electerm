@@ -129,8 +129,9 @@ export default function ConnectionManager (props) {
   })
 
   function connect (hostId) {
+    const h = selHost(hostId)
     store.onSelectBookmark(hostId)
-    notify('success', '已连接')
+    notify('info', '正在连接 ' + (h ? (h.title || h.host) : ''))
     props.onConnect && props.onConnect()
     if (closeAfterRef.current) onClose()
   }

@@ -8,6 +8,7 @@ import {
   Button
 } from 'antd'
 import message from '../common/message'
+import { notify } from '../anchor/anchor-notify'
 import { notification } from '../common/notification'
 import ShowItem from '../common/show-item.jsx'
 import Modal from '../common/modal'
@@ -1963,6 +1964,11 @@ class Term extends Component {
     this.port = r.port
     registerTermPort(id, r.port)
     this.setStatus(statusMap.success)
+    notify(
+      'success',
+      (this.props.tab.autoReConnect > 0 ? '已重连 ' : '已连接 ') +
+      (this.props.tab.title || this.props.tab.host || '')
+    )
     refs.get('sftp-' + id)?.initData(id, r.port)
     term.pid = id
     this.pid = id
