@@ -37,7 +37,7 @@ function hl (text, kw) {
 export default function ConnectionManager (props) {
   const { open, onClose, store } = props
   const [kw, setKw] = useState('')
-  const [expanded, setExpanded] = useState({ default: true })
+  const [expanded, setExpanded] = useState({ root: true, default: true })
   const [sel, setSel] = useState(() => { window._mounts = (window._mounts || 0) + 1; return null }) // {kind:'dir'|'host', id}
   const [multiSel, setMultiSel] = useState(new Set()) // Set<kind:id>
   const anchorRef = useRef(null)
@@ -292,8 +292,7 @@ export default function ConnectionManager (props) {
       const p = path + '/' + n.title
       const all = JSON.stringify(n).toLowerCase()
       if (kw && !all.includes(kw.toLowerCase())) return null
-      const isRoot = n.id === 'root'
-      const isOpen = isRoot ? true : (expanded[n.id] || !!kw)
+      const isOpen = expanded[n.id] || !!kw
       const isSel = multiSel.has(`dir:${n.id}`) || (sel && sel.kind === 'dir' && sel.id === n.id)
       const empty = !n.children.length && !n.hosts.length && !kw
       return (
@@ -309,8 +308,8 @@ export default function ConnectionManager (props) {
             }}
           >
             <span
-              className={'arrow' + (isRoot ? ' leaf' : '') + (isOpen ? ' open' : '')}
-              onClick={(e) => { if (!isRoot) { e.stopPropagation(); setExpanded(m => ({ ...m, [n.id]: !m[n.id] })) } }}
+              className={'arrow' + (isOpen ? ' open' : '')}
+              onClick={(e) => { e.stopPropagation(); setExpanded(m => ({ ...m, [n.id]: !m[n.id] })) }}
             ><CaretRightOutlined />
             </span>
             <span className='ticon'><FolderOutlined /></span>
