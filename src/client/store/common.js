@@ -170,12 +170,13 @@ export default Store => {
           window.confirmExit = true
           window.store[window.exitFunction]()
         },
-        title: '退出 ANCHOR',
+        title: '退出 ANCHOR？',
         okText: '退出',
+        okButtonProps: { danger: true },
         cancelText: '取消',
         content: transporting
           ? '有传输任务进行中，退出将中断传输。确定退出吗？'
-          : '确定要退出吗？'
+          : '所有会话将被断开。确定退出吗？'
       })
     }
   }
