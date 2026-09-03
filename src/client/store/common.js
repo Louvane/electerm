@@ -161,6 +161,7 @@ export default Store => {
     ) {
       evt.returnValue = false
       let mod = null
+      const transporting = window.store.isTransporting
       mod = Modal.confirm({
         onCancel: () => {
           window.confirmExit = false
@@ -170,10 +171,12 @@ export default Store => {
           window.confirmExit = true
           window.store[window.exitFunction]()
         },
-        title: e('quit'),
-        okText: e('ok'),
-        cancelText: e('cancel'),
-        content: ''
+        title: '退出 ANCHOR',
+        okText: '退出',
+        cancelText: '取消',
+        content: transporting
+          ? '有传输任务进行中，退出将中断传输。确定退出吗？'
+          : '确定要退出吗？'
       })
     }
   }
@@ -187,10 +190,10 @@ export default Store => {
       onOk: () => {
         window.pre.runGlobalAsync(name)
       },
-      title: e('quit'),
-      okText: e('ok'),
-      cancelText: e('cancel'),
-      content: ''
+      title: '关闭窗口',
+      okText: '关闭',
+      cancelText: '取消',
+      content: '要退出 ANCHOR 还是保持后台运行？'
     })
   }
 
