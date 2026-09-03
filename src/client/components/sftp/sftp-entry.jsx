@@ -488,7 +488,6 @@ export default class Sftp extends Component {
       </div>
     )
   }
-  }
 
   enter = (type, e) => {
     const { selectedFiles, onEditFile } = this.state
