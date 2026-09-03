@@ -1280,3 +1280,31 @@ body[data-anchor-theme=dark]
   .del-file-list
     margin 10px 0 2px
 
+
+// 删除确认: 文件名列表(自研 modal body 内) + danger 主按钮
+.del-file-list
+  margin 10px 0 2px
+  padding-left 4px
+  color var(--amber, #b26a00)
+  font-family "IBM Plex Mono", monospace
+  font-size 12px
+  div
+    padding 1px 0
+.danger-confirm
+  .custom-modal-ok-btn
+    background var(--alert, #f2555a) !important
+    color #ffffff !important
+body[data-anchor-theme=dark] .custom-modal-content
+  background var(--ink2, #1c2534) !important
+  border 1px solid var(--line, #2a3547) !important
+  .custom-modal-title
+    color var(--snow, #e6edf5) !important
+  .custom-modal-body
+    color var(--snow, #e6edf5) !important
+  .custom-modal-cancel-btn
+    background var(--ink1, #151c28) !important
+    color var(--snow, #e6edf5) !important
+    border 1px solid var(--line, #2a3547) !important
+body[data-anchor-theme=dark] .custom-modal-header,
+body[data-anchor-theme=dark] .custom-modal-footer
+  border-color var(--line, #2a3547) !important

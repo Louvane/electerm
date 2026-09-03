@@ -432,8 +432,9 @@ export default class Sftp extends Component {
     return new Promise((resolve) => {
       Modal.confirm({
         title: this.renderDelConfirmTitle(files),
+        content: this.renderDelConfirmContent(files),
         okText: '删除',
-        okButtonProps: { danger: true },
+        className: 'danger-confirm',
         cancelText: '取消',
         onOk: () => resolve(true),
         onCancel: () => resolve(false)
@@ -472,25 +473,21 @@ export default class Sftp extends Component {
     if (pureText) {
       return `删除 ${files.length} 个${kind}？此操作不可恢复。`
     }
+    return `删除以下 ${files.length} 个${kind}？此操作不可恢复。`
+  }
+
+  renderDelConfirmContent (files) {
     const show = files.slice(0, 5).map(f => f.name)
     const more = files.length - show.length
     return (
-      <div className='wordbreak'>
-        删除以下 {files.length} 个{kind}？此操作不可恢复。
-        <div
-          className='del-file-list'
-          style={{
-            marginTop: 8,
-            color: 'var(--amber, #b26a00)',
-            fontFamily: '"IBM Plex Mono", monospace',
-            fontSize: 12
-          }}
-        >
-          {show.map(n => <div key={n}>· {n}</div>)}
-          {more > 0 ? <div>… 等共 {files.length} 项</div> : null}
-        </div>
+      <div
+        className='del-file-list'
+      >
+        {show.map(n => <div key={n}>· {n}</div>)}
+        {more > 0 ? <div>… 等共 {files.length} 项</div> : null}
       </div>
     )
+  }
   }
 
   enter = (type, e) => {
