@@ -357,8 +357,8 @@ export default function ConnectionManager (props) {
                             ? <InlineInput initial={h.title} onCommit={v => commitRename(h.id, 'host', v)} onCancel={() => setEditId(null)} />
                             : <span className='lbl' dangerouslySetInnerHTML={{ __html: hl(h.title, kw) }} />
                         }
-                        <span className='cnt'>{hl(h.host, kw)}</span>
-                        <span className='usr'>{hl(h.username, kw)}</span>
+                        <span className='cnt' dangerouslySetInnerHTML={{ __html: hl(h.host, kw) }} />
+                        <span className='usr' dangerouslySetInnerHTML={{ __html: hl(h.username, kw) }} />
                       </div>
                     )
                   })
