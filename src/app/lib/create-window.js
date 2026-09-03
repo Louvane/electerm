@@ -14,6 +14,7 @@ const {
 } = require('./window-control')
 const { ensureWindowVisible } = require('./window-restore')
 const { onClose } = require('./on-close')
+const { createTray } = require('./tray')
 const { initIpc, initAppServer } = require('./ipc')
 const { disableShortCuts } = require('./key-bind')
 const _ = require('./lodash.js')
@@ -139,4 +140,5 @@ exports.createWindow = async function (userConfig) {
     disableShortCuts(win)
   })
   win.on('close', onClose)
+  createTray()
 }

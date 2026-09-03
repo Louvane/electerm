@@ -27,7 +27,6 @@ import uid from '../common/uid'
 import deepCopy from 'json-deep-copy'
 import { aiConfigsArr } from '../components/ai/ai-config-props'
 
-const e = window.translate
 const { assign } = Object
 
 export default Store => {
@@ -190,11 +189,10 @@ export default Store => {
       onOk: () => {
         window.pre.runGlobalAsync(name)
       },
-      title: '关闭窗口',
-      okText: '退出 ANCHOR',
-      cancelText: '最小化到托盘',
-      okButtonProps: { danger: false },
-      content: '关闭窗口后 ANCHOR 将最小化到系统托盘；要彻底退出请选「退出 ANCHOR」。'
+      title: '退出 ANCHOR？',
+      okText: '退出',
+      cancelText: '取消',
+      content: '所有会话与传输将被断开。'
     })
   }
 

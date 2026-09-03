@@ -165,8 +165,13 @@ exports.createApp = async function () {
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (globalState.get('win') === null) {
+    const win = globalState.get('win')
+    if (win === null) {
       app.once('ready', () => createWindow(conf))
+    } else if (win && !win.isDestroyed() && !win.isVisible()) {
+      // 关窗最小化到托盘后, 点 Dock/托盘恢复窗口
+      win.show()
+      win.focus()
     }
   })
   return app

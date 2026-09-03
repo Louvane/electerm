@@ -96,6 +96,17 @@ export default auto(function SettingsDrawer (props) {
         <summary>行为</summary>
         <div className='inner'>
           <div className='fld'>
+            <label>关闭窗口时</label>
+            <Select
+              style={{ flex: 1 }}
+              value={cfg.closeBehavior || 'tray'}
+              onChange={v => set('closeBehavior', v)}
+            >
+              <Select.Option value='tray'>最小化到托盘</Select.Option>
+              <Select.Option value='quit'>退出程序</Select.Option>
+            </Select>
+          </div>
+          <div className='fld'>
             <label>退出前确认</label>
             <Switch checked={!!cfg.confirmBeforeExit} onChange={v => set('confirmBeforeExit', v)} />
           </div>

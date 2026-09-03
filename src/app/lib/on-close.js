@@ -15,6 +15,16 @@ exports.getExitStatus = async () => {
 
 exports.onClose = async function (e) {
   const config = globalState.get('config')
+  // 主流关窗语义: 默认最小化到托盘; 除非「退出程序」模式或托盘/菜单显式退出(closeAction=exit)
+  const closeBehavior = config.closeBehavior || 'tray'
+  const forceExit = globalState.get('closeAction') === 'exit'
+  if (closeBehavior === 'tray' && !forceExit) {
+    const win = globalState.get('win')
+    if (win && !win.isDestroyed()) {
+      win.hide()
+    }
+    return e.preventDefault()
+  }
   if (config.confirmBeforeExit && globalState.get('closeAction')) {
     const win = globalState.get('win')
     win?.webContents.send(
