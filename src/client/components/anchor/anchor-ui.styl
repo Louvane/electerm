@@ -1242,3 +1242,24 @@ body[data-anchor-theme=light] .anchor-transfer-float
   .atf-name
     color var(--snow, #1c2634)
 
+// dark 弹窗全量兜底(静态 Modal.confirm 压 antd v6 cssinjs, 对齐 light)
+body[data-anchor-theme=dark]
+  .ant-modal-content
+    background var(--ink2, #1c2534) !important
+    border 1px solid var(--line, #2a3547) !important
+    color var(--snow, #e6edf5) !important
+  .ant-modal-header
+    background transparent !important
+    border-bottom none !important
+    .ant-modal-title
+      color var(--snow, #e6edf5) !important
+  .ant-modal-body
+    color var(--snow, #e6edf5) !important
+  .ant-modal-confirm
+    .ant-modal-body
+      color var(--snow, #e6edf5) !important
+  .ant-btn-default
+    background var(--ink1, #151c28) !important
+    color var(--snow, #e6edf5) !important
+    border-color var(--line, #2a3547) !important
+

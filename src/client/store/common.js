@@ -191,9 +191,10 @@ export default Store => {
         window.pre.runGlobalAsync(name)
       },
       title: '关闭窗口',
-      okText: '关闭',
-      cancelText: '取消',
-      content: '要退出 ANCHOR 还是保持后台运行？'
+      okText: '退出 ANCHOR',
+      cancelText: '后台运行',
+      okButtonProps: { danger: false },
+      content: '退出应用，或保持后台运行？'
     })
   }
 
