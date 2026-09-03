@@ -1341,7 +1341,9 @@ export default class Sftp extends Component {
     const list = (window.store && window.store.fileTransfers) ? window.store.fileTransfers.filter(t => t.tabId === tab.id && t.inited && !t.error) : []
     if (!list.length) return null
     const t = list[0]
-    const pct = t.percent || 0
+    const pct = t.percent || (t.fromFile && t.fromFile.size > 0
+      ? Math.min(99, Math.floor((t.transferred || 0) * 100 / t.fromFile.size))
+      : 0)
     const name = (t.fromPath || t.fromPathReal || t.toPath || '').split('/').pop() || t.fromPath || ''
     return (
       <div className='sftp-progress'>
@@ -1367,8 +1369,9 @@ export default class Sftp extends Component {
       )
     }
     const { height } = this.props
+    const hasProgress = !!this.renderProgress()
     const all = {
-      className: 'sftp-wrap overhide relative',
+      className: 'sftp-wrap overhide relative' + (hasProgress ? ' has-progress' : ''),
       id: `id-${id}`,
       style: { height }
     }

@@ -285,6 +285,13 @@ body[data-anchor-theme=light] .sftp-title .anticon
   color var(--fog, #5d6b7e) !important
 
 .sftp-progress
+  position absolute
+  top 0
+  left 0
+  right 0
+  z-index 30
+  box-sizing border-box
+  height 46px
   padding 6px 12px 8px
   border-bottom 1px solid var(--main-darker, #2a3547)
   background var(--main, #1c2534)
@@ -322,4 +329,9 @@ body[data-anchor-theme=light] .sftp-progress
   border-bottom-color var(--line, #d4dbe4) !important
   .sftp-progress-name
     color var(--snow, #1c2634) !important
+
+// 进度条占位: 文件区下压 46px(inline style 需 !important)
+.sftp-wrap.has-progress .sftp-section
+  top 46px !important
+  height calc(100% - 46px) !important
 
