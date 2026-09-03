@@ -493,11 +493,13 @@ export default function ConnectionManager (props) {
               store.bookmarkGroups.forEach(g => { all[g.id] = true })
               setExpanded(() => all)
             }}
-          >展开</button>
+          >展开
+          </button>
           <button
             className='tl' title='全部收起(仅留根行)'
             onClick={() => setExpanded(() => ({ root: true }))}
-          >收起</button>
+          >收起
+          </button>
           <input
             className='mg-search'
             placeholder='搜索名称 / IP / 用户…'
