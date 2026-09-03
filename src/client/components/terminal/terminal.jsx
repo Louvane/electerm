@@ -1633,8 +1633,8 @@ class Term extends Component {
     }
     term.onData(this.onData)
     this.term = term
-    // e2e 探针:暴露供 settings-live 测试验证实时生效
-    if (typeof window !== 'undefined') window.__anchorTerm = term
+    // e2e 探针:仅开发环境暴露(生产包不留)
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') window.__anchorTerm = term
     term.onSelectionChange(this.onSelectionChange)
     term.attachCustomKeyEventHandler(this.handleKeyboardEvent.bind(this))
     // 容器不可见（隐藏标签 display:none）时不 fit，避免算出 0 列把 shell

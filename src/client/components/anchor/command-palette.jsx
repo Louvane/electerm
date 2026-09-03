@@ -88,7 +88,6 @@ export default auto(function CommandPalette (props) {
   }
 
   function delCmd (id, e) {
-    console.log('[anchor:delCmd]', id)
     e.stopPropagation()
     const q = (store.quickCommands || []).find(x => x.id === id)
     delQuickCommand(store, { id })

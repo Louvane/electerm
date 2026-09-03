@@ -501,7 +501,7 @@ export default function ConnectionManager (props) {
             className='mg-search'
             placeholder='搜索名称 / IP / 用户…'
             value={kw}
-            onChange={e => { console.log('[anchor:search-change]', JSON.stringify(e.target.value)); setKw(e.target.value) }}
+            onChange={e => setKw(e.target.value)}
           />
         </div>
         <div className='mg-tree' ref={treeRef} tabIndex={0}>
