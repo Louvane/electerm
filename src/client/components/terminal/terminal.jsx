@@ -457,13 +457,7 @@ class Term extends Component {
     this.tryInsertSelected()
   }
 
-  pasteTextTooLong = () => {
-    if (window.et.isWebApp) {
-      return false
-    }
-    const text = readClipboard()
-    return text.length > 500
-  }
+  pasteTextTooLong = () => false
 
   askUserConfirm = () => {
     Modal.confirm({

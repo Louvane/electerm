@@ -15,7 +15,6 @@ exports.getExitStatus = async () => {
 
 exports.onClose = async function (e) {
   const config = globalState.get('config')
-  console.error('[on-close] cb=' + config.closeBehavior + ' ca=' + globalState.get('closeAction') + ' cbe=' + config.confirmBeforeExit)
   // 主流关窗语义: 默认最小化到托盘; 除非「退出程序」模式或托盘/菜单显式退出(closeAction=exit)
   const closeBehavior = config.closeBehavior || 'tray'
   const forceExit = globalState.get('closeAction') === 'exit'
