@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Modal } from 'antd'
 import message from '../common/message'
-import { FolderOutlined, DesktopOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons'
+import { FolderOutlined, DesktopOutlined, CaretRightOutlined, PlusOutlined, NodeExpandOutlined, NodeCollapseOutlined } from '@ant-design/icons'
 import {
   getBookmarkTree,
   getBookmarks,
@@ -37,7 +37,22 @@ function hl (text, kw) {
 export default function ConnectionManager (props) {
   const { open, onClose, store } = props
   const [kw, setKw] = useState('')
-  const [expanded, setExpanded] = useState({ root: true, default: true })
+  // 展开态持久化(稀疏: 只存展开的 id 数组)
+  const EXP_KEY = 'anchor-mgr-expanded'
+  const [expanded, setExpandedRaw] = useState(() => {
+    try {
+      const ids = JSON.parse(window.localStorage.getItem(EXP_KEY) || 'null')
+      if (Array.isArray(ids) && ids.length) return Object.fromEntries(ids.map(id => [id, true]))
+    } catch (e) {}
+    return { root: true, default: true }
+  })
+  const setExpanded = fn => setExpandedRaw(prev => {
+    const next = fn(prev)
+    try {
+      window.localStorage.setItem(EXP_KEY, JSON.stringify(Object.keys(next).filter(k => next[k])))
+    } catch (e) {}
+    return next
+  })
   const [sel, setSel] = useState(() => { window._mounts = (window._mounts || 0) + 1; return null }) // {kind:'dir'|'host', id}
   const [multiSel, setMultiSel] = useState(new Set()) // Set<kind:id>
   const anchorRef = useRef(null)
@@ -169,8 +184,8 @@ export default function ConnectionManager (props) {
   function handleHostClick (e, id) { handleNodeClick(e, { kind: 'host', id }) }
   function handleDirClick (e, id) {
     handleNodeClick(e, { kind: 'dir', id })
-    // 单击组行=选中+折叠(VSCode 风); 修饰键点击(Ctrl/Cmd/Shift 多选)不折展
-    if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
+    // 单击组行=选中+折叠(VSCode 风); 修饰键(Ctrl/Cmd/Shift 多选)与搜索中不折展
+    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !kw) {
       setExpanded(m => ({ ...m, [id]: !m[id] }))
     }
   }
@@ -308,8 +323,8 @@ export default function ConnectionManager (props) {
             }}
           >
             <span
-              className={'arrow' + (isOpen ? ' open' : '')}
-              onClick={(e) => { e.stopPropagation(); setExpanded(m => ({ ...m, [n.id]: !m[n.id] })) }}
+              className={'arrow' + (isOpen ? ' open' : '') + (kw ? ' leaf' : '')}
+              onClick={(e) => { if (!kw) { e.stopPropagation(); setExpanded(m => ({ ...m, [n.id]: !m[n.id] })) } }}
             ><CaretRightOutlined />
             </span>
             <span className='ticon'><FolderOutlined /></span>
@@ -469,6 +484,22 @@ export default function ConnectionManager (props) {
               setExpanded(m => ({ ...m, [parent]: true }))
             }}
           ><PlusOutlined /> 文件夹
+          </button>
+          <button
+            className='tl' title='展开全部'
+            onClick={() => {
+              const all = { root: true }
+              store.bookmarkGroups.forEach(g => { all[g.id] = true })
+              setExpanded(() => all)
+            }}
+          >
+            <NodeExpandOutlined />
+          </button>
+          <button
+            className='tl' title='全部收起'
+            onClick={() => setExpanded(() => ({ root: true }))}
+          >
+            <NodeCollapseOutlined />
           </button>
           <input
             className='mg-search'
