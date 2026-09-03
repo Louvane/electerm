@@ -113,6 +113,9 @@ async function handleSingleInstance (progs) {
       if (win.isMinimized()) {
         win.restore()
       }
+      if (!win.isVisible()) {
+        win.show()
+      }
       win.focus()
       win.webContents.send('add-tab-from-command-line', data)
     }

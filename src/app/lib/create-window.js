@@ -140,5 +140,5 @@ exports.createWindow = async function (userConfig) {
     disableShortCuts(win)
   })
   win.on('close', onClose)
-  createTray()
+  try { createTray() } catch (e) { console.error('tray init failed', e.message) }
 }

@@ -10,7 +10,9 @@
   ],
   "asar": true,
   "asarUnpack": [
-    "node_modules/node-pty/build/Release/**"
+    "node_modules/node-pty/build/Release/**",
+    "assets/images/anchor-app.png",
+    "assets/images/anchor.ico"
   ],
   "compression": "maximum",
   "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
