@@ -432,8 +432,9 @@ export default class Sftp extends Component {
     return new Promise((resolve) => {
       Modal.confirm({
         title: this.renderDelConfirmTitle(files),
-        okText: e('ok'),
-        cancelText: e('cancel'),
+        okText: '删除',
+        okButtonProps: { danger: true },
+        cancelText: '取消',
         onOk: () => resolve(true),
         onCancel: () => resolve(false)
       })
@@ -467,23 +468,27 @@ export default class Sftp extends Component {
 
   renderDelConfirmTitle (files = this.getSelectedFiles(), pureText) {
     const hasDirectory = some(files, f => f.isDirectory)
-    const names = hasDirectory ? e('filesAndFolders') : e('files')
+    const kind = hasDirectory ? '文件/文件夹' : '文件'
     if (pureText) {
-      const t1 = hasDirectory
-        ? e('delTip1')
-        : ''
-      return `${e('delTip')} ${names} ${t1} (${files.length})`
+      return `删除 ${files.length} 个${kind}？此操作不可恢复。`
     }
+    const show = files.slice(0, 5).map(f => f.name)
+    const more = files.length - show.length
     return (
       <div className='wordbreak'>
-        {e('delTip')}
-        {names}
-        {
-          hasDirectory
-            ? e('delTip1')
-            : ''
-        }
-        (<b className='mg1x'>{files.length}</b>)
+        删除以下 {files.length} 个{kind}？此操作不可恢复。
+        <div
+          className='del-file-list'
+          style={{
+            marginTop: 8,
+            color: 'var(--amber, #b26a00)',
+            fontFamily: '"IBM Plex Mono", monospace',
+            fontSize: 12
+          }}
+        >
+          {show.map(n => <div key={n}>· {n}</div>)}
+          {more > 0 ? <div>… 等共 {files.length} 项</div> : null}
+        </div>
       </div>
     )
   }
