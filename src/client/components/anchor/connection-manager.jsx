@@ -286,7 +286,8 @@ export default function ConnectionManager (props) {
       const p = path + '/' + n.title
       const all = JSON.stringify(n).toLowerCase()
       if (kw && !all.includes(kw.toLowerCase())) return null
-      const isOpen = n.id === 'root' ? true : (expanded[n.id] || !!kw)
+      const isRoot = n.id === 'root'
+      const isOpen = isRoot ? true : (expanded[n.id] || !!kw)
       const isSel = multiSel.has(`dir:${n.id}`) || (sel && sel.kind === 'dir' && sel.id === n.id)
       const empty = !n.children.length && !n.hosts.length && !kw
       return (
@@ -302,8 +303,8 @@ export default function ConnectionManager (props) {
             }}
           >
             <span
-              className={'arrow' + (isOpen ? ' open' : '')}
-              onClick={(e) => { e.stopPropagation(); setExpanded(m => ({ ...m, [n.id]: !m[n.id] })) }}
+              className={'arrow' + (isRoot ? ' leaf' : '') + (isOpen ? ' open' : '')}
+              onClick={(e) => { if (!isRoot) { e.stopPropagation(); setExpanded(m => ({ ...m, [n.id]: !m[n.id] })) } }}
             ><CaretRightOutlined />
             </span>
             <span className='ticon'><FolderOutlined /></span>
