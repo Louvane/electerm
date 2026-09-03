@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Modal } from 'antd'
 import message from '../common/message'
-import { FolderOutlined, DesktopOutlined, CaretRightOutlined, PlusOutlined, NodeExpandOutlined, NodeCollapseOutlined } from '@ant-design/icons'
+import { FolderOutlined, DesktopOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons'
 import {
   getBookmarkTree,
   getBookmarks,
@@ -486,21 +486,17 @@ export default function ConnectionManager (props) {
           ><PlusOutlined /> 文件夹
           </button>
           <button
-            className='tl' title='展开全部'
+            className='tl' title='展开全部分组'
             onClick={() => {
               const all = { root: true }
               store.bookmarkGroups.forEach(g => { all[g.id] = true })
               setExpanded(() => all)
             }}
-          >
-            <NodeExpandOutlined />
-          </button>
+          >展开</button>
           <button
-            className='tl' title='全部收起'
+            className='tl' title='全部收起(仅留根行)'
             onClick={() => setExpanded(() => ({ root: true }))}
-          >
-            <NodeCollapseOutlined />
-          </button>
+          >收起</button>
           <input
             className='mg-search'
             placeholder='搜索名称 / IP / 用户…'
