@@ -15,7 +15,7 @@ const { _electron } = require('/tmp/shot/node_modules/playwright-core')
     const s = window.store
     s.bookmarks = s.bookmarks.filter(b => b.title !== 'real-ssh')
     const id = 'realssh' + Date.now()
-    s.bookmarks.push({ id, title: 'real-ssh', type: 'ssh', host: '113.46.161.35', port: 17897, username: 'claude', authType: 'password', password: 'REDACTED' })
+    s.bookmarks.push({ id, title: 'real-ssh', type: 'ssh', host: '113.46.161.35', port: 17897, username: 'claude', authType: 'password', password: process.env.ANCHOR_PASS })
     const def = s.bookmarkGroups.find(g => g.id === 'default')
     def.bookmarkIds = [...(def.bookmarkIds || []), id]
     s.onSelectBookmark(id)

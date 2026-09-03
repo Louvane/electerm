@@ -4,7 +4,7 @@ const { _electron } = require('/tmp/shot/node_modules/playwright-core')
     executablePath: '/Users/echo/projects/anchor/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron',
     args: ['-r', 'dotenv/config', 'src/app/app'],
     cwd: '/Users/echo/projects/anchor',
-    env: { ...process.env, NODE_ENV: 'development', ANCHOR_PASS: 'REDACTED' }
+    env: { ...process.env, NODE_ENV: 'development', ANCHOR_PASS: process.env.ANCHOR_PASS }
   })
   const win = await app.firstWindow()
   const results = []
@@ -18,7 +18,7 @@ const { _electron } = require('/tmp/shot/node_modules/playwright-core')
     let b = s.bookmarks.find(x => x.title === 'real-ssh')
     if (!b) {
       const id = 'realssh' + Date.now()
-      s.bookmarks.push({ id, title: 'real-ssh', type: 'ssh', host: '113.46.161.35', port: 17897, username: 'claude', authType: 'password', password: 'REDACTED' })
+      s.bookmarks.push({ id, title: 'real-ssh', type: 'ssh', host: '113.46.161.35', port: 17897, username: 'claude', authType: 'password', password: process.env.ANCHOR_PASS })
       const def = s.bookmarkGroups.find(g => g.id === 'default')
       def.bookmarkIds = [...(def.bookmarkIds || []), id]
     }
