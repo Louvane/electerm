@@ -192,9 +192,9 @@ export default Store => {
       },
       title: '关闭窗口',
       okText: '退出 ANCHOR',
-      cancelText: '后台运行',
+      cancelText: '最小化到托盘',
       okButtonProps: { danger: false },
-      content: '退出应用，或保持后台运行？'
+      content: '关闭窗口后 ANCHOR 将最小化到系统托盘；要彻底退出请选「退出 ANCHOR」。'
     })
   }
 
