@@ -30,7 +30,8 @@ export default auto(function WindowControl (props) {
     window.store.isMaximized = false
   }
   const closeApp = () => {
-    window.store.exit()
+    // 纯关窗意图(不带 exit): tray 模式 hide, quit 模式走确认/退出
+    window.pre.runGlobalAsync('closeApp')
   }
   return (
     <div className='window-controls'>
