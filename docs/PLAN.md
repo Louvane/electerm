@@ -46,3 +46,6 @@
 - [x] 前置:appId/productName=ANCHOR、notarize 关闭、ad-hoc 签名(已提交)
 - [ ] electron-builder 出 macOS 包(待用户发起)
 - [ ] 安装验证
+
+## 已关闭问题
+- P1#3 TMOUT=0 双发(2026-09-03 关闭,不修): 排除 ANCHOR 代码层双发(主进程 0 处消费 runScripts, 渲染层单调用点单发送); 用户数据不在本机(内网 Windows), 无法复核其书签 runScripts 是否存两条; 判定为历史数据/老 electerm 表单重复添加所致, 修复入口已具备(表单运行脚本编辑待加)
