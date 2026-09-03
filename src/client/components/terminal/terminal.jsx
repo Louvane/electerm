@@ -467,10 +467,9 @@ class Term extends Component {
 
   askUserConfirm = () => {
     Modal.confirm({
-      title: e('paste'),
+      title: '粘贴以下文本？',
       content: (
         <div>
-          <p>{e('paste')}:</p>
           <div className='paste-text'>
             <pre>
               <code>{readClipboard()}</code>
@@ -478,8 +477,8 @@ class Term extends Component {
           </div>
         </div>
       ),
-      okText: e('ok'),
-      cancelText: e('cancel'),
+      okText: '粘贴',
+      cancelText: '取消',
       onOk: () => this.onPaste(true)
     })
   }

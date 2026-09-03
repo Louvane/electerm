@@ -45,7 +45,7 @@ export function requireTermOfUse (type, onConfirmed) {
     return onConfirmed()
   }
   Modal.confirm({
-    title: 'Terms of use',
+    title: '使用条款',
     width: 600,
     maskClosable: false,
     content: (
@@ -60,7 +60,7 @@ export function requireTermOfUse (type, onConfirmed) {
       </div>
     ),
     okText: e('haveRead'),
-    cancelText: e('cancel'),
+    cancelText: '取消',
     onOk: () => {
       ls.setItem(lsKey, 'yes')
       onConfirmed()

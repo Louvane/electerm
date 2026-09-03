@@ -12,7 +12,6 @@ import {
 } from '../common/constants'
 import { isAIDisabled } from '../common/ai-feature'
 
-const e = window.translate
 
 export default Store => {
   Store.prototype.zoom = function (level = 1, plus = false, zoomOnly) {
@@ -80,11 +79,12 @@ export default Store => {
     let mod = null
     mod = Modal.confirm({
       onCancel: () => mod.destroy(),
-      onOk: store.doExit,
-      title: e('quit'),
-      okText: e('ok'),
-      cancelText: e('cancel'),
-      content: ''
+      onOk: () => store.doExit(),
+      title: '退出 ANCHOR？',
+      okText: '退出',
+      okButtonProps: { danger: true },
+      cancelText: '取消',
+      content: '所有会话与传输将被断开。'
     })
   }
 
