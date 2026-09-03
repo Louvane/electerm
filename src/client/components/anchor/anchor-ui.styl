@@ -1263,3 +1263,20 @@ body[data-anchor-theme=dark]
     color var(--snow, #e6edf5) !important
     border-color var(--line, #2a3547) !important
 
+// Modal.confirm 结构: 去 header/body 间双线, 按钮区自然留白
+.ant-modal-confirm
+  .ant-modal-header
+    border-bottom none !important
+    margin-bottom 0 !important
+    padding-bottom 4px !important
+  .ant-modal-body
+    border-top none !important
+    padding-top 0 !important
+    padding-bottom 8px !important
+    line-height 1.7
+  .ant-modal-footer
+    border-top none !important
+    margin-top 4px !important
+  .del-file-list
+    margin 10px 0 2px
+
