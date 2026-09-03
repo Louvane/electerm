@@ -64,8 +64,13 @@ export default auto(function CommandPalette (props) {
   })
 
   function run (id) {
-    if (!store.tabs.some(t => t.id === store.activeTabId)) {
+    const tab = store.tabs.find(t => t.id === store.activeTabId)
+    if (!tab) {
       notify('warning', '请先连接一个会话')
+      return
+    }
+    if (tab.status !== 'success') {
+      notify('warning', '会话尚未就绪，稍后再试')
       return
     }
     bumpFreq(id)
