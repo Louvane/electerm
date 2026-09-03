@@ -167,7 +167,13 @@ export default function ConnectionManager (props) {
     anchorRef.current = key
   }
   function handleHostClick (e, id) { handleNodeClick(e, { kind: 'host', id }) }
-  function handleDirClick (e, id) { handleNodeClick(e, { kind: 'dir', id }) }
+  function handleDirClick (e, id) {
+    handleNodeClick(e, { kind: 'dir', id })
+    // 单击组行=选中+折叠(VSCode 风); 修饰键点击(Ctrl/Cmd/Shift 多选)不折展
+    if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
+      setExpanded(m => ({ ...m, [id]: !m[id] }))
+    }
+  }
   function delSelected (keys) {
     const arr = [...keys]
     const hosts = []
