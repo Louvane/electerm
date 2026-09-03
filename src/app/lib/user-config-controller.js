@@ -19,6 +19,7 @@ function hasNoEncryptFields (userConfig) {
 }
 
 exports.saveUserConfig = async (userConfig) => {
+  console.log('[saveUserConfig] closeBehavior=', userConfig.closeBehavior, 'confirmBeforeExit=', userConfig.confirmBeforeExit)
   const q = {
     _id: userConfigId
   }

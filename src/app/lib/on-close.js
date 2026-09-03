@@ -15,6 +15,7 @@ exports.getExitStatus = async () => {
 
 exports.onClose = async function (e) {
   const config = globalState.get('config')
+  console.error('[on-close] cb=' + config.closeBehavior + ' ca=' + globalState.get('closeAction') + ' cbe=' + config.confirmBeforeExit)
   // 主流关窗语义: 默认最小化到托盘; 除非「退出程序」模式或托盘/菜单显式退出(closeAction=exit)
   const closeBehavior = config.closeBehavior || 'tray'
   const forceExit = globalState.get('closeAction') === 'exit'
@@ -25,12 +26,11 @@ exports.onClose = async function (e) {
     }
     return e.preventDefault()
   }
-  if (config.confirmBeforeExit && globalState.get('closeAction')) {
+  // 退出前确认: closeAction='confirmed' 表示渲染层已确认, 放行
+  if (config.confirmBeforeExit && globalState.get('closeAction') !== 'confirmed') {
     const win = globalState.get('win')
-    win?.webContents.send(
-      'confirm-exit',
-      globalState.get('closeAction')
-    )
+    const pendingAction = globalState.get('closeAction') || 'exit'
+    win?.webContents.send('confirm-exit', pendingAction)
     globalState.set('closeAction', '')
     return e.preventDefault()
   }

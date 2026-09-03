@@ -168,6 +168,7 @@ export default Store => {
         },
         onOk: () => {
           window.confirmExit = true
+          window.pre.runGlobalAsync('setCloseAction', 'confirmed')
           window.store[window.exitFunction]()
         },
         title: '退出 ANCHOR？',
@@ -188,6 +189,7 @@ export default Store => {
         mod.destroy()
       },
       onOk: () => {
+        window.pre.runGlobalAsync('setCloseAction', 'confirmed')
         window.pre.runGlobalAsync(name)
       },
       title: '退出 ANCHOR？',
