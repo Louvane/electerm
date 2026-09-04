@@ -57,7 +57,10 @@ export default auto(function Layout (props) {
           colorFillQuaternary: '#fafbfd',
           colorFillContentHover: '#e6ebf1',
           colorTextTertiary: '#8b98ab',
-          colorTextQuaternary: '#aab4c2'
+          colorTextQuaternary: '#aab4c2',
+          // 动效: 抽屉/弹窗进场更快更跟手
+          motionDurationMid: '0.15s',
+          motionDurationSlow: '0.2s'
         }
       : {
           colorPrimary: '#ffb454',
@@ -66,7 +69,10 @@ export default auto(function Layout (props) {
           colorFillContentHover: '#2a3547',
           colorFillSecondary: '#1c2534',
           colorFillTertiary: '#151c28',
-          colorTextTertiary: '#8b98ab'
+          colorTextTertiary: '#8b98ab',
+          // 动效: 抽屉/弹窗进场更快更跟手
+          motionDurationMid: '0.15s',
+          motionDurationSlow: '0.2s'
         }
   }
   // 劫持旧版“编辑书签”入口(HOST 失败→编辑)，统一走 ANCHOR 主机抽屉
