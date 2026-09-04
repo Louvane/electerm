@@ -1549,3 +1549,14 @@ body[data-anchor-theme=light] .disk-pop
   .disk-pop-close
     color var(--fog, #5d6b7e)
     border-color var(--line, #d4dbe4)
+
+// ===== DISK 浮层进场动画 =====
+@keyframes disk-pop-in
+  from
+    opacity 0
+    transform translateX(-6px)
+  to
+    opacity 1
+    transform translateX(0)
+.disk-pop
+  animation disk-pop-in 0.16s ease-out

@@ -351,10 +351,14 @@ export default function MonitorRail (props) {
               })}
               {disksMore > 0 && (
                 <button className='disk-toggle' onClick={e => {
+                  if (diskPop) {
+                    setDiskPop(null)
+                    return
+                  }
                   const r = e.currentTarget.getBoundingClientRect()
                   setDiskPop({ x: r.right + 8, y: Math.min(r.top, window.innerHeight - 420) })
                 }}>
-                  其他 {disksMore} 个挂载 ▸
+                  其他 {disksMore} 个挂载 {diskPop ? '▾' : '▸'}
                 </button>
               )}
               {diskPop && (
