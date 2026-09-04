@@ -56,7 +56,7 @@ const CANCEL_SEQUENCE = Buffer.from([0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0
 
 // How long a header fragment is kept while waiting for the rest of it
 // to arrive before we give up sniffing and pass data through.
-const SNIFF_WINDOW_MS = 3000
+const SNIFF_WINDOW_MS = 300
 
 // Watchdog timeouts (ms)
 const WATCHDOG = {
@@ -430,7 +430,14 @@ class ZmodemSession {
       return true
     }
 
-    // Plain terminal output - let session-server forward the chunk
+    // Plain terminal output - let session-server forward the chunk.
+    // If a previously held-back carry was merged into hay, its bytes are
+    // ordinary output now: flush them through ourselves BEFORE returning,
+    // otherwise they are silently dropped (session-server only forwards
+    // the current `data`, never our carry - 'hi*there' lost its '*').
+    if (hay.length > data.length) {
+      this.passThroughPrefix(Buffer.from(hay.subarray(0, hay.length - data.length)))
+    }
     return false
   }
 
