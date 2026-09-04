@@ -382,16 +382,17 @@ class Transfer {
         }, 2)
         return
       }
-      // 限速: 本传输已传字节 ÷ 限速 = 应耗时, 超速延迟下一轮 read(窗口式, 30ms 粒度)
+      // 限速: 本传输已传字节 ÷ 限速 = 应耗时, 超速精确等待(负反馈收敛, 上限 1s)
       if (th.rateLimit > 0 && total > 0) {
         const now = Date.now()
         if (!th._rateWindowStart) th._rateWindowStart = now
         const elapsed = now - th._rateWindowStart
         const expected = total / th.rateLimit * 1000
-        if (elapsed < expected - 30) {
+        if (elapsed < expected) {
+          const wait = Math.min(expected - elapsed, 1000)
           th.timers[psrc + ':' + pdst + ':rl'] = setTimeout(() => {
             singleRead(psrc, pdst, chunk)
-          }, 30)
+          }, wait)
           return
         }
       }
