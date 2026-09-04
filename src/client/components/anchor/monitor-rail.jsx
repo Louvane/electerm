@@ -172,7 +172,7 @@ export default function MonitorRail (props) {
     const t = el || e.currentTarget
     if (t && t.scrollWidth <= t.clientWidth + 1) return
     clearTimeout(tipTimer.current)
-    const x = Math.min(e.clientX + 12, window.innerWidth - 270)
+    const x = Math.min(e.clientX + 12, window.innerWidth - 410)
     const y = Math.min(e.clientY + 12, window.innerHeight - 60)
     tipTimer.current = setTimeout(() => setTip({ x, y, text }), 250)
   }
