@@ -135,14 +135,14 @@ function Spark ({ data, color }) {
   const vals = data.filter(v => v !== null && v !== undefined)
   const w = 186
   const h = 96
-  if (vals.length < 2) return <canvas width={w} height={h} />
+  if (vals.length < 2) return <canvas width={w} height={h} style={{ width: '100%', height: '100%' }} />
   const max = Math.max(...vals, 1) * 1.1
   const pts = data.map((v, i) => {
     if (v === null || v === undefined) return null
     return `${i * w / (MAX_POINTS - 1)},${h - Math.min(v, max) * h / max}`
   }).filter(Boolean).join(' ')
   return (
-    <svg width='100%' height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio='none'>
+    <svg width='100%' height='100%' viewBox={`0 0 ${w} ${h}`} preserveAspectRatio='none'>
       <polyline points={pts} fill='none' style={{ stroke: color }} strokeWidth='1.5' />
       <circle
         cx={(vals.length - 1) * w / (MAX_POINTS - 1)}
