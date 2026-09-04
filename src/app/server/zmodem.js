@@ -1168,6 +1168,9 @@ class ZmodemSession {
 class ZmodemManager {
   constructor () {
     this.sessions = new Map()
+    // ponytail: zmodem 关闭 — SFTP 时代无人用 rz/sz, 嗅探层反成 '*' 回显丢字温床.
+    // 要恢复: 删掉下面 enabled 短路即可(整层代码保留)
+    this.enabled = false
   }
 
   /**
@@ -1194,6 +1197,7 @@ class ZmodemManager {
    * @returns {boolean} - True if data was consumed by zmodem
    */
   handleData (pid, data, term, ws) {
+    if (!this.enabled) return false
     const session = this.getSession(pid, term, ws)
     return session.handleData(data)
   }
@@ -1253,6 +1257,7 @@ class ZmodemManager {
    * @returns {boolean}
    */
   isActive (pid) {
+    if (!this.enabled) return false
     const session = this.sessions.get(pid)
     return session ? session.isActive() : false
   }
