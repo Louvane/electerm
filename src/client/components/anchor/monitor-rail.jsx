@@ -172,7 +172,8 @@ export default function MonitorRail (props) {
   const aliveRef = useRef(false)
   const osRef = useRef('')
 
-  const isActive = !!(tab && tab.host && store.tabs.some(t => t.id === tab.id))
+  // 本地终端也显示遥测(资源本机同样适用); 网络指标对本地为相对值
+  const isActive = !!(tab && store.tabs.some(t => t.id === tab.id) && (tab.host || tab.type === 'local'))
 
   useEffect(() => {
     if (!isActive) return undefined
