@@ -167,7 +167,10 @@ export default function MonitorRail (props) {
   const [diskPop, setDiskPop] = useState(null) // null | {x,y}
   const [tip, setTip] = useState(null) // null | {x,y,text}
   const tipTimer = useRef(null)
-  const showTip = (e, text) => {
+  const showTip = (e, text, el) => {
+    // 未截断不打扰: 内容完全显示就不弹
+    const t = el || e.currentTarget
+    if (t && t.scrollWidth <= t.clientWidth + 1) return
     clearTimeout(tipTimer.current)
     const x = Math.min(e.clientX + 12, window.innerWidth - 270)
     const y = Math.min(e.clientY + 12, window.innerHeight - 60)
@@ -356,7 +359,7 @@ export default function MonitorRail (props) {
                 const c = lv(pct)
                 return (
                   <div
-                    className={'anchor-kv disk-line' + (pct > 85 ? ' crit-row' : '')} key={d.mount} onMouseEnter={e => showTip(e, d.mount + '  ' + d.usedG.toFixed(1) + '/' + d.totalG.toFixed(0) + 'G')} onMouseLeave={hideTip}>
+                    className={'anchor-kv disk-line' + (pct > 85 ? ' crit-row' : '')} key={d.mount} onMouseEnter={e => showTip(e, d.mount + '  ' + d.usedG.toFixed(1) + '/' + d.totalG.toFixed(0) + 'G', e.currentTarget.querySelector('span'))} onMouseLeave={hideTip}>
                     <span>{shortMount(d.mount)}</span>
                     <div className='rail'><div style={{ width: pct + '%', background: c }} /></div>
                     <b style={{ color: c }}>{pct.toFixed(0)}%</b>
