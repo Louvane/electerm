@@ -137,17 +137,17 @@ function Spark ({ data, color, max }) {
   const h = 96
   if (vals.length < 2) return <canvas width={w} height={h} style={{ width: '100%', height: '100%' }} />
   // 百分比类传固定 max=100(真实比例, 亚 1% 噪音不再画成高山); 速率类自适应
-  const max = max || Math.max(...vals, 1) * 1.1
+  const mx = max || Math.max(...vals, 1) * 1.1
   const pts = data.map((v, i) => {
     if (v === null || v === undefined) return null
-    return `${i * w / (MAX_POINTS - 1)},${h - Math.min(v, max) * h / max}`
+    return `${i * w / (MAX_POINTS - 1)},${h - Math.min(v, mx) * h / mx}`
   }).filter(Boolean).join(' ')
   return (
     <svg width='100%' height='100%' viewBox={`0 0 ${w} ${h}`} preserveAspectRatio='none'>
       <polyline points={pts} fill='none' style={{ stroke: color }} strokeWidth='1.5' />
       <circle
         cx={(vals.length - 1) * w / (MAX_POINTS - 1)}
-        cy={h - Math.min(vals[vals.length - 1], max) * h / max}
+        cy={h - Math.min(vals[vals.length - 1], mx) * h / mx}
         r='2.5' style={{ fill: color }}
       />
     </svg>
