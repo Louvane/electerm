@@ -165,6 +165,18 @@ export default function MonitorRail (props) {
   const [points, setPoints] = useState([])
   const [disks, setDisks] = useState([])
   const [diskPop, setDiskPop] = useState(null) // null | {x,y}
+  const [tip, setTip] = useState(null) // null | {x,y,text}
+  const tipTimer = useRef(null)
+  const showTip = (e, text) => {
+    clearTimeout(tipTimer.current)
+    const x = Math.min(e.clientX + 12, window.innerWidth - 270)
+    const y = Math.min(e.clientY + 12, window.innerHeight - 60)
+    tipTimer.current = setTimeout(() => setTip({ x, y, text }), 250)
+  }
+  const hideTip = () => {
+    clearTimeout(tipTimer.current)
+    setTip(null)
+  }
   const [live, setLive] = useState(false)
   const [chartMode, setChartMode] = useState('cpu')
   const prevRef = useRef(null)
@@ -297,7 +309,8 @@ export default function MonitorRail (props) {
           <div className='anchor-cap'>TARGET</div>
           <div className='anchor-hint'>暂无活动会话</div>
         </div>
-        <div className='anchor-rail-foot'>
+        {tip && <div className='anchor-tip' style={{ left: tip.x, top: tip.y }}>{tip.text}</div>}
+      <div className='anchor-rail-foot'>
           <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'><SettingOutlined /> 设置</button>
         </div>
       </aside>
@@ -342,7 +355,8 @@ export default function MonitorRail (props) {
                 const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
                 const c = lv(pct)
                 return (
-                  <div className={'anchor-kv disk-line' + (pct > 85 ? ' crit-row' : '')} key={d.mount} title={d.mount + ' ' + d.usedG.toFixed(1) + '/' + d.totalG.toFixed(0) + 'G'}>
+                  <div
+                    className={'anchor-kv disk-line' + (pct > 85 ? ' crit-row' : '')} key={d.mount} onMouseEnter={e => showTip(e, d.mount + '  ' + d.usedG.toFixed(1) + '/' + d.totalG.toFixed(0) + 'G')} onMouseLeave={hideTip}>
                     <span>{shortMount(d.mount)}</span>
                     <div className='rail'><div style={{ width: pct + '%', background: c }} /></div>
                     <b style={{ color: c }}>{pct.toFixed(0)}%</b>
@@ -370,7 +384,7 @@ export default function MonitorRail (props) {
                       const c = lv(pct)
                       return (
                         <div className='disk-row' key={d.mount}>
-                          <span className='disk-name' title={d.mount}>{d.mount.length > 1 ? d.mount.replace(/\/$/, '') : d.mount}</span>
+                          <span className='disk-name' onMouseEnter={e => showTip(e, d.mount)} onMouseLeave={hideTip}>{d.mount.length > 1 ? d.mount.replace(/\/$/, '') : d.mount}</span>
                           <div className='disk-col'>
                             <div className='disk-top'>
                               <span className='disk-meta'>{d.usedG.toFixed(1)}/{d.totalG.toFixed(0)}G</span>
@@ -427,6 +441,7 @@ export default function MonitorRail (props) {
           <span className='pair'><span className='dir down'>↓</span><b>{rx}</b></span>
         </div>
       </div>
+      {tip && <div className='anchor-tip' style={{ left: tip.x, top: tip.y }}>{tip.text}</div>}
       <div className='anchor-rail-foot'>
         <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'><SettingOutlined /> 设置</button>
         <div className='foot-version'>ANCHOR v{(window.et && window.et.version) || ''}</div>
