@@ -81,7 +81,8 @@ export default function TransferWatcher (props) {
         })
         const first = invisible[0]
         if (hiddenRef.current) {
-          return timer = setTimeout(tick, POLL)
+          timer = setTimeout(tick, POLL)
+          return
         }
         setMini({
           tabId: first.tabId,
