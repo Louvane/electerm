@@ -803,6 +803,22 @@ class TerminalSshBase extends TerminalBase {
     if (!connectOptions.passphrase) {
       delete connectOptions.passphrase
     }
+    // 书签存的是密钥路径(非内容)时读文件, 否则 ssh2 解析路径字符串直接报错
+    if (
+      connectOptions.privateKey &&
+      !connectOptions.privateKey.includes('\n') &&
+      !connectOptions.privateKey.includes('BEGIN')
+    ) {
+      try {
+        let kp = connectOptions.privateKey.trim()
+        if (kp.startsWith('~/')) kp = require('os').homedir() + kp.slice(1)
+        if (require('fs').existsSync(kp)) {
+          connectOptions.privateKey = require('fs').readFileSync(kp, 'utf8')
+        }
+      } catch (e) {
+        log.error('read privateKey file failed', e.message)
+      }
+    }
     return connectOptions
   }
 

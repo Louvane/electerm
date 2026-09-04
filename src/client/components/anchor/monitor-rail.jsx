@@ -366,7 +366,7 @@ export default function MonitorRail (props) {
                       const c = lv(pct)
                       return (
                         <div className='disk-row' key={d.mount}>
-                          <span className='disk-name' title={d.mount}>{d.mount.replace(/\/$/, '')}</span>
+                          <span className='disk-name' title={d.mount}>{d.mount.length > 1 ? d.mount.replace(/\/$/, '') : d.mount}</span>
                           <div className='disk-col'>
                             <div className='disk-top'>
                               <span className='disk-meta'>{d.usedG.toFixed(1)}/{d.totalG.toFixed(0)}G</span>
