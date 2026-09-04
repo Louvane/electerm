@@ -1308,3 +1308,77 @@ body[data-anchor-theme=dark] .custom-modal-content
 body[data-anchor-theme=dark] .custom-modal-header,
 body[data-anchor-theme=dark] .custom-modal-footer
   border-color var(--line, #2a3547) !important
+
+// ===== 侧边栏重排(v5.3.22) =====
+// HEALTH 阈值变色已在 lv() inline; 交换未启用灰字
+.swap-off
+  font-size 10px
+  color var(--fog, #8b98ab)
+  margin-left 2px
+// DISK 列表行(名称 | meta/百分比 + 微条)
+.disk-row
+  display flex
+  align-items center
+  gap 6px
+  margin-bottom 7px
+  .disk-name
+    width 60px
+    flex-shrink 0
+    font-family "IBM Plex Mono", monospace
+    font-size 10.5px
+    color var(--fog, #8b98ab)
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+  .disk-col
+    flex 1
+    min-width 0
+  .disk-top
+    display flex
+    justify-content space-between
+    align-items baseline
+    margin-bottom 2px
+  .disk-meta
+    font-family "IBM Plex Mono", monospace
+    font-size 10px
+    color var(--fog, #8b98ab)
+  .disk-pct
+    font-weight 600
+    font-size 10.5px
+    font-family "IBM Plex Mono", monospace
+  .disk-rail
+    height 3px
+    background var(--rail, #e2e7ee)
+    border-radius 2px
+    overflow hidden
+    > div
+      height 100%
+      border-radius 2px
+      transition width 0.5s
+.crit-row .disk-name
+.crit-row .disk-pct
+  color var(--alert, #f2555a) !important
+// TREND 网络双线
+.anchor-chart-net
+  .net-line
+    display flex
+    align-items center
+    gap 4px
+    .dir
+      font-size 10px
+      width 10px
+      flex-shrink 0
+      &.up
+        color var(--alert, #f2555a)
+      &.down
+        color var(--signal, #3fd68f)
+    svg
+      flex 1
+// foot 版本号
+.foot-version
+  font-family "IBM Plex Mono", monospace
+  font-size 9.5px
+  color var(--fog, #8b98ab)
+  text-align center
+  margin-top 6px
+  opacity 0.7

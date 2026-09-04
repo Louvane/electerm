@@ -131,7 +131,6 @@ function computePoint (prev, cur) {
 function fmtB (n) {
   return n >= 1024 ? (n / 1024).toFixed(1) + 'M' : n.toFixed(0) + 'K'
 }
-
 function Spark ({ data, color }) {
   const vals = data.filter(v => v !== null && v !== undefined)
   const w = 186
@@ -154,31 +153,30 @@ function Spark ({ data, color }) {
   )
 }
 
+const shortMount = m => {
+  if (m === '/') return '/'
+  if (m.startsWith('/var/lib/')) return '…/' + m.split('/').pop()
+  if (m.length > 16) return '…' + m.slice(-15)
+  return m
+}
+
 export default function MonitorRail (props) {
   const { store, tab, onOpenSettings } = props
   const [points, setPoints] = useState([])
   const [disks, setDisks] = useState([])
   const [diskExpanded, setDiskExpanded] = useState(false)
   const [diskOs, setDiskOs] = useState('linux')
-  const shortMount = m => {
-    if (m === '/') return '/'
-    if (m.startsWith('/var/lib/')) return '…/' + m.split('/').pop()
-    if (m.length > 16) return '…' + m.slice(-15)
-    return m
-  }
   const [live, setLive] = useState(false)
-  const [chartMode, setChartMode] = useState('mem')
+  const [chartMode, setChartMode] = useState('cpu')
   const prevRef = useRef(null)
   const aliveRef = useRef(false)
+  const osRef = useRef('')
 
   const isActive = !!(tab && tab.host && store.tabs.some(t => t.id === tab.id))
-
-  const osRef = useRef('')
 
   useEffect(() => {
     if (!isActive) return undefined
     const pid = tab.id
-    // 切换主机: 清旧数据, 防止上一台残留
     setPoints([])
     setLive(false)
     osRef.current = ''
@@ -188,7 +186,6 @@ export default function MonitorRail (props) {
       try {
         if (!osRef.current) {
           const probe = await execCmdDirect(pid, 'uname -s', TIMEOUT, { silent: true }).catch(() => null)
-          // Windows 上 uname 报错只在 stderr, 必须合并才能识别出 win
           const po = probe && typeof probe === 'object' && ('stdout' in probe || 'stderr' in probe)
             ? `${probe.stdout || ''}${probe.stderr || ''}`
             : probe
@@ -196,7 +193,6 @@ export default function MonitorRail (props) {
           if (txt) {
             osRef.current = /linux/i.test(txt) ? 'linux' : 'win'
           }
-          // 探测失败: 本轮按 linux 采样, osRef 留空下轮重探
         }
         const res = await execCmdDirect(pid, statsCmdFor(osRef.current), TIMEOUT, { silent: true }).catch(() => '')
         const out = res && typeof res === 'object' && 'stdout' in res ? res.stdout : res
@@ -204,6 +200,7 @@ export default function MonitorRail (props) {
         if (sample && aliveRef.current) {
           const point = computePoint(prevRef.current, sample)
           point.swap = sample.swapPct
+          point.swapTotal = sample.swapTotal
           point.load = sample.load
           point.memTotalKb = sample.memTotal
           point.memAvailKb = sample.memAvail
@@ -277,10 +274,23 @@ export default function MonitorRail (props) {
   const memSub = last.memTotalKb > 0
     ? `${((last.memTotalKb - last.memAvailKb) / 1048576).toFixed(1)}G / ${(last.memTotalKb / 1048576).toFixed(1)}G`
     : '— / —'
-  const swap = last.swapPct == null ? '—' : last.swapPct.toFixed(0) + '%'
+  const swapOff = last.swapTotal === 0
+  const swap = last.swapPct == null ? '未启用' : last.swapPct.toFixed(0) + '%'
   const rx = last.rxKb == null ? '—' : fmtB(last.rxKb) + '/s'
   const tx = last.txKb == null ? '—' : fmtB(last.txKb) + '/s'
   const userHost = tab && tab.username ? tab.username + '@' + tab.host : (tab && tab.host ? tab.host : '—')
+  const lv = pct => pct >= 85 ? 'var(--alert,#f2555a)' : pct >= 70 ? 'var(--amber,#ffb454)' : 'var(--signal,#3fd68f)'
+  const cpuPct = last.cpu || 0
+  const memPct = last.mem || 0
+  const disksSorted = [...disks].sort((a, b) => {
+    const pa = a.totalG > 0 ? a.usedG / a.totalG : 0
+    const pb = b.totalG > 0 ? b.usedG / b.totalG : 0
+    return pb - pa
+  })
+  const disksHot = disksSorted.filter(d => d.totalG > 0 && d.usedG * 100 / d.totalG >= 70)
+  const disksCold = disksSorted.filter(d => !(d.totalG > 0 && d.usedG * 100 / d.totalG >= 70))
+  const disksShow = [...disksHot, ...disksCold.slice(0, Math.max(0, 3 - disksHot.length))]
+  const disksMore = disks.length - disksShow.length
 
   if (!isActive) {
     return (
@@ -308,25 +318,99 @@ export default function MonitorRail (props) {
         }
       </div>
       <div className='anchor-rail-sec'>
+        <div className='anchor-cap'>HEALTH</div>
         <div className='gauge'>
-          <div className='top'><span className='k'>CPU</span><span className='v'>{cpu}</span></div>
-          <div className='rail'><div style={{ width: (last.cpu || 0) + '%', background: 'var(--amber,#5c8dff)' }} /></div>
+          <div className='top'><span className='k'>CPU</span><span className='v' style={{ color: lv(cpuPct) }}>{cpu}</span></div>
+          <div className='rail'><div style={{ width: cpuPct + '%', background: lv(cpuPct) }} /></div>
         </div>
         <div className='gauge'>
-          <div className='top'><span className='k'>内存</span><span className='v'>{mem}</span></div>
-          <div className='rail'><div style={{ width: (last.mem || 0) + '%', background: 'var(--amber,#5c8dff)' }} /></div>
+          <div className='top'><span className='k'>内存</span><span className='v' style={{ color: lv(memPct) }}>{mem}</span></div>
+          <div className='rail'><div style={{ width: memPct + '%', background: lv(memPct) }} /></div>
           <div className='sub'>{memSub}</div>
         </div>
-        <div className='gauge'>
-          <div className='top'><span className='k'>交换</span><span className='v'>{swap}</span></div>
-          <div className='rail'><div style={{ width: (last.swapPct || 0) + '%', background: 'var(--amber,#5c8dff)' }} /></div>
-        </div>
+        {swapOff
+          ? (
+            <div className='gauge'>
+              <div className='top'><span className='k'>交换 <span className='swap-off'>未启用</span></span><span className='v' style={{ color: 'var(--fog,#8b98ab)' }}>—</span></div>
+            </div>
+            )
+          : (
+            <div className='gauge'>
+              <div className='top'><span className='k'>交换</span><span className='v' style={{ color: lv(last.swapPct || 0) }}>{swap}</span></div>
+              <div className='rail'><div style={{ width: (last.swapPct || 0) + '%', background: lv(last.swapPct || 0) }} /></div>
+            </div>
+            )}
+      </div>
+      <div className='anchor-rail-sec'>
+        <div className='anchor-cap'>DISK</div>
+        {(() => {
+          if (!disks.length) return <div className='anchor-kv'><span>/</span><b>—</b></div>
+          if (diskOs === 'win') {
+            const show = diskExpanded ? disksSorted : disksShow
+            return (
+              <>
+                {show.map(d => {
+                  const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
+                  return (
+                    <div className={'anchor-kv disk-row' + (pct > 85 ? ' crit-row' : '')} key={d.mount}>
+                      <span title={d.mount}>{shortMount(d.mount)}</span>
+                      <b>{d.usedG.toFixed(0)}/{d.totalG.toFixed(0)}G {pct.toFixed(0)}%</b>
+                    </div>
+                  )
+                })}
+                {disksMore > 0 && (
+                  <button className='disk-toggle' onClick={() => setDiskExpanded(v => !v)}>
+                    {diskExpanded ? '收起 ▴' : `其他 ${disksMore} 个盘符 ▸`}
+                  </button>
+                )}
+              </>
+            )
+          }
+          return (
+            <>
+              {disksShow.map(d => {
+                const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
+                const c = lv(pct)
+                return (
+                  <div className='disk-row' key={d.mount}>
+                    <span className='disk-name' title={d.mount}>{shortMount(d.mount)}</span>
+                    <div className='disk-col'>
+                      <div className='disk-top'>
+                        <span className='disk-meta'>{d.usedG.toFixed(0)}/{d.totalG.toFixed(0)}G</span>
+                        <span className='disk-pct' style={{ color: c }}>{pct.toFixed(0)}%</span>
+                      </div>
+                      <div className='disk-rail'><div style={{ width: pct + '%', background: c }} /></div>
+                    </div>
+                  </div>
+                )
+              })}
+              {disksMore > 0 && (
+                <button className='disk-toggle' onClick={() => setDiskExpanded(v => !v)}>
+                  {diskExpanded ? '收起 ▴' : `其他 ${disksMore} 个挂载 ▸`}
+                </button>
+              )}
+              {diskExpanded && disksMore > 0 && (
+                <div className='disk-list'>
+                  {disksCold.filter(d => !disksShow.includes(d)).map(d => {
+                    const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
+                    return (
+                      <div className='anchor-kv' key={d.mount}>
+                        <span title={d.mount}>{shortMount(d.mount)}</span>
+                        <b>{d.usedG.toFixed(0)}/{d.totalG.toFixed(0)}G {pct.toFixed(0)}%</b>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </>
+          )
+        })()}
       </div>
       <div className='anchor-rail-sec'>
         <div className='anchor-cap'>TREND</div>
         <div className='anchor-tabs'>
           {
-            [['mem', '内存'], ['cpu', 'CPU'], ['cmd', '命令']].map(([k, label]) => (
+            [['cpu', 'CPU'], ['mem', '内存'], ['net', '网络']].map(([k, label]) => (
               <button
                 key={k}
                 className={'anchor-tabbtn' + (chartMode === k ? ' on' : '')}
@@ -337,31 +421,17 @@ export default function MonitorRail (props) {
           }
         </div>
         {
-          chartMode === 'cmd'
+          chartMode === 'net'
             ? (
-              <div className='anchor-cmdbox'>
-                {
-                                    (() => {
-                                      // 过滤噪音:空回车/prompt 残片/半截输入/清屏退出
-                                      const NOISE = /^(|clear|exit|logout|\s+|[➜❯~$\s]+)$/i
-                                      const seen = new Set()
-                                      const rows = []
-                                      const hist = store.terminalCommandHistory || []
-                                      for (let i = hist.length - 1; i >= 0 && rows.length < 20; i--) {
-                                        const raw = (hist[i].cmd || '').trim()
-                                        if (!raw || NOISE.test(raw)) continue
-                                        if (seen.has(raw)) continue
-                                        seen.add(raw)
-                                        rows.push({ ...hist[i], cmd: raw })
-                                      }
-                                      if (!rows.length) {
-                                        return <div style={{ color: 'var(--fog,#8b98ab)', padding: '4px 0' }}>暂无有效命令记录</div>
-                                      }
-                                      return rows.map(c => (
-                                        <div key={c.id}><b>$</b> {c.cmd}{c.count > 1 ? <span className='cnt'> ×{c.count}</span> : null}</div>
-                                      ))
-                                    })()
-                }
+              <div className='anchor-chart anchor-chart-net'>
+                <div className='net-line'>
+                  <span className='dir up'>↑</span>
+                  <Spark data={points.map(p => p.rxKb)} color='var(--signal,#3fd68f)' />
+                </div>
+                <div className='net-line'>
+                  <span className='dir down'>↓</span>
+                  <Spark data={points.map(p => p.txKb)} color='var(--alert,#f2555a)' />
+                </div>
               </div>
               )
             : <div className='anchor-chart'><Spark data={points.map(p => p[chartMode])} color={chartMode === 'cpu' ? 'var(--alert,#ff6b6b)' : 'var(--amber,#5c8dff)'} /></div>
@@ -373,78 +443,8 @@ export default function MonitorRail (props) {
         <div className='net-row'><span className='net-dir down'>↓</span><div className='net-rail rx'><div style={{ width: Math.min(100, (last.rxKb || 0) / 8) + '%', background: 'var(--signal,#3fd68f)' }} /></div><span className='net-val'>{rx}</span></div>
       </div>
       <div className='anchor-rail-foot'>
-        <div className='anchor-cap'>DISK</div>
-        {(() => {
-          if (!disks.length) return <div className='anchor-kv'><span>/</span><b>—</b></div>
-          const isWin = (diskOs === 'win')
-          if (isWin) {
-            // Windows: 盘符列表, 超3折叠
-            const show = diskExpanded ? disks : disks.slice(0, 3)
-            return (
-              <>
-                {show.map(d => {
-                  const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
-                  return (
-                    <div className='anchor-kv' key={d.mount}>
-                      <span title={d.mount}>{shortMount(d.mount)}</span>
-                      <b>{d.usedG.toFixed(0)}/{d.totalG.toFixed(0)}G {pct.toFixed(0)}%</b>
-                    </div>
-                  )
-                })}
-                {disks.length > 3 && (
-                  <button className='disk-toggle' onClick={() => setDiskExpanded(v => !v)}>
-                    {diskExpanded ? '收起 ▴' : `其他 ${disks.length - 3} 个盘符 ▸`}
-                  </button>
-                )}
-              </>
-            )
-          }
-          const root = disks.find(d => d.mount === '/')
-          const others = disks.filter(d => d.mount !== '/')
-          const rootPct = root ? (root.usedG * 100 / root.totalG) : 0
-          const rootColor = rootPct > 85 ? 'var(--alert, #f2555a)' : rootPct > 70 ? 'var(--amber, #ffb454)' : 'var(--signal, #3fd68f)'
-          return (
-            <>
-              {root
-                ? (
-                  <div className='disk-root gauge'>
-                    <div className='top'><span className='k'>/</span><span className='v' style={{ color: rootColor }}>{rootPct.toFixed(0)}%</span></div>
-                    <div className='rail'><div style={{ width: rootPct + '%', background: rootColor }} /></div>
-                    <div className='sub'>{root.usedG.toFixed(0)}G / {root.totalG.toFixed(0)}G</div>
-                  </div>
-                  )
-                : null}
-              {others.length
-                ? (
-                  <>
-                    <button className='disk-toggle' onClick={() => setDiskExpanded(v => !v)}>
-                      {diskExpanded ? '收起 ▴' : `其他 ${others.length} 个挂载 ▸`}
-                    </button>
-                    {diskExpanded && (
-                      <div className='disk-list'>
-                        {others.map(d => {
-                          const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
-                          const c = pct > 85
-                            ? 'var(--alert, #f2555a)'
-                            : pct > 70
-                              ? 'var(--amber, #ffb454)'
-                              : 'var(--fog, #8b98ab)'
-                          return (
-                            <div className='anchor-kv' key={d.mount}>
-                              <span title={d.mount} style={{ color: c }}>{d.mount.replace(/\/$/, '')}</span>
-                              <b>{d.usedG.toFixed(0)}/{d.totalG.toFixed(0)}G {pct.toFixed(0)}%</b>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </>
-                  )
-                : null}
-            </>
-          )
-        })()}
         <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'><SettingOutlined /> 设置</button>
+        <div className='foot-version'>ANCHOR v{(window.et && window.et.version) || ''}</div>
       </div>
     </aside>
   )
