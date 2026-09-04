@@ -152,17 +152,10 @@ export default Store => {
     window.store.hideDelKeyTip = true
   }
   Store.prototype.beforeExit = function (evt) {
-    const { confirmBeforeExit, closeBehavior } = window.store.config
-    // tray 模式点 × 只是 hide(传输继续), 无需任何确认
-    if ((closeBehavior || 'tray') === 'tray') {
-      return
-    }
-    // quit 模式 + 确认开: 主进程 confirm-exit 统一弹, 这里跳过防双弹窗
-    if (confirmBeforeExit) {
-      return
-    }
-    // quit 模式 + 确认关: 仅传输中警告(主进程不会弹)
+    const { confirmBeforeExit } = window.store.config
     if (
+      (confirmBeforeExit &&
+      !window.confirmExit) ||
       window.store.isTransporting
     ) {
       evt.returnValue = false
@@ -182,7 +175,9 @@ export default Store => {
         okText: '退出',
         okButtonProps: { danger: true },
         cancelText: '取消',
-        content: '有传输任务进行中，退出将中断传输。确定退出吗？'
+        content: transporting
+          ? '有传输任务进行中，退出将中断传输。确定退出吗？'
+          : '所有会话将被断开。确定退出吗？'
       })
     }
   }

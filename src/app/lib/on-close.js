@@ -15,18 +15,6 @@ exports.getExitStatus = async () => {
 
 exports.onClose = async function (e) {
   const config = globalState.get('config')
-  // 主流关窗语义: 默认最小化到托盘; 除非「退出程序」模式或托盘/菜单显式退出(closeAction=exit)
-  const closeBehavior = config.closeBehavior || 'tray'
-  const closeAction = globalState.get('closeAction')
-  // 只有显式退出/重启意图才跳过 tray: 纯关窗('', 'closeApp')一律 hide
-  const explicitExit = closeAction && closeAction !== 'closeApp'
-  if (closeBehavior === 'tray' && !explicitExit) {
-    const win = globalState.get('win')
-    if (win && !win.isDestroyed()) {
-      win.hide()
-    }
-    return e.preventDefault()
-  }
   // 退出前确认: closeAction='confirmed' 表示渲染层已确认, 放行
   if (config.confirmBeforeExit && globalState.get('closeAction') !== 'confirmed') {
     const win = globalState.get('win')
