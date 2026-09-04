@@ -35,6 +35,9 @@ class Transfer {
     this.dstPath = !isd ? remotePath : localPath
     this.conn = conn
     this.pausing = false
+    // ponytail: 全局传输限速(bytes/s, 0=不限), setRateLimit 随时改, 读循环按窗口节流
+    this.rateLimit = 0
+    this._rateWindowStart = 0
     this.hadError = false
     this.isUpload = isd
     this.isDirectory = isDirectory
@@ -379,6 +382,19 @@ class Transfer {
         }, 2)
         return
       }
+      // 限速: 本传输已传字节 ÷ 限速 = 应耗时, 超速延迟下一轮 read(窗口式, 30ms 粒度)
+      if (th.rateLimit > 0 && total > 0) {
+        const now = Date.now()
+        if (!th._rateWindowStart) th._rateWindowStart = now
+        const elapsed = now - th._rateWindowStart
+        const expected = total / th.rateLimit * 1000
+        if (elapsed < expected - 30) {
+          th.timers[psrc + ':' + pdst + ':rl'] = setTimeout(() => {
+            singleRead(psrc, pdst, chunk)
+          }, 30)
+          return
+        }
+      }
       src.read(
         th.srcHandle,
         readbuf,
@@ -432,6 +448,11 @@ class Transfer {
     this.scpTransfer && this.scpTransfer.resume && this.scpTransfer.resume()
   }
 
+  setRateLimit = (bytesPerSec = 0) => {
+    this.rateLimit = Math.max(0, bytesPerSec | 0)
+    this._rateWindowStart = 0
+  }
+
   kill = () => {
     if (this.src && this.srcHandle && this.src.close) {
       this.src.close(this.srcHandle, log.error)
@@ -474,6 +495,7 @@ module.exports = {
   transferKeys: [
     'pause',
     'resume',
+    'setRateLimit',
     'destroy'
   ]
 }
