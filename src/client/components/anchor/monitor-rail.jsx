@@ -164,7 +164,7 @@ export default function MonitorRail (props) {
   const { store, tab, onOpenSettings } = props
   const [points, setPoints] = useState([])
   const [disks, setDisks] = useState([])
-  const [diskExpanded, setDiskExpanded] = useState(false)
+  const [diskPop, setDiskPop] = useState(null) // null | {x,y}
   const [live, setLive] = useState(false)
   const [chartMode, setChartMode] = useState('cpu')
   const prevRef = useRef(null)
@@ -225,7 +225,6 @@ export default function MonitorRail (props) {
   useEffect(() => {
     if (!isActive) return undefined
     setDisks([])
-    setDiskExpanded(false)
     const tick = async () => {
       try {
         const os = osRef.current || 'linux'
@@ -336,7 +335,7 @@ export default function MonitorRail (props) {
         <div className='anchor-cap'>DISK</div>
         {(() => {
           if (!disks.length) return <div className='anchor-kv'><span>/</span><b>—</b></div>
-          const rows = diskExpanded ? disksSorted : disksShow
+          const rows = disksShow
           return (
             <>
               {rows.map(d => {
@@ -351,9 +350,36 @@ export default function MonitorRail (props) {
                 )
               })}
               {disksMore > 0 && (
-                <button className='disk-toggle' onClick={() => setDiskExpanded(v => !v)}>
-                  {diskExpanded ? '收起 ▴' : `其他 ${disksMore} 个 ▸`}
+                <button className='disk-toggle' onClick={e => {
+                  const r = e.currentTarget.getBoundingClientRect()
+                  setDiskPop({ x: r.right + 8, y: Math.min(r.top, window.innerHeight - 420) })
+                }}>
+                  其他 {disksMore} 个挂载 ▸
                 </button>
+              )}
+              {diskPop && (
+                <div className='disk-pop' style={{ left: diskPop.x, top: diskPop.y }}>
+                  <div className='disk-pop-cap'>全部挂载 ({disks.length})</div>
+                  <div className='disk-pop-list'>
+                    {disksSorted.map(d => {
+                      const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
+                      const c = lv(pct)
+                      return (
+                        <div className='disk-row' key={d.mount}>
+                          <span className='disk-name' title={d.mount}>{d.mount.replace(/\/$/, '')}</span>
+                          <div className='disk-col'>
+                            <div className='disk-top'>
+                              <span className='disk-meta'>{d.usedG.toFixed(1)}/{d.totalG.toFixed(0)}G</span>
+                              <span className='disk-pct' style={{ color: c }}>{pct.toFixed(0)}%</span>
+                            </div>
+                            <div className='disk-rail'><div style={{ width: pct + '%', background: c }} /></div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <button className='disk-pop-close' onClick={() => setDiskPop(null)}>关闭</button>
+                </div>
               )}
             </>
           )

@@ -1469,3 +1469,83 @@ body[data-anchor-theme=dark] .custom-modal-footer
     display inline-flex
     align-items center
     gap 4px
+
+// ===== DISK 挂载详情浮层(锚定侧栏, 非 modal) =====
+.disk-pop
+  position fixed
+  width 380px
+  max-height 60vh
+  overflow-y auto
+  background var(--ink2, #1c2534)
+  border 1px solid var(--line, #2a3547)
+  border-radius 8px
+  box-shadow 0 8px 28px rgba(0,0,0,0.4)
+  padding 12px
+  z-index 500
+  .disk-pop-cap
+    font-family "IBM Plex Mono", monospace
+    font-size 11px
+    color var(--fog, #8b98ab)
+    margin-bottom 8px
+  .disk-row
+    display flex
+    align-items center
+    gap 8px
+    margin-bottom 8px
+    .disk-name
+      width 110px
+      flex-shrink 0
+      font-family "IBM Plex Mono", monospace
+      font-size 11px
+      color var(--snow, #e6edf5)
+      overflow hidden
+      text-overflow ellipsis
+      white-space nowrap
+    .disk-col
+      flex 1
+      min-width 0
+    .disk-top
+      display flex
+      justify-content space-between
+      margin-bottom 2px
+    .disk-meta
+      font-family "IBM Plex Mono", monospace
+      font-size 10.5px
+      color var(--fog, #8b98ab)
+    .disk-pct
+      font-weight 600
+      font-size 11px
+      font-family "IBM Plex Mono", monospace
+    .disk-rail
+      height 3px
+      background var(--rail, #232d3e)
+      border-radius 2px
+      overflow hidden
+      > div
+        height 100%
+        border-radius 2px
+  .disk-pop-close
+    width 100%
+    margin-top 4px
+    padding 5px 0
+    border 1px solid var(--line, #2a3547)
+    border-radius 5px
+    background none
+    color var(--fog, #8b98ab)
+    font-size 11.5px
+    cursor pointer
+    &:hover
+      color var(--amber, #ffb454)
+      border-color var(--amber, #ffb454)
+body[data-anchor-theme=light] .disk-pop
+  background var(--ink2, #ffffff) !important
+  border-color var(--line, #d4dbe4) !important
+  .disk-pop-cap
+    color var(--fog, #5d6b7e)
+  .disk-name
+    color var(--snow, #1c2634) !important
+  .disk-meta
+    color var(--fog, #5d6b7e)
+  .disk-pop-close
+    color var(--fog, #5d6b7e)
+    border-color var(--line, #d4dbe4)
