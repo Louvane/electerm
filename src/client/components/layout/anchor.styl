@@ -36,6 +36,10 @@
   width 212px
   overflow-y auto
   min-height 0
+  // 隐藏滚动条(滚轮/触控板仍可滚), 视觉干净
+  scrollbar-width none
+  &::-webkit-scrollbar
+    display none
   flex-shrink 0
   background var(--ink1, #151c28)
   border-right 1px solid var(--line, #2a3547)
