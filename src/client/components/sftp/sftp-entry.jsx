@@ -1342,15 +1342,35 @@ export default class Sftp extends Component {
     const list = (window.store && window.store.fileTransfers) ? window.store.fileTransfers.filter(t => t.tabId === tab.id && t.inited && !t.error) : []
     if (!list.length) return null
     const t = list[0]
-    const pct = t.percent || (t.fromFile && t.fromFile.size > 0
-      ? Math.min(99, Math.floor((t.transferred || 0) * 100 / t.fromFile.size))
-      : 0)
     const name = (t.fromPath || t.fromPathReal || t.toPath || '').split('/').pop() || t.fromPath || ''
+    // 多传输: 字节加权聚合(与右下迷你浮条同口径), 单文件保持原样
+    let pct
+    let meta
+    let title = t.fromPath + ' → ' + t.toPath
+    let label = name
+    if (list.length > 1) {
+      let all = 0
+      let done = 0
+      list.forEach(x => {
+        all += (x.fromFile && x.fromFile.size) || 0
+        done += x.transferred || 0
+      })
+      pct = all > 0 ? Math.min(99, Math.floor(done * 100 / all)) : 0
+      label = `${name} 等 ${list.length} 个`
+      title = list.map(x => (x.fromPath || '').split('/').pop()).join('\n')
+      const speed = t.speed ? ` · ${t.speed}` : ''
+      meta = `${pct}%${speed} · 共 ${list.length} 个`
+    } else {
+      pct = t.percent || (t.fromFile && t.fromFile.size > 0
+        ? Math.min(99, Math.floor((t.transferred || 0) * 100 / t.fromFile.size))
+        : 0)
+      meta = `${pct}%${t.speed ? ` · ${t.speed}` : ''}${t.leftTime ? ` · ${t.leftTime}` : ''}`
+    }
     return (
       <div className='sftp-progress'>
         <div className='sftp-progress-top'>
-          <span className='sftp-progress-name' title={t.fromPath + ' → ' + t.toPath}>{name}</span>
-          <span className='sftp-progress-meta'>{pct}%{t.speed ? ` · ${t.speed}` : ''}{t.leftTime ? ` · ${t.leftTime}` : ''}</span>
+          <span className='sftp-progress-name' title={title}>{label}</span>
+          <span className='sftp-progress-meta'>{meta}</span>
         </div>
         <div className='sftp-progress-rail'><div className='sftp-progress-bar' style={{ width: pct + '%' }} /></div>
       </div>
