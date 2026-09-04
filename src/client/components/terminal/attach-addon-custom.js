@@ -35,7 +35,7 @@ export default class AttachAddonCustom {
     // Coalescing window. Output is flushed at most once per interval.
     // 16ms ~= one frame; low enough that interactive echo feels instant,
     // high enough to merge a multi-MB/s flood into ~60 writes/s.
-    this._flushIntervalMs = 16
+    this._flushIntervalMs = 0
     // Time of the last actual flush. Drives the interactive fast path in
     // _enqueueWrite: output arriving after an idle gap (keystroke echo,
     // command result) is flushed immediately instead of paying the
@@ -65,8 +65,9 @@ export default class AttachAddonCustom {
     }
   }
 
-  startOutputSuppression = (timeout = 3000, onEnd = null, discardOnTimeout = false) => {
+  startOutputSuppression = (timeout = 3000, onEnd = null, discardOnTimeout = false, cancelOnInput = false) => {
     this.outputSuppressed = true
+    this._suppressCancelOnInput = cancelOnInput
     this.suppressedData = []
     this.onSuppressionEndCallback = onEnd
     this.suppressTimeout = setTimeout(() => {
@@ -83,6 +84,7 @@ export default class AttachAddonCustom {
       this.suppressTimeout = null
     }
     this.outputSuppressed = false
+    this._suppressCancelOnInput = false
 
     if (!discard && this.suppressedData.length > 0) {
       for (const data of this.suppressedData) {
@@ -361,6 +363,11 @@ export default class AttachAddonCustom {
 
   sendToServer = (data) => {
     this._lastInputTime = Date.now()
+    // keepalive 的输出抑制窗口若撞上用户输入: 立即结束并回放缓冲,
+    // 否则击键回显被丢弃, 屏幕(丟字)与 shell 行编辑失步
+    if (this.outputSuppressed && this._suppressCancelOnInput) {
+      this.stopOutputSuppression(false)
+    }
     // Start echo detection when password prompt is suspected
     if (this._passwordPromptDetected && !this._pendingEchoCheck && data !== '\r' && data !== '\n' && data !== '\x03') {
       this._pendingEchoCheck = { char: data, time: Date.now() }
@@ -407,7 +414,7 @@ export default class AttachAddonCustom {
       // Start output suppression to hide the echoed prompt.
       const sock = this._socket
       if (sock && sock.readyState === 1 /* OPEN */) {
-        this.startOutputSuppression(500, null, true)
+        this.startOutputSuppression(500, null, true, true)
         sock.send(JSON.stringify({ action: 'keepalive' }))
       }
     }
