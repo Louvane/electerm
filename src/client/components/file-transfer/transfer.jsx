@@ -227,10 +227,12 @@ export default class TransportAction extends Component {
 
   pause = () => {
     this.transport?.pause()
+    window.store.updateTransfer && window.store.updateTransfer(this.props.transfer.id, { pausing: true })
   }
 
   resume = () => {
     this.transport?.resume()
+    window.store.updateTransfer && window.store.updateTransfer(this.props.transfer.id, { pausing: false })
   }
 
   mvOrCp = () => {
@@ -303,6 +305,17 @@ export default class TransportAction extends Component {
       onError: this.onError,
       onEnd
     })
+    // 全局限速: 创建即应用(设置中途改由 applyRateLimit 推送)
+    const limitMB = this.props.config && this.props.config.transferRateLimitMB
+    if (limitMB > 0 && this.transport && this.transport.setRateLimit) {
+      this.transport.setRateLimit(Math.floor(limitMB * 1024 * 1024))
+    }
+  }
+
+  applyRateLimit = (limitMB) => {
+    if (this.transport && this.transport.setRateLimit) {
+      this.transport.setRateLimit(limitMB > 0 ? Math.floor(limitMB * 1024 * 1024) : 0)
+    }
   }
 
   isTransferAction = (action) => {

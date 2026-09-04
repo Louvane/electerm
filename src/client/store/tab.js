@@ -38,8 +38,9 @@ export default Store => {
 
   Store.prototype.updateTabsStatus = function () {
     const { store } = window
+    // 出错条目不算传输中(防残留 error 条目卡住横线动画)
     const tabIdSet = new Set(
-      store.fileTransfers.map(d => d.tabId)
+      store.fileTransfers.filter(d => !d.error).map(d => d.tabId)
     )
     store.tabs.forEach(tab => {
       const t = tabIdSet.has(tab.id)

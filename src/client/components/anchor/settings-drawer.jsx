@@ -6,6 +6,16 @@ import React from 'react'
 import { auto } from 'manate/react'
 import { Drawer, Select, Switch, InputNumber } from 'antd'
 import { TERM_PRESETS, applyTermBg } from './anchor-theme.js'
+import { refs } from '../common/ref'
+
+// 全局限速推送: 设置变化即时作用到所有进行中的传输
+function pushRateLimit (limitMB) {
+  const list = (window.store && window.store.fileTransfers) || []
+  list.forEach(t => {
+    const inst = refs.get('transport-' + t.id)
+    if (inst && inst.applyRateLimit) inst.applyRateLimit(limitMB)
+  })
+}
 
 export default auto(function SettingsDrawer (props) {
   const { open, onClose, store } = props
@@ -88,6 +98,17 @@ export default auto(function SettingsDrawer (props) {
           <div className='fld'>
             <label>SSH 超时</label>
             <InputNumber min={10000} max={120000} step={5000} value={cfg.sshReadyTimeout || 50000} onChange={v => set('sshReadyTimeout', v || 50000)} style={{ flex: 1 }} />
+          </div>
+        </div>
+      </details>
+
+      <details className='dr-sec' open>
+        <summary>传输</summary>
+        <div className='inner'>
+          <div className='fld'>
+            <label>最大速度</label>
+            <InputNumber min={0} max={1024} step={1} value={cfg.transferRateLimitMB ?? 0} onChange={v => { set('transferRateLimitMB', v || 0); pushRateLimit(v || 0) }} style={{ flex: 1 }} />
+            <span style={{ color: 'var(--fog,#8b98ab)', fontSize: 11 }}>MB/s(0 不限)</span>
           </div>
         </div>
       </details>

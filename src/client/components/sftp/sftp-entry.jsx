@@ -49,7 +49,8 @@ export default class Sftp extends Component {
       ...this.defaultState(),
       loadingSftp: false,
       inited: false,
-      ready: false
+      ready: false,
+      progressExpanded: false
     }
     this.retryCount = 0
   }
@@ -1343,6 +1344,9 @@ export default class Sftp extends Component {
     if (!list.length) return null
     const t = list[0]
     const name = (t.fromPath || t.fromPathReal || t.toPath || '').split('/').pop() || t.fromPath || ''
+    const pctOf = x => x.percent || (x.fromFile && x.fromFile.size > 0
+      ? Math.min(99, Math.floor((x.transferred || 0) * 100 / x.fromFile.size))
+      : 0)
     // 多传输: 字节加权聚合(与右下迷你浮条同口径), 单文件保持原样
     let pct
     let meta
@@ -1361,18 +1365,60 @@ export default class Sftp extends Component {
       const speed = t.speed ? ` · ${t.speed}` : ''
       meta = `${pct}%${speed} · 共 ${list.length} 个`
     } else {
-      pct = t.percent || (t.fromFile && t.fromFile.size > 0
-        ? Math.min(99, Math.floor((t.transferred || 0) * 100 / t.fromFile.size))
-        : 0)
+      pct = pctOf(t)
       meta = `${pct}%${t.speed ? ` · ${t.speed}` : ''}${t.leftTime ? ` · ${t.leftTime}` : ''}`
     }
+    const expanded = this.state.progressExpanded && list.length > 0
     return (
       <div className='sftp-progress'>
-        <div className='sftp-progress-top'>
+        <div
+          className='sftp-progress-top' onClick={() => this.setState({ progressExpanded: !this.state.progressExpanded })}
+          title='点击展开/收起全部传输'
+        >
           <span className='sftp-progress-name' title={title}>{label}</span>
           <span className='sftp-progress-meta'>{meta}</span>
+          <span className='sftp-progress-caret'>{expanded ? '▾' : '▸'}</span>
         </div>
         <div className='sftp-progress-rail'><div className='sftp-progress-bar' style={{ width: pct + '%' }} /></div>
+        {expanded && (
+          <div className='sftp-progress-list'>
+            {list.map(x => {
+              const p = pctOf(x)
+              const nm = (x.fromPath || x.toPath || '').split('/').pop()
+              const paused = !!x.pausing
+              const inst = () => refs.get('transport-' + x.id)
+              return (
+                <div className='sftp-progress-row' key={x.id} title={x.fromPath + ' → ' + x.toPath}>
+                  <span className='sftp-progress-row-state'>{paused ? '⏸' : '▶'}</span>
+                  <span className='sftp-progress-row-name'>{nm}</span>
+                  <div className='sftp-progress-row-rail'><div className='sftp-progress-row-bar' style={{ width: p + '%' }} /></div>
+                  <span className='sftp-progress-row-pct'>{p}%</span>
+                  <button
+                    className='sftp-progress-row-btn' title={paused ? '恢复' : '暂停'}
+                    onClick={e => {
+                      e.stopPropagation()
+                      const it = inst()
+                      if (!it) return
+                      if (paused) it.resume()
+                      else it.pause()
+                      this.forceUpdate()
+                    }}
+                  >{paused ? '▶' : '⏸'}
+                  </button>
+                  <button
+                    className='sftp-progress-row-btn danger' title='终止'
+                    onClick={e => {
+                      e.stopPropagation()
+                      const it = inst()
+                      if (it && it.cancel) it.cancel()
+                    }}
+                  >✕
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     )
   }

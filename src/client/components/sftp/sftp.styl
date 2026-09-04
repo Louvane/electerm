@@ -335,3 +335,71 @@ body[data-anchor-theme=light] .sftp-progress
   top 46px !important
   height calc(100% - 46px) !important
 
+// ===== 传输明细展开列表 =====
+.sftp-progress-top
+  cursor pointer
+  .sftp-progress-caret
+    color var(--fog, #8b98ab)
+    font-size 10px
+    margin-left 4px
+.sftp-progress-list
+  max-height 168px
+  overflow-y auto
+  scrollbar-width none
+  &::-webkit-scrollbar
+    display none
+  margin-top 6px
+  border-top 1px solid var(--line, #2a3547)
+  padding-top 4px
+.sftp-progress-row
+  display flex
+  align-items center
+  gap 6px
+  height 26px
+  font-size 11px
+  .sftp-progress-row-state
+    width 14px
+    text-align center
+    color var(--fog, #8b98ab)
+  .sftp-progress-row-name
+    flex 1
+    min-width 0
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+    font-family "IBM Plex Mono", monospace
+    color var(--snow, #e6edf5)
+  .sftp-progress-row-rail
+    width 80px
+    flex-shrink 0
+    height 3px
+    background var(--rail, #232d3e)
+    border-radius 2px
+    overflow hidden
+    .sftp-progress-row-bar
+      height 100%
+      background var(--amber, #ffb454)
+      border-radius 2px
+  .sftp-progress-row-pct
+    width 32px
+    text-align right
+    font-family "IBM Plex Mono", monospace
+    font-size 10.5px
+    color var(--fog, #8b98ab)
+  .sftp-progress-row-btn
+    border 1px solid var(--line, #2a3547)
+    background none
+    color var(--fog, #8b98ab)
+    border-radius 4px
+    width 22px
+    height 20px
+    font-size 10px
+    line-height 1
+    cursor pointer
+    padding 0
+    &:hover
+      color var(--amber, #ffb454)
+      border-color var(--amber, #ffb454)
+    &.danger:hover
+      color var(--alert, #f2555a)
+      border-color var(--alert, #f2555a)

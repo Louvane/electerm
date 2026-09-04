@@ -3,6 +3,7 @@
  */
 
 import Transport from './transfer'
+import { refs } from '../common/ref'
 
 export default function TransportsUI (props) {
   const { fileTransfers } = props
@@ -23,6 +24,10 @@ export default function TransportsUI (props) {
       <Transport
         {...trProps}
         key={id}
+        ref={inst => {
+          if (inst) refs.add('transport-' + id, inst)
+          else refs.remove('transport-' + id)
+        }}
       />
     )
   })
