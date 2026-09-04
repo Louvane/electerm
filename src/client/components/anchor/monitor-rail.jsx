@@ -131,12 +131,13 @@ function computePoint (prev, cur) {
 function fmtB (n) {
   return n >= 1024 ? (n / 1024).toFixed(1) + 'M' : n.toFixed(0) + 'K'
 }
-function Spark ({ data, color }) {
+function Spark ({ data, color, max }) {
   const vals = data.filter(v => v !== null && v !== undefined)
   const w = 186
   const h = 96
   if (vals.length < 2) return <canvas width={w} height={h} style={{ width: '100%', height: '100%' }} />
-  const max = Math.max(...vals, 1) * 1.1
+  // 百分比类传固定 max=100(真实比例, 亚 1% 噪音不再画成高山); 速率类自适应
+  const max = max || Math.max(...vals, 1) * 1.1
   const pts = data.map((v, i) => {
     if (v === null || v === undefined) return null
     return `${i * w / (MAX_POINTS - 1)},${h - Math.min(v, max) * h / max}`
@@ -426,15 +427,15 @@ export default function MonitorRail (props) {
               <div className='anchor-chart anchor-chart-net'>
                 <div className='net-line'>
                   <span className='dir up'>↑</span>
-                  <Spark data={points.map(p => p.rxKb)} color='var(--signal,#3fd68f)' />
+                  <Spark data={points.map(p => p.txKb)} color='var(--alert,#f2555a)' />
                 </div>
                 <div className='net-line'>
                   <span className='dir down'>↓</span>
-                  <Spark data={points.map(p => p.txKb)} color='var(--alert,#f2555a)' />
+                  <Spark data={points.map(p => p.rxKb)} color='var(--signal,#3fd68f)' />
                 </div>
               </div>
               )
-            : <div className='anchor-chart anchor-chart-sm'><Spark data={points.map(p => p[chartMode])} color={chartMode === 'cpu' ? 'var(--alert,#ff6b6b)' : 'var(--amber,#5c8dff)'} /></div>
+            : <div className='anchor-chart anchor-chart-sm'><Spark data={points.map(p => p[chartMode])} color={chartMode === 'cpu' ? 'var(--alert,#ff6b6b)' : 'var(--amber,#5c8dff)'} max={100} /></div>
         }
       </div>
       <div className='anchor-rail-sec anchor-rail-net'>
