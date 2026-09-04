@@ -25,6 +25,8 @@ export default function TransferWatcher (props) {
   const pendingRef = useRef([])
   const flushRef = useRef(null)
   const closedRef = useRef(false)
+  const hiddenRef = useRef(false)
+  const signatureRef = useRef('')
 
   useEffect(() => {
     closedRef.current = false
@@ -66,6 +68,11 @@ export default function TransferWatcher (props) {
         return !panelVisible
       })
       if (invisible.length) {
+        const sig = invisible.map(t => t.id).sort().join(',')
+        if (sig !== signatureRef.current) {
+          signatureRef.current = sig
+          hiddenRef.current = false
+        }
         let all = 0
         let done = 0
         invisible.forEach(t => {
@@ -73,6 +80,9 @@ export default function TransferWatcher (props) {
           done += t.transferred || 0
         })
         const first = invisible[0]
+        if (hiddenRef.current) {
+          return timer = setTimeout(tick, POLL)
+        }
         setMini({
           tabId: first.tabId,
           name: fileNameOf(first),
@@ -81,6 +91,7 @@ export default function TransferWatcher (props) {
           speed: first.speed || ''
         })
       } else {
+        signatureRef.current = ''
         setMini(m => (m ? null : m))
       }
       if (!closedRef.current) timer = setTimeout(tick, POLL)
@@ -109,7 +120,7 @@ export default function TransferWatcher (props) {
       <div className='atf-rail'><div className='atf-bar' style={{ width: mini.pct + '%' }} /></div>
       <span
         className='atf-close' title='隐藏(传输继续)'
-        onClick={e => { e.stopPropagation(); setMini(null) }}
+        onClick={e => { e.stopPropagation(); hiddenRef.current = true; setMini(null) }}
       >
         <CloseOutlined />
       </span>
