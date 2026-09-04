@@ -165,7 +165,6 @@ export default function MonitorRail (props) {
   const [points, setPoints] = useState([])
   const [disks, setDisks] = useState([])
   const [diskExpanded, setDiskExpanded] = useState(false)
-  const [diskOs, setDiskOs] = useState('linux')
   const [live, setLive] = useState(false)
   const [chartMode, setChartMode] = useState('cpu')
   const prevRef = useRef(null)
@@ -254,7 +253,6 @@ export default function MonitorRail (props) {
         }
         rows.sort((a, b) => b.totalG - a.totalG)
         setDisks(rows)
-        setDiskOs(os)
       } catch (e) {}
     }
     tick()
@@ -308,106 +306,60 @@ export default function MonitorRail (props) {
   }
   return (
     <aside className='anchor-rail'>
-      <div className='anchor-rail-sec'>
+      <div className='anchor-rail-sec anchor-rail-target'>
         <div className='anchor-cap'>TARGET{live ? <span className='live-dot' /> : null}</div>
         <div className='anchor-kv'><span>用户</span><b>{tab && tab.username ? tab.username : '—'}</b></div>
         <div className='anchor-kv'><span>IP</span><b className='ip' title={userHost}>{tab && tab.host ? tab.host : '—'}</b></div>
-        <div className='anchor-kv'><span>运行时间</span><b>{upStr}</b></div>
-        <div className='anchor-kv'><span>负载</span><b>{last.load || '—'}</b></div>
+        <div className='anchor-kv'><span>运行/负载</span><b title={'运行 ' + upStr}>{(last.load || '—').split(' ')[0]}</b></div>
         {
           !live && <div className='anchor-hint'>连接后显示遥测</div>
         }
       </div>
-      <div className='anchor-rail-sec'>
+      <div className='anchor-rail-sec anchor-rail-health'>
         <div className='anchor-cap'>HEALTH</div>
         <div className='gauge'>
-          <div className='top'><span className='k'>CPU</span><span className='v' style={{ color: lv(cpuPct) }}>{cpu}</span></div>
-          <div className='rail'><div style={{ width: cpuPct + '%', background: lv(cpuPct) }} /></div>
+          <div className='top'><span className='k'>CPU</span><div className='rail'><div style={{ width: cpuPct + '%', background: lv(cpuPct) }} /></div><span className='v' style={{ color: lv(cpuPct) }}>{cpu}</span></div>
         </div>
         <div className='gauge'>
-          <div className='top'><span className='k'>内存</span><span className='v' style={{ color: lv(memPct) }}>{mem}</span></div>
-          <div className='rail'><div style={{ width: memPct + '%', background: lv(memPct) }} /></div>
-          <div className='sub'>{memSub}</div>
+          <div className='top'><span className='k'>内存</span><div className='rail'><div style={{ width: memPct + '%', background: lv(memPct) }} /></div><span className='v' style={{ color: lv(memPct) }}>{mem}</span></div>
         </div>
-        {swapOff
-          ? (
-            <div className='gauge'>
-              <div className='top'><span className='k'>交换 <span className='swap-off'>未启用</span></span><span className='v' style={{ color: 'var(--fog,#8b98ab)' }}>—</span></div>
-            </div>
-            )
-          : (
-            <div className='gauge'>
-              <div className='top'><span className='k'>交换</span><span className='v' style={{ color: lv(last.swapPct || 0) }}>{swap}</span></div>
-              <div className='rail'><div style={{ width: (last.swapPct || 0) + '%', background: lv(last.swapPct || 0) }} /></div>
-            </div>
-            )}
+        <div className='gauge'>
+          <div className='top'><span className='k'>{swapOff ? '交换(未启用)' : '交换'}</span><div className='rail'>{swapOff ? null : <div style={{ width: (last.swapPct || 0) + '%', background: lv(last.swapPct || 0) }} />}</div><span className='v' style={{ color: swapOff ? 'var(--fog,#8b98ab)' : lv(last.swapPct || 0) }}>{swapOff ? '—' : swap}</span></div>
+        </div>
+        {disksHot.length > 0 && (
+          <div className='gauge disk-warn'>
+            <div className='top'><span className='k'>磁盘告警</span><span className='v' style={{ color: 'var(--alert,#f2555a)' }}>{disksHot.length}</span></div>
+          </div>
+        )}
       </div>
-      <div className='anchor-rail-sec'>
+      <div className='anchor-rail-sec anchor-rail-disk'>
         <div className='anchor-cap'>DISK</div>
         {(() => {
           if (!disks.length) return <div className='anchor-kv'><span>/</span><b>—</b></div>
-          if (diskOs === 'win') {
-            const show = diskExpanded ? disksSorted : disksShow
-            return (
-              <>
-                {show.map(d => {
-                  const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
-                  return (
-                    <div className={'anchor-kv disk-row' + (pct > 85 ? ' crit-row' : '')} key={d.mount}>
-                      <span title={d.mount}>{shortMount(d.mount)}</span>
-                      <b>{d.usedG.toFixed(0)}/{d.totalG.toFixed(0)}G {pct.toFixed(0)}%</b>
-                    </div>
-                  )
-                })}
-                {disksMore > 0 && (
-                  <button className='disk-toggle' onClick={() => setDiskExpanded(v => !v)}>
-                    {diskExpanded ? '收起 ▴' : `其他 ${disksMore} 个盘符 ▸`}
-                  </button>
-                )}
-              </>
-            )
-          }
+          const rows = diskExpanded ? disksSorted : disksShow
           return (
             <>
-              {disksShow.map(d => {
+              {rows.map(d => {
                 const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
                 const c = lv(pct)
                 return (
-                  <div className='disk-row' key={d.mount}>
-                    <span className='disk-name' title={d.mount}>{shortMount(d.mount)}</span>
-                    <div className='disk-col'>
-                      <div className='disk-top'>
-                        <span className='disk-meta'>{d.usedG.toFixed(0)}/{d.totalG.toFixed(0)}G</span>
-                        <span className='disk-pct' style={{ color: c }}>{pct.toFixed(0)}%</span>
-                      </div>
-                      <div className='disk-rail'><div style={{ width: pct + '%', background: c }} /></div>
-                    </div>
+                  <div className={'anchor-kv disk-line' + (pct > 85 ? ' crit-row' : '')} key={d.mount} title={d.mount + ' ' + d.usedG.toFixed(1) + '/' + d.totalG.toFixed(0) + 'G'}>
+                    <span>{shortMount(d.mount)}</span>
+                    <div className='rail'><div style={{ width: pct + '%', background: c }} /></div>
+                    <b style={{ color: c }}>{pct.toFixed(0)}%</b>
                   </div>
                 )
               })}
               {disksMore > 0 && (
                 <button className='disk-toggle' onClick={() => setDiskExpanded(v => !v)}>
-                  {diskExpanded ? '收起 ▴' : `其他 ${disksMore} 个挂载 ▸`}
+                  {diskExpanded ? '收起 ▴' : `其他 ${disksMore} 个 ▸`}
                 </button>
-              )}
-              {diskExpanded && disksMore > 0 && (
-                <div className='disk-list'>
-                  {disksCold.filter(d => !disksShow.includes(d)).map(d => {
-                    const pct = d.totalG > 0 ? (d.usedG * 100 / d.totalG) : 0
-                    return (
-                      <div className='anchor-kv' key={d.mount}>
-                        <span title={d.mount}>{shortMount(d.mount)}</span>
-                        <b>{d.usedG.toFixed(0)}/{d.totalG.toFixed(0)}G {pct.toFixed(0)}%</b>
-                      </div>
-                    )
-                  })}
-                </div>
               )}
             </>
           )
         })()}
       </div>
-      <div className='anchor-rail-sec'>
+      <div className='anchor-rail-sec anchor-rail-trend'>
         <div className='anchor-cap'>TREND</div>
         <div className='anchor-tabs'>
           {
@@ -435,13 +387,15 @@ export default function MonitorRail (props) {
                 </div>
               </div>
               )
-            : <div className='anchor-chart'><Spark data={points.map(p => p[chartMode])} color={chartMode === 'cpu' ? 'var(--alert,#ff6b6b)' : 'var(--amber,#5c8dff)'} /></div>
+            : <div className='anchor-chart anchor-chart-sm'><Spark data={points.map(p => p[chartMode])} color={chartMode === 'cpu' ? 'var(--alert,#ff6b6b)' : 'var(--amber,#5c8dff)'} /></div>
         }
       </div>
-      <div className='anchor-rail-sec'>
+      <div className='anchor-rail-sec anchor-rail-net'>
         <div className='anchor-cap'>NETWORK</div>
-        <div className='net-row'><span className='net-dir up'>↑</span><div className='net-rail tx'><div style={{ width: Math.min(100, (last.txKb || 0) / 8) + '%', background: 'var(--alert,#ff6b6b)' }} /></div><span className='net-val'>{tx}</span></div>
-        <div className='net-row'><span className='net-dir down'>↓</span><div className='net-rail rx'><div style={{ width: Math.min(100, (last.rxKb || 0) / 8) + '%', background: 'var(--signal,#3fd68f)' }} /></div><span className='net-val'>{rx}</span></div>
+        <div className='net-compact'>
+          <span className='pair'><span className='dir up'>↑</span><b>{tx}</b></span>
+          <span className='pair'><span className='dir down'>↓</span><b>{rx}</b></span>
+        </div>
       </div>
       <div className='anchor-rail-foot'>
         <button className='anchor-rail-settings' onClick={onOpenSettings} title='设置'><SettingOutlined /> 设置</button>

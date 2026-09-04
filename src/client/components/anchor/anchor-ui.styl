@@ -1382,3 +1382,90 @@ body[data-anchor-theme=dark] .custom-modal-footer
   text-align center
   margin-top 6px
   opacity 0.7
+
+// ===== 紧凑侧栏(无滚动, 720p 友好) =====
+.anchor-rail
+  gap 8px
+  padding 10px
+.anchor-rail-target .anchor-kv
+  margin 2px 0
+.anchor-rail-health .gauge
+  margin 4px 0
+  .top
+    display flex
+    align-items center
+    gap 6px
+    .k
+      width 52px
+      flex-shrink 0
+      font-size 10.5px
+    .rail
+      flex 1
+      margin 0
+    .v
+      width 38px
+      text-align right
+      font-size 11.5px
+.disk-warn
+  .v
+    color var(--alert, #f2555a) !important
+.anchor-rail-disk .disk-line
+  display flex
+  align-items center
+  gap 5px
+  margin 3px 0
+  font-size 11px
+  span
+    width 58px
+    flex-shrink 0
+    color var(--fog, #8b98ab)
+    font-size 10.5px
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+    font-family "IBM Plex Mono", monospace
+  .rail
+    flex 1
+    margin 0
+  b
+    width 32px
+    flex-shrink 0
+    text-align right
+    font-family "IBM Plex Mono", monospace
+    font-size 10.5px
+    font-weight 400
+.anchor-rail-trend .anchor-chart
+  height 64px
+  &.anchor-chart-net
+    display flex
+    flex-direction column
+    gap 2px
+    padding 4px 2px
+    .net-line
+      flex 1
+      display flex
+      align-items center
+      gap 3px
+      svg
+        flex 1
+.anchor-rail-net .net-compact
+  display flex
+  align-items center
+  gap 6px
+  font-family "IBM Plex Mono", monospace
+  font-size 11.5px
+  .dir.up
+    color var(--alert, #f2555a)
+  .dir.down
+    color var(--signal, #3fd68f)
+  b
+    font-weight 400
+    color var(--snow, #1c2634)
+    &:last-of-type
+      margin-left auto
+.anchor-rail-net .net-compact
+  justify-content space-between
+  .pair
+    display inline-flex
+    align-items center
+    gap 4px
