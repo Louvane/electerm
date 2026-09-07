@@ -138,38 +138,24 @@ export default class ConfirmModalStore extends Component {
       }
     } = transferToConfirm
     const action = isDirectory ? e('merge') : e('replace')
-    const typeTxt = isDirectory ? e('folder') : e('file')
     const Icon = isDirectory ? FolderOutlined : FileOutlined
     const typeTitle = e(typeTo)
     const otherTypeTitle = e(typeFrom)
+    const isDown = typeFrom === 'remote'
+    const dirTag = isDown ? '↓ ' : '↑ '
     return (
-      <div className='confirms-content-wrap'>
-        <AnimateText>
-          <p className='pd1b color-red font13'>
-            {action}
-          </p>
-          <p className='bold font14'>
-            {typeTitle} {typeTxt}: <Icon className='mg1r' />{name}
-          </p>
-          <p className='font13'>
-            {e('size')}: {sizeTo}, {e('modifyTime')}: {formatTimeAuto(modifyTimeTo)}
-          </p>
-          <p className='pd1b'>
-            ({toPath})
-          </p>
-          <p>
-            with
-          </p>
-          <p className='bold font14'>
-            {otherTypeTitle} {typeTxt}: <Icon className='mg1r' />{name}
-          </p>
-          <p className='font13'>
-            {e('size')}: {sizeFrom}, {e('modifyTime')}: {formatTimeAuto(modifyTimeFrom)}
-          </p>
-          <p className='pd1b'>
-            ({fromPath})
-          </p>
-        </AnimateText>
+      <div className='confirms-content-wrap cr-anchor'>
+        <p className='cr-q'>{action}同名文件？</p>
+        <div className='cr-file'>
+          <div className='cr-file-head'><span className='cr-dir'>{dirTag}</span><Icon className='mg1r' /><b>{name}</b><span className='cr-side'>{isDown ? '（远端已有）' : '（本地已有）'}</span></div>
+          <div className='cr-file-meta'>{e('size')}: {sizeTo} · {e('modifyTime')}: {formatTimeAuto(modifyTimeTo)}</div>
+          <div className='cr-file-path'>{toPath}</div>
+        </div>
+        <div className='cr-file'>
+          <div className='cr-file-head'><span className='cr-dir'>{isDown ? '↑ ' : '↓ '}</span><Icon className='mg1r' /><b>{name}</b><span className='cr-side'>{isDown ? '（本机来源）' : '（远端来源）'}</span></div>
+          <div className='cr-file-meta'>{e('size')}: {sizeFrom} · {e('modifyTime')}: {formatTimeAuto(modifyTimeFrom)}</div>
+          <div className='cr-file-path'>{fromPath}</div>
+        </div>
       </div>
     )
   }
@@ -187,75 +173,18 @@ export default class ConfirmModalStore extends Component {
       }
     } = transferToConfirm
     return (
-      <div className='mgq1t pd1y alignright'>
-        <Button
-          type='dashed'
-          className='mg1l'
-          onClick={() => this.act(fileActions.skipAll)}
-        >
-          {e('cancel')}
-        </Button>
-        <Button
-          type='dashed'
-          className='mg1l'
-          onClick={() => this.act(fileActions.skip)}
-        >
-          {e('skip')}
-        </Button>
-        <Button
-          danger
-          className='mg1l'
-          onClick={
-            () => this.act(fileActions.mergeOrOverwrite)
-          }
-        >
-          {isDirectory ? e('merge') : e('overwrite')}
-        </Button>
-        <Button
-          type='primary'
-          className='mg1l'
-          onClick={
-            () => this.act(fileActions.rename)
-          }
-        >
-          {e('rename')}
-        </Button>
-        <div className='pd1t'>
-          <Button
-            type='dashed'
-            danger
-            className='mg1l'
-            title={
-              isDirectory
-                ? e('mergeDesc')
-                : e('overwriteDesc')
-            }
-            onClick={
-              () => this.act(fileActions.mergeOrOverwriteAll)
-            }
-          >
-            {isDirectory ? e('mergeAll') : e('overwriteAll')}
-          </Button>
-          <Button
-            type='primary'
-            className='mg1l'
-            title={e('renameDesc')}
-            onClick={
-              () => this.act(fileActions.renameAll)
-            }
-          >
-            {e('renameAll')}
-          </Button>
-          <Button
-            type='primary'
-            className='mg1l'
-            title={e('skipAll')}
-            onClick={
-              () => this.act(fileActions.skipAll)
-            }
-          >
-            {e('skipAll')}
-          </Button>
+      <div className='cr-footer'>
+        <div className='cr-footer-row'>
+          <button className='cr-btn' onClick={() => this.act(fileActions.skipAll)}>{e('cancel')}</button>
+          <button className='cr-btn' onClick={() => this.act(fileActions.skip)}>{e('skip')}</button>
+          <button className='cr-btn' onClick={() => this.act(fileActions.rename)}>{e('rename')}</button>
+          <button className='cr-btn warn' onClick={() => this.act(fileActions.mergeOrOverwrite)}>{isDirectory ? e('merge') : e('overwrite')}</button>
+        </div>
+        <div className='cr-footer-row'>
+          <span className='cr-batch-hint'>后续冲突：</span>
+          <button className='cr-btn sm' onClick={() => this.act(fileActions.skipAll)}>{e('skipAll')}</button>
+          <button className='cr-btn sm' onClick={() => this.act(fileActions.renameAll)}>{e('renameAll')}</button>
+          <button className='cr-btn sm warn' title={isDirectory ? e('mergeDesc') : e('overwriteDesc')} onClick={() => this.act(fileActions.mergeOrOverwriteAll)}>{isDirectory ? e('mergeAll') : e('overwriteAll')}</button>
         </div>
       </div>
     )
@@ -271,7 +200,7 @@ export default class ConfirmModalStore extends Component {
     const modalProps = {
       open: true,
       width: 500,
-      title: e('fileConflict'),
+      title: '文件冲突',
       footer: this.renderFooter(),
       onCancel: () => this.act(fileActions.cancel)
     }

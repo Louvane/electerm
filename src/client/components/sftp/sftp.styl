@@ -291,9 +291,8 @@ body[data-anchor-theme=light] .sftp-title .anticon
   right 0
   z-index 30
   box-sizing border-box
-  height 46px
+  min-height 46px
   padding 6px 12px 8px
-  border-bottom 1px solid var(--main-darker, #2a3547)
   background var(--main, #1c2534)
   .sftp-progress-top
     display flex
@@ -417,3 +416,96 @@ body[data-anchor-theme=light] .sftp-progress
     color var(--signal, #3fd68f)
   &.up
     color var(--amber, #ffb454)
+
+// ===== 文件冲突确认框(ANCHOR 风格) =====
+.cr-anchor
+  font-size 13px
+.cr-q
+  font-size 14px
+  color var(--snow, #e6edf5)
+  margin 2px 0 12px
+.cr-file
+  border 1px solid var(--line, #2a3547)
+  border-radius 6px
+  padding 8px 10px
+  margin-bottom 10px
+  .cr-file-head
+    display flex
+    align-items center
+    gap 4px
+    color var(--snow, #e6edf5)
+    font-size 13px
+    .cr-dir
+      font-family "IBM Plex Mono", monospace
+      font-weight 600
+      &.down, ~.cr-dir
+        color var(--signal, #3fd68f)
+    .cr-side
+      color var(--fog, #8b98ab)
+      font-size 11px
+      margin-left 6px
+  .cr-file-meta
+    font-family "IBM Plex Mono", monospace
+    font-size 11px
+    color var(--fog, #8b98ab)
+    margin 4px 0 2px
+  .cr-file-path
+    font-family "IBM Plex Mono", monospace
+    font-size 11px
+    color var(--fog, #8b98ab)
+    overflow hidden
+    text-overflow ellipsis
+    white-space nowrap
+.cr-footer
+  text-align right
+  .cr-footer-row
+    display flex
+    justify-content flex-end
+    gap 8px
+    margin-top 8px
+    .cr-batch-hint
+      color var(--fog, #8b98ab)
+      font-size 11px
+      line-height 28px
+      margin-right 2px
+  .cr-btn
+    border 1px solid var(--line, #2a3547)
+    background none
+    color var(--snow, #e6edf5)
+    border-radius 5px
+    padding 5px 14px
+    font-size 12px
+    cursor pointer
+    &:hover
+      border-color var(--amber, #ffb454)
+      color var(--amber, #ffb454)
+    &.warn
+      border-color var(--amber, #ffb454)
+      color var(--amber, #ffb454)
+      &:hover
+        background var(--amber, #ffb454)
+        color var(--ink0, #0f141d)
+    &.sm
+      padding 4px 10px
+      font-size 11px
+      color var(--fog, #8b98ab)
+body[data-anchor-theme=light] .cr-anchor ~ .ant-modal .cr-btn,
+body[data-anchor-theme=light] .cr-btn
+  color #1c2634
+  border-color #d4dbe4
+body[data-anchor-theme=light] .cr-q
+  color #1c2634
+body[data-anchor-theme=light] .cr-file
+  border-color #d4dbe4
+body[data-anchor-theme=light] .cr-file .cr-file-head
+  color #1c2634
+body[data-anchor-theme=light] .cr-file .cr-side,
+body[data-anchor-theme=light] .cr-file .cr-file-meta,
+body[data-anchor-theme=light] .cr-file .cr-file-path
+  color #5d6b7e
+body[data-anchor-theme=light] .cr-btn.warn
+  border-color #b26a00
+  color #b26a00
+  &:hover
+    background #b26a00
+    color #fff
