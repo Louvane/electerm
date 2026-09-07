@@ -331,12 +331,11 @@ body[data-anchor-theme=light] .sftp-progress
     color var(--snow, #1c2634) !important
 
 // 进度条占位: 文件区下压 46px(inline style 需 !important)
-.sftp-wrap.has-progress .sftp-section
-  top 46px !important
-  height calc(100% - 46px) !important
-.sftp-wrap.has-expanded .sftp-section
-  top calc(58px + var(--sftp-list-h, 168px)) !important
-  height calc(100% - 58px - var(--sftp-list-h, 168px)) !important
+// sections 是 flex 流式(static), top/height 规则无效 — 用容器 padding 下压
+.sftp-wrap.has-progress
+  padding-top 46px
+.sftp-wrap.has-expanded
+  padding-top calc(58px + var(--sftp-list-h, 64px))
 
 // ===== 传输明细展开列表 =====
 .sftp-progress-top

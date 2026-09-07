@@ -1316,6 +1316,11 @@ export default class Sftp extends Component {
     const {
       height, width
     } = this.props
+    // 顶部进度条(absolute)占位: 有进度 46px, 展开再加明细列表高
+    const extra = this.state.progressExpanded
+      ? 58 + parseInt(getComputedStyle(this.el || document.createElement('div')).getPropertyValue('--sftp-list-h') || '0') || 58
+      : (this.renderProgress() ? 46 : 0)
+    const h = Math.max(height - extra, 120)
     const shouldRenderRemote = this.shouldRenderRemote()
     if (!shouldRenderRemote) {
       return (
@@ -1323,7 +1328,7 @@ export default class Sftp extends Component {
           width,
           left: 0,
           top: 0,
-          height
+          height: h
         }, width)
       )
     }
@@ -1332,7 +1337,7 @@ export default class Sftp extends Component {
         width: width / 2,
         left: i * width / 2,
         top: 0,
-        height
+        height: h
       }
       return this.renderSection(t, style, width / 2)
     })
@@ -1449,7 +1454,8 @@ export default class Sftp extends Component {
     const all = {
       className: 'sftp-wrap overhide relative' + (hasProgress ? ' has-progress' : '') + (expanded ? ' has-expanded' : ''),
       style: { height, '--sftp-list-h': listH + 'px' },
-      id: `id-${id}`
+      id: `id-${id}`,
+      ref: el => { this.el = el }
     }
     return (
       <div
