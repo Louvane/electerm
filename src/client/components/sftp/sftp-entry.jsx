@@ -1438,10 +1438,12 @@ export default class Sftp extends Component {
     const { height } = this.props
     const hasProgress = !!this.renderProgress()
     const expanded = this.state.progressExpanded && hasProgress
+    const list = (window.store && window.store.fileTransfers) ? window.store.fileTransfers.filter(t => t.tabId === this.props.tab.id && t.inited && !t.error) : []
+    const listH = Math.min(list.length * 26 + 12, 180)
     const all = {
       className: 'sftp-wrap overhide relative' + (hasProgress ? ' has-progress' : '') + (expanded ? ' has-expanded' : ''),
-      id: `id-${id}`,
-      style: { height }
+      style: { height, '--sftp-list-h': listH + 'px' },
+      id: `id-${id}`
     }
     return (
       <div
