@@ -306,7 +306,9 @@ export default class TransportAction extends Component {
       onEnd
     })
     // 全局限速: 创建即应用(设置中途改由 applyRateLimit 推送)
-    const limitMB = this.props.config && this.props.config.transferRateLimitMB
+    // 读全局 config 而非 props(props 可能滞后于设置变更)
+    const cfg = window.store && window.store.config
+    const limitMB = cfg ? cfg.transferRateLimitMB : (this.props.config && this.props.config.transferRateLimitMB)
     if (limitMB > 0 && this.transport && this.transport.setRateLimit) {
       this.transport.setRateLimit(Math.floor(limitMB * 1024 * 1024))
     }
