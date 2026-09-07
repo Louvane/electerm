@@ -1437,8 +1437,9 @@ export default class Sftp extends Component {
     }
     const { height } = this.props
     const hasProgress = !!this.renderProgress()
+    const expanded = this.state.progressExpanded && hasProgress
     const all = {
-      className: 'sftp-wrap overhide relative' + (hasProgress ? ' has-progress' : ''),
+      className: 'sftp-wrap overhide relative' + (hasProgress ? ' has-progress' : '') + (expanded ? ' has-expanded' : ''),
       id: `id-${id}`,
       style: { height }
     }
