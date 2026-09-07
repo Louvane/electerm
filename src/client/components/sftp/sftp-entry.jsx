@@ -1360,12 +1360,16 @@ export default class Sftp extends Component {
         done += x.transferred || 0
       })
       pct = all > 0 ? Math.min(99, Math.floor(done * 100 / all)) : 0
-      label = `${name} 等 ${list.length} 个`
+      const downs = list.filter(x => x.typeFrom === 'remote').length
+      const dirTag = downs === list.length ? '↓ ' : (downs === 0 ? '↑ ' : '⇅ ')
+      label = `${dirTag}${name} 等 ${list.length} 个`
       title = list.map(x => (x.fromPath || '').split('/').pop()).join('\n')
       const speed = t.speed ? ` · ${t.speed}` : ''
       meta = `${pct}%${speed} · 共 ${list.length} 个`
     } else {
       pct = pctOf(t)
+      const dirTag = t.typeFrom === 'remote' ? '↓ ' : '↑ '
+      label = dirTag + label
       meta = `${pct}%${t.speed ? ` · ${t.speed}` : ''}${t.leftTime ? ` · ${t.leftTime}` : ''}`
     }
     const expanded = this.state.progressExpanded && list.length > 0
@@ -1387,9 +1391,11 @@ export default class Sftp extends Component {
               const nm = (x.fromPath || x.toPath || '').split('/').pop()
               const paused = !!x.pausing
               const inst = () => refs.get('transport-' + x.id)
+              const isDown = x.typeFrom === 'remote'
               return (
                 <div className='sftp-progress-row' key={x.id} title={x.fromPath + ' → ' + x.toPath}>
                   <span className='sftp-progress-row-state'>{paused ? '⏸' : '▶'}</span>
+                  <span className={'sftp-progress-row-dir ' + (isDown ? 'down' : 'up')}>{isDown ? '↓' : '↑'}</span>
                   <span className='sftp-progress-row-name'>{nm}</span>
                   <div className='sftp-progress-row-rail'><div className='sftp-progress-row-bar' style={{ width: p + '%' }} /></div>
                   <span className='sftp-progress-row-pct'>{p}%</span>
@@ -1439,7 +1445,7 @@ export default class Sftp extends Component {
     const hasProgress = !!this.renderProgress()
     const expanded = this.state.progressExpanded && hasProgress
     const list = (window.store && window.store.fileTransfers) ? window.store.fileTransfers.filter(t => t.tabId === this.props.tab.id && t.inited && !t.error) : []
-    const listH = Math.min(list.length * 26 + 12, 180)
+    const listH = Math.min(list.length * 27 + 14, 190)
     const all = {
       className: 'sftp-wrap overhide relative' + (hasProgress ? ' has-progress' : '') + (expanded ? ' has-expanded' : ''),
       style: { height, '--sftp-list-h': listH + 'px' },

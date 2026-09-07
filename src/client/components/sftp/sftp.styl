@@ -357,8 +357,10 @@ body[data-anchor-theme=light] .sftp-progress
 .sftp-progress-row
   display flex
   align-items center
-  gap 6px
+  gap 4px
   height 26px
+  max-height 26px
+  overflow hidden
   font-size 11px
   .sftp-progress-row-state
     width 14px
@@ -406,3 +408,13 @@ body[data-anchor-theme=light] .sftp-progress
     &.danger:hover
       color var(--alert, #f2555a)
       border-color var(--alert, #f2555a)
+
+// 传输方向标记
+.sftp-progress-row-dir
+  width 14px
+  text-align center
+  flex-shrink 0
+  &.down
+    color var(--signal, #3fd68f)
+  &.up
+    color var(--amber, #ffb454)

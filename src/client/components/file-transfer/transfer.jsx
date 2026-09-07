@@ -215,7 +215,12 @@ export default class TransportAction extends Component {
     this.onCancel = true
     this.transport && this.transport.destroy()
     this.transport = null
-    // window.store.cancelTransfer(this.props.transfer.id)
+    // 同步移除条目(队列 delete 偶发堵塞会残留'假活'行), 队列调用保留作兜底
+    const { fileTransfers } = window.store
+    const idx = fileTransfers.findIndex(t => t.id === this.props.transfer.id)
+    if (idx >= 0) {
+      fileTransfers.splice(idx, 1)
+    }
     refsStatic.get('transfer-queue')?.addToQueue(
       'delete',
       this.props.transfer.id
