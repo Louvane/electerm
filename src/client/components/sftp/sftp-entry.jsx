@@ -68,16 +68,7 @@ export default class Sftp extends Component {
     }, 0)
     this._transferTimer = setInterval(() => {
       const has = window.store && window.store.fileTransfers && window.store.fileTransfers.some(t => t.tabId === this.props.tab.id && t.inited)
-      if (has) {
-        this.forceUpdate()
-      } else if (this._hadTransfer) {
-        // 传输清空后补一帧, 否则明细/进度条残留(点击无响应的'假活')
-        this.forceUpdate()
-        this._hadTransfer = false
-        clearInterval(this._transferTimer)
-        this._transferTimer = null
-      }
-      if (has) this._hadTransfer = true
+      if (has) this.forceUpdate()
     }, 500)
   }
 
