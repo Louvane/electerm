@@ -137,7 +137,7 @@ export default class ConfirmModalStore extends Component {
         type: typeTo
       }
     } = transferToConfirm
-    const action = isDirectory ? e('merge') : e('replace')
+    const action = isDirectory ? '合并' : '替换'
     const Icon = isDirectory ? FolderOutlined : FileOutlined
     const typeTitle = e(typeTo)
     const otherTypeTitle = e(typeFrom)
