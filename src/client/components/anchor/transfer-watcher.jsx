@@ -84,12 +84,15 @@ export default function TransferWatcher (props) {
           timer = setTimeout(tick, POLL)
           return
         }
+        const downs = invisible.filter(x => x.typeFrom === 'remote').length
+        const dir = downs === invisible.length ? 'down' : (downs === 0 ? 'up' : 'mix')
         setMini({
           tabId: first.tabId,
           name: fileNameOf(first),
           count: invisible.length,
           pct: all > 0 ? Math.min(99, Math.floor(done * 100 / all)) : 0,
-          speed: first.speed || ''
+          speed: first.speed || '',
+          dir
         })
       } else {
         signatureRef.current = ''
@@ -115,7 +118,7 @@ export default function TransferWatcher (props) {
   return (
     <div className='anchor-transfer-float' onClick={openPanel} title='点击打开 SFTP 面板'>
       <div className='atf-top'>
-        <span className='atf-name'><CloudUploadOutlined /> {mini.name}{mini.count > 1 ? ` 等 ${mini.count} 项` : ''}</span>
+        <span className={'atf-name atf-' + (mini.dir || 'down')}>{mini.dir === 'up' ? '↑ ' : (mini.dir === 'mix' ? '⇅ ' : '↓ ')}{mini.name}{mini.count > 1 ? ` 等 ${mini.count} 项` : ''}</span>
         <span className='atf-meta'>{mini.pct}%{mini.speed ? ` · ${mini.speed}` : ''}</span>
       </div>
       <div className='atf-rail'><div className='atf-bar' style={{ width: mini.pct + '%' }} /></div>
