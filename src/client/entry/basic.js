@@ -68,6 +68,10 @@ async function loadWorker () {
 
 async function load () {
   window.capitalizeFirstLetter = (string) => {
+    // 防御: 翻译键缺失(如测试数据缺字段)时不应崩掉整棵 React 树
+    if (typeof string !== 'string' || !string) {
+      return ''
+    }
     return string.charAt(0).toUpperCase() + string.slice(1)
   }
   function loadScript () {

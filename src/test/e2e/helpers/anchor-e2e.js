@@ -2,6 +2,13 @@
 const { chromium } = require('playwright-core')
 const { execSync } = require('child_process')
 
+// 新建一个连接 session(保证活跃), 返回新 tab id
+async function freshSession (win, bookmarkId = 'EGZ_VPT') {
+  await win.evaluate(id => { window.store.onSelectBookmark(id) }, bookmarkId)
+  await win.waitForTimeout(12000)
+  return win.evaluate(() => window.store.tabs[window.store.tabs.length - 1].id)
+}
+
 async function launchAnchor (bookmarkId = 'EGZ_VPT') {
   const browser = await chromium.connectOverCDP('http://127.0.0.1:9222')
   const win = browser.contexts()[0].pages().find(p => p.url().includes('index.html'))
@@ -27,8 +34,9 @@ async function gotoSftp (win) {
 
 async function pushDownload (win, fromPath, name, size, toPath) {
   return win.evaluate(async (a) => {
+    // 传输挂到最新 tab(由 freshSession 新建, session 必活)
     const tab = window.store.tabs[window.store.tabs.length - 1]
-    const id = 'e2e-dl-' + Date.now()
+    const id = 'e2e-dl-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7)
     await window.store.addTransferList([{
       id,
       tabId: tab.id,
@@ -36,8 +44,29 @@ async function pushDownload (win, fromPath, name, size, toPath) {
       typeTo: 'local',
       fromPath: a.fromPath,
       toPath: a.toPath,
-      fromFile: { name: a.name, size: a.size, isDirectory: false, mode: 420 },
-      toFile: { name: 'x', isDirectory: false },
+      fromFile: { name: a.name, size: a.size, isDirectory: false, mode: 420, type: 'remote', modifyTime: Date.now() },
+      toFile: { name: 'x', isDirectory: false, type: 'local', modifyTime: Date.now() },
+      path: a.fromPath.split('/').slice(0, -1).join('/')
+    }])
+    return id
+  }, { fromPath, name, size, toPath })
+}
+
+// 上传版 pushDownload: 本地 fromPath → 远端 toPath
+async function pushUpload (win, fromPath, name, size, toPath) {
+  return win.evaluate(async (a) => {
+    // 传输挂到最新 tab(由 freshSession 新建, session 必活)
+    const tab = window.store.tabs[window.store.tabs.length - 1]
+    const id = 'e2e-up-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7)
+    await window.store.addTransferList([{
+      id,
+      tabId: tab.id,
+      typeFrom: 'local',
+      typeTo: 'remote',
+      fromPath: a.fromPath,
+      toPath: a.toPath,
+      fromFile: { name: a.name, size: a.size, isDirectory: false, mode: 420, type: 'local', modifyTime: Date.now() },
+      toFile: { name: 'x', isDirectory: false, type: 'remote', modifyTime: Date.now() },
       path: a.fromPath.split('/').slice(0, -1).join('/')
     }])
     return id
@@ -52,4 +81,4 @@ async function cleanupTransfers (win) {
   execSync('rm -f /tmp/e2e_* /tmp/pk_* 2>/dev/null; true')
 }
 
-module.exports = { launchAnchor, gotoSftp, pushDownload, cleanupTransfers }
+module.exports = { launchAnchor, freshSession, gotoSftp, pushDownload, pushUpload, cleanupTransfers }
