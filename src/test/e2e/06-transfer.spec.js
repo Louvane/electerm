@@ -20,9 +20,10 @@ const LOCAL_BIG = '/Users/echo/Downloads/test1.jar'
 
 function sh (cmd) {
   try {
-    return execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim()
+    // timeout 防远端假死卡死整个 spec(orb VM 慢唤醒实测可到 30s+)
+    return execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 20000 }).trim()
   } catch (e) {
-    throw new Error(`cmd fail: ${cmd}\n${e.stderr || e.message}`)
+    throw new Error(`cmd fail: ${cmd}\n${(e.stderr || e.message).slice(0, 200)}`)
   }
 }
 
@@ -309,7 +310,7 @@ async function main () {
     console.log(`XFER-${MODE.toUpperCase()}-FAIL ${String(e.message).slice(0, 400)}`)
   } finally {
     try { await cleanupTransfers(win) } catch { }
-    try { ssh('rm -f /tmp/e2e_up.jar /tmp/e2e_mix_up.jar /tmp/e2e_mix_dl') } catch { }
+    try { ssh('rm -f /tmp/e2e_up.jar /tmp/e2e_mix_up.jar /tmp/e2e_mix_dl /tmp/e2e_cancel /tmp/e2e_conflict /tmp/e2e_expand_1 /tmp/e2e_expand_2 /tmp/e2e_limit /tmp/e2e_bare /tmp/e2e_bare2 /tmp/e2e_m*_up.jar /tmp/e2e_m*_dl 2>/dev/null; true') } catch { }
   }
   process.exit(code)
 }
