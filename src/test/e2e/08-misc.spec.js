@@ -130,6 +130,11 @@ async function main () {
     return window.store.quickCommands.filter(q => (q.name || '') === 'e2e-echo' || (q.command || '') === 'echo e2e-ok').length
   })
   check(saved >= 1, 'QM-NOT-SAVED')
+  // 捕获 uid(快捷命令 id 由 generate() 生成, 非名称)供收尾 freq 清理
+  const cmdId = await win.evaluate(() => {
+    const q = window.store.quickCommands.find(q => (q.name || '') === 'e2e-echo')
+    return q ? q.id : ''
+  })
 
   // 在 tab 上执行: 搜索并点击
   await win.evaluate(() => {
@@ -387,14 +392,23 @@ async function main () {
   }
 
   // 收尾: 清 localStorage 的 e2e-echo 频次记录
-  await win.evaluate(() => {
+  const cleanupRes = await win.evaluate(cid => {
+    let freqDeleted = false
     try {
       const f = JSON.parse(window.localStorage.getItem('anchor-cmd-freq') || '{}')
-      delete f['e2e-echo']
-      window.localStorage.setItem('anchor-cmd-freq', JSON.stringify(f))
+      if (cid && cid in f) {
+        delete f[cid]
+        window.localStorage.setItem('anchor-cmd-freq', JSON.stringify(f))
+        freqDeleted = true
+      }
     } catch (e) {}
     window.pre.writeClipboard('')
-  })
+    // 真实断言: 清理后该 cmdId(uid) 记录须已删除
+    const f2 = JSON.parse(window.localStorage.getItem('anchor-cmd-freq') || '{}')
+    return JSON.stringify({ freqGone: cid ? !(cid in f2) : true, freqDeleted })
+  }, cmdId)
+  const freqJ = JSON.parse(cleanupRes)
+  check(freqJ.freqGone, 'FREQ-NOT-CLEANED:' + JSON.stringify(freqJ))
 
   console.log('NOTIFY-API(store.notify):', notifyApi, '(brief 假设的 API, 实际走自研 message 通道)')
   console.log('LAYOUT base:', JSON.stringify(baseJ), 'split:', JSON.stringify(splitJ), 'back:', JSON.stringify(backJ))
