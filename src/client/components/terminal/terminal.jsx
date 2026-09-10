@@ -11,7 +11,6 @@ import message from '../common/message'
 import { notify } from '../anchor/anchor-notify'
 import { notification } from '../common/notification'
 import ShowItem from '../common/show-item.jsx'
-import Modal from '../common/modal'
 import classnames from 'classnames'
 import './terminal.styl'
 import {
@@ -27,7 +26,7 @@ import {
 } from '../../common/constants.js'
 import { getTermPreset, applyTermBg } from '../anchor/anchor-theme.js'
 import deepCopy from 'json-deep-copy'
-import { readClipboardAsync, readClipboard, copy } from '../../common/clipboard.js'
+import { readClipboardAsync, copy } from '../../common/clipboard.js'
 import AttachAddon from './attach-addon-custom.js'
 import getProxy from '../../common/get-proxy.js'
 import { ZmodemClient } from './zmodem-client.js'
@@ -458,26 +457,6 @@ class Term extends Component {
     this.tryInsertSelected()
   }
 
-  pasteTextTooLong = () => false
-
-  askUserConfirm = () => {
-    Modal.confirm({
-      title: '粘贴以下文本？',
-      content: (
-        <div>
-          <div className='paste-text'>
-            <pre>
-              <code>{readClipboard()}</code>
-            </pre>
-          </div>
-        </div>
-      ),
-      okText: '粘贴',
-      cancelText: '取消',
-      onOk: () => this.onPaste(true)
-    })
-  }
-
   warnSftpFollowUnsupported = () => {
     message.warning(
       <span>
@@ -487,12 +466,6 @@ class Term extends Component {
   }
 
   pasteShortcut = (e) => {
-    if (this.pasteTextTooLong()) {
-      this.askUserConfirm()
-      e.preventDefault()
-      e.stopPropagation()
-      return false
-    }
     if (isMac) {
       return true
     }
@@ -882,11 +855,9 @@ class Term extends Component {
     return this.props.tab?.host
   }
 
-  onPaste = async (skipTextLengthCheck) => {
+  // ANCHOR: 粘贴不限长度, 不弹确认 (原 electerm >500 字符弹确认已移除)
+  onPaste = async () => {
     let selected = await readClipboardAsync()
-    if (!skipTextLengthCheck && selected.length > 500) {
-      return this.askUserConfirm()
-    }
     if (isWin && this.isRemote()) {
       selected = selected.replace(/\r\n/g, '\n')
     }
