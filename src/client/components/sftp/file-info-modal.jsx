@@ -275,14 +275,15 @@ export default class FileMode extends React.PureComponent {
     const {
       visible,
       tab,
-      uidTree,
-      gidTree,
       file,
       editPermission
     } = this.state
     if (!visible) {
       return null
     }
+    // 兜底: owner 列表加载失败时 props 未注入, 缺 uidTree 不应崩整树
+    const uidTree = this.state.uidTree || {}
+    const gidTree = this.state.gidTree || {}
     const {
       name,
       accessTime,
