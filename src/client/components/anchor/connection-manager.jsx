@@ -4,6 +4,7 @@
  * 数据操作全部走 anchor-api(见 SPEC.md §4 交互规格)。
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { auto } from 'manate/react'
 import { Modal } from 'antd'
 import message from '../common/message'
 import { FolderOutlined, DesktopOutlined, CaretRightOutlined, PlusOutlined } from '@ant-design/icons'
@@ -34,7 +35,7 @@ function hl (text, kw) {
   return esc(t.slice(0, i)) + '<mark>' + esc(t.substr(i, kw.length)) + '</mark>' + esc(t.slice(i + kw.length))
 }
 
-export default function ConnectionManager (props) {
+function ConnectionManager (props) {
   const { open, onClose, store } = props
   const [kw, setKw] = useState('')
   // 展开态持久化(稀疏: 只存展开的 id 数组)
@@ -566,3 +567,5 @@ function InlineInput ({ initial, onCommit, onCancel, autoFocus, placeholder }) {
     />
   )
 }
+
+export default auto(ConnectionManager)
