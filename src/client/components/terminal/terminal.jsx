@@ -1289,10 +1289,10 @@ class Term extends Component {
       this.props.tab.status === statusMap.error &&
       this.props.tab.host
     ) {
-      if (!this.props.config.autoReconnectTerminal) {
-        this.term.write('\r\n\x1b[33m重连中...\x1b[0m\r\n')
-      }
-      this.scheduleAutoReconnect(800)
+      // 手动重连: 直接 reloadTab(autoReconnect 关闭时 scheduleAutoReconnect 会拒绝执行)
+      this.term.write('\r\n\x1b[33m重连中...\x1b[0m\r\n')
+      const reconnectCount = (this.props.tab.autoReConnect || 0) + 1
+      this.props.reloadTab({ ...this.props.tab, autoReConnect: reconnectCount })
       return
     }
     this.handleInputEvent(d)
