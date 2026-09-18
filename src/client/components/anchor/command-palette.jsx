@@ -174,7 +174,6 @@ export default auto(function CommandPalette (props) {
                   </div>
                   <div className='cp-cmd mono'>
                     {q.command}
-                    {freq[q.id] ? <span className='cp-freq'>×{freq[q.id]}</span> : null}
                   </div>
                 </div>
               ))
