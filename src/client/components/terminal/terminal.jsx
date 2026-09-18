@@ -1283,6 +1283,18 @@ class Term extends Component {
   }
 
   onData = (d) => {
+    // 断线时按 Enter 手动重连(终端界面还在, 保留给用户操作入口)
+    if (
+      (d === '\r' || d === '\n') &&
+      this.props.tab.status === statusMap.error &&
+      this.props.tab.host
+    ) {
+      if (!this.props.config.autoReconnectTerminal) {
+        this.term.write('\r\n\x1b[33m重连中...\x1b[0m\r\n')
+      }
+      this.scheduleAutoReconnect(800)
+      return
+    }
     this.handleInputEvent(d)
     // Skip normal suggestion logic when in password mode
     const suggestions = refsStatic.get('terminal-suggestions')
@@ -2098,6 +2110,10 @@ class Term extends Component {
     this.setStatus(
       statusMap.error
     )
+    // 断线提示: 自动重连场景有倒计时 UI, 这里只给手动场景
+    if (!this.props.config.autoReconnectTerminal && this.term && this.props.tab.host) {
+      this.term.write('\r\n\x1b[33m连接已断开, 按 Enter 重连\x1b[0m\r\n')
+    }
     if (this.userTypeExit) {
       return this.props.delTab(this.props.tab.id)
     }
