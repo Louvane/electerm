@@ -58,6 +58,7 @@ function parseSample (txt, os) {
   if (os === 'win') return parseWinSample(txt)
   if (!txt) return null
   const sm = {
+    ts: Date.now(),
     cpuTotal: 0,
     cpuIdle: 0,
     memTotal: 0,
@@ -108,6 +109,8 @@ function parseSample (txt, os) {
 }
 
 function computePoint (prev, cur) {
+  // 真实时间差: 采样 tick 可能被网络/休眠拖长, 固定 INTERVAL 会把字节差除出天文速率
+  const dt = prev && prev.ts && cur.ts > prev.ts ? cur.ts - prev.ts : INTERVAL
   const p = {
     cpu: null,
     mem: cur.memTotal > 0 ? (cur.memTotal - cur.memAvail) * 100 / cur.memTotal : null,
@@ -117,12 +120,17 @@ function computePoint (prev, cur) {
   if (cur.cpuPct != null) {
     p.cpu = cur.cpuPct
   } else if (prev && cur.cpuTotal > prev.cpuTotal) {
-    p.cpu = (cur.cpuTotal - cur.cpuIdle - (prev.cpuTotal - prev.cpuIdle)) * 100 /
+    const cpu = (cur.cpuTotal - cur.cpuIdle - (prev.cpuTotal - prev.cpuIdle)) * 100 /
       (cur.cpuTotal - prev.cpuTotal)
+    // 钳位: /proc/stat 采样抖动/计数器异常会产生负值或超多核上限的脏值
+    p.cpu = cpu >= 0 && cpu <= 100 * 64 ? cpu : null
   }
   if (prev && cur.rx >= prev.rx) {
-    p.rxKb = (cur.rx - prev.rx) / INTERVAL * 1.024
-    p.txKb = (cur.tx - prev.tx) / INTERVAL * 1.024
+    const rxKb = (cur.rx - prev.rx) / dt * 1.024
+    const txKb = (cur.tx - prev.tx) / dt * 1.024
+    // 钳位: 计数器回绕/久违重连后差值失真(实测出过 398488M/s), >8GB/s 视为脏值
+    p.rxKb = rxKb >= 0 && rxKb < 8 * 1024 * 1024 ? rxKb : null
+    p.txKb = txKb >= 0 && txKb < 8 * 1024 * 1024 ? txKb : null
   }
   return p
 }
