@@ -26,8 +26,10 @@ export default function TermView ({ store }) {
   }, [])
 
   const layout = store.layout || 'c1'
-  const styles = layoutAlg(layout, dim.w, dim.h)
-  const sizes = calcSessionSize(layout, dim.w, dim.h)
+  // electerm 原生高度会扣 termControlHeight(32, 原布局底部控制条), ANCHOR 无此条 → 补回, 否则终端底部留 32px 空白
+  const hAdj = dim.h + 32
+  const styles = layoutAlg(layout, dim.w, hAdj)
+  const sizes = calcSessionSize(layout, dim.w, hAdj)
   const layoutStyle = pixed({ height: dim.h, top: 0, left: 0, width: dim.w })
 
   const sessionsProps = {
