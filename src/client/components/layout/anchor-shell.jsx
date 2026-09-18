@@ -10,6 +10,7 @@ import TermSearch from '../terminal/term-search'
 import ConnectionManager from '../anchor/connection-manager'
 import QuickConnect from '../anchor/quick-connect'
 import TermView from '../anchor/term-view'
+import CmdInput from '../anchor/cmd-input'
 import BookmarkFormDrawer from '../anchor/bookmark-form-drawer'
 import SettingsDrawer from '../anchor/settings-drawer'
 import CommandPalette from '../anchor/command-palette'
@@ -169,6 +170,7 @@ export default auto(function Layout (props) {
                 )
           }
             </div>
+            <CmdInput store={store} />
           </main>
         </div>
         <ConnectionManager

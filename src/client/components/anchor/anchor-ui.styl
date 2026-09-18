@@ -1583,3 +1583,100 @@ body[data-anchor-theme=light] .disk-pop
 body[data-anchor-theme=light] .anchor-tip
   background var(--ink2, #ffffff) !important
   color var(--snow, #1c2634) !important
+
+// 终端命令输入条
+.anchor-cmd-input
+  position relative
+  display flex
+  align-items center
+  gap 6px
+  height 36px
+  padding 0 10px
+  background var(--ink1, #151c28)
+  border-top 1px solid var(--line, #232c3d)
+  flex-shrink 0
+  z-index 5
+.anchor-cmd-his-btn
+.anchor-cmd-send-btn
+  width 26px
+  height 26px
+  display flex
+  align-items center
+  justify-content center
+  border none
+  border-radius 4px
+  background transparent
+  color var(--ink3, #7d8aa0)
+  cursor pointer
+  font-size 14px
+  &:hover
+    background var(--ink2, #1c2433)
+    color var(--amber, #e8a33d)
+  &.on
+    color var(--amber, #e8a33d)
+.anchor-cmd-send-btn.ready
+  color var(--amber, #e8a33d)
+.anchor-cmd-send-btn:disabled
+  opacity 0.4
+  cursor default
+.anchor-cmd-field
+  flex 1
+  height 26px
+  padding 0 10px
+  border 1px solid var(--line, #232c3d)
+  border-radius 4px
+  background var(--ink0, #0f141d)
+  color var(--fg, #d8e0ea)
+  font-size 12px
+  outline none
+  &::placeholder
+    color var(--ink3, #5d6b80)
+  &:focus
+    border-color var(--amber, #e8a33d)
+.anchor-cmd-his-pop
+  position absolute
+  bottom 40px
+  left 10px
+  width 420px
+  max-height 50vh
+  display flex
+  flex-direction column
+  background var(--ink1, #151c28)
+  border 1px solid var(--line, #232c3d)
+  border-radius 6px
+  box-shadow 0 8px 24px rgba(0,0,0,0.4)
+  overflow hidden
+.anchor-cmd-his-head
+  display flex
+  justify-content space-between
+  align-items center
+  padding 6px 10px
+  font-size 11px
+  color var(--ink3, #7d8aa0)
+  border-bottom 1px solid var(--line, #232c3d)
+.anchor-cmd-his-clear
+  border none
+  background transparent
+  color var(--ink3, #7d8aa0)
+  cursor pointer
+  font-size 11px
+  &:hover
+    color var(--alert, #f2555a)
+.anchor-cmd-his-list
+  overflow-y auto
+.anchor-cmd-his-item
+  padding 6px 10px
+  font-size 12px
+  color var(--fg, #d8e0ea)
+  cursor pointer
+  white-space nowrap
+  overflow hidden
+  text-overflow ellipsis
+  &:hover
+    background var(--ink2, #1c2433)
+    color var(--amber, #e8a33d)
+.anchor-cmd-his-empty
+  padding 14px 10px
+  text-align center
+  font-size 12px
+  color var(--ink3, #5d6b80)
