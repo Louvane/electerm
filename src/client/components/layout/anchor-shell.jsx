@@ -170,7 +170,9 @@ export default auto(function Layout (props) {
                 )
           }
             </div>
-            <CmdInput store={store} />
+            {
+            view === 'term' && store.tabs.length > 0 && <CmdInput store={store} />
+          }
           </main>
         </div>
         <ConnectionManager

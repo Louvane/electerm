@@ -1586,6 +1586,7 @@ body[data-anchor-theme=light] .anchor-tip
 
 // 终端命令输入条
 .anchor-cmd-input
+  font-family "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace
   position relative
   display flex
   align-items center
@@ -1606,7 +1607,7 @@ body[data-anchor-theme=light] .anchor-tip
   border none
   border-radius 4px
   background transparent
-  color var(--ink3, #7d8aa0)
+  color var(--fog, #8b98ab)
   cursor pointer
   font-size 14px
   &:hover
@@ -1620,17 +1621,18 @@ body[data-anchor-theme=light] .anchor-tip
   opacity 0.4
   cursor default
 .anchor-cmd-field
+  font-family "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace
   flex 1
   height 26px
   padding 0 10px
   border 1px solid var(--line, #232c3d)
   border-radius 4px
   background var(--ink0, #0f141d)
-  color var(--fg, #d8e0ea)
+  color var(--snow, #e6edf5)
   font-size 12px
   outline none
   &::placeholder
-    color var(--ink3, #5d6b80)
+    color var(--fog, #8b98ab)
   &:focus
     border-color var(--amber, #e8a33d)
 .anchor-cmd-his-pop
@@ -1652,12 +1654,12 @@ body[data-anchor-theme=light] .anchor-tip
   align-items center
   padding 6px 10px
   font-size 11px
-  color var(--ink3, #7d8aa0)
+  color var(--fog, #8b98ab)
   border-bottom 1px solid var(--line, #232c3d)
 .anchor-cmd-his-clear
   border none
   background transparent
-  color var(--ink3, #7d8aa0)
+  color var(--fog, #8b98ab)
   cursor pointer
   font-size 11px
   &:hover
@@ -1665,9 +1667,10 @@ body[data-anchor-theme=light] .anchor-tip
 .anchor-cmd-his-list
   overflow-y auto
 .anchor-cmd-his-item
+  font-family "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace
   padding 6px 10px
   font-size 12px
-  color var(--fg, #d8e0ea)
+  color var(--snow, #e6edf5)
   cursor pointer
   white-space nowrap
   overflow hidden
@@ -1679,4 +1682,4 @@ body[data-anchor-theme=light] .anchor-tip
   padding 14px 10px
   text-align center
   font-size 12px
-  color var(--ink3, #5d6b80)
+  color var(--fog, #8b98ab)

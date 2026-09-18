@@ -82,7 +82,7 @@ export default function CmdInput ({ store }) {
       </button>
       <input
         ref={inputRef}
-        className='anchor-cmd-field mono'
+        className='anchor-cmd-field'
         placeholder={tabOk ? '输入命令,Enter 发送到当前终端' : '无活动终端'}
         value={cmd}
         disabled={!tabOk}
@@ -114,7 +114,7 @@ export default function CmdInput ({ store }) {
               {
                 his.current.length
                   ? his.current.map((c, i) => (
-                    <div key={c + i} className='anchor-cmd-his-item mono' onClick={() => pickHis(c)}>
+                    <div key={c + i} className='anchor-cmd-his-item' onClick={() => pickHis(c)}>
                       {c}
                     </div>
                   ))
