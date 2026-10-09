@@ -1289,10 +1289,9 @@ class Term extends Component {
       this.props.tab.status === statusMap.error &&
       this.props.tab.host
     ) {
-      // 手动重连: 直接 reloadTab(autoReconnect 关闭时 scheduleAutoReconnect 会拒绝执行)
+      // 原地重连: 复用当前 term 实例(保留屏幕内容), 只重建连接
       this.term.write('\r\n\x1b[33m重连中...\x1b[0m\r\n')
-      const reconnectCount = (this.props.tab.autoReConnect || 0) + 1
-      this.props.reloadTab({ ...this.props.tab, autoReConnect: reconnectCount })
+      this.manualReconnect()
       return
     }
     this.handleInputEvent(d)
@@ -2101,6 +2100,27 @@ class Term extends Component {
 
   onerrorSocket = err => {
     console.error('onerrorSocket', err)
+  }
+
+  // 原地重连: 保留 xterm 实例与屏幕内容, 仅重建 ssh 会话与数据通道
+  manualReconnect = async () => {
+    if (this._manualReconnecting) return
+    this._manualReconnecting = true
+    try {
+      if (this.socket) {
+        // 摘除旧 socket 回调避免误触发二次断线提示
+        this.socket.onclose = null
+        this.socket.onerror = null
+        this.socket.close()
+        this.socket = null
+      }
+      this.attachAddon = null
+      await this.remoteInit(this.term)
+    } catch (e) {
+      this.term && this.term.write('\r\n\x1b[31m重连失败: ' + String(e.message || e).slice(0, 120) + '\x1b[0m\r\n')
+    } finally {
+      this._manualReconnecting = false
+    }
   }
 
   oncloseSocket = () => {
