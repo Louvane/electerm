@@ -4,7 +4,7 @@
  * 面板内容在 P1-P5 逐阶段填充(见 docs/PLAN.md)。
  */
 import { auto } from 'manate/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { pick } from 'lodash-es'
 import TermSearch from '../terminal/term-search'
 import ConnectionManager from '../anchor/connection-manager'
@@ -37,6 +37,30 @@ export default auto(function Layout (props) {
   const [cmdOpen, setCmdOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [view, setView] = useState('home') // home=快速连接 | term=终端
+  // 标签拖拽排序
+  const dragTabId = useRef(null)
+  const handleTabDragStart = (e, id) => {
+    dragTabId.current = id
+    e.dataTransfer.effectAllowed = 'move'
+  }
+  const handleTabDragOver = (e, id) => {
+    if (dragTabId.current === null || dragTabId.current === id) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+  const handleTabDrop = (e, id) => {
+    e.preventDefault()
+    const from = dragTabId.current
+    dragTabId.current = null
+    if (!from || from === id) return
+    const idxs = store.tabs.findIndex(t => t.id === from)
+    const idxd = store.tabs.findIndex(t => t.id === id)
+    if (idxs < 0 || idxd < 0) return
+    const arr = store.tabs.slice()
+    const [moved] = arr.splice(idxs, 1)
+    arr.splice(idxd, 0, moved)
+    store.tabs = arr
+  }
   const [theme, setTheme] = useState('dark')
   useEffect(() => {
     setTheme(initAnchorTheme())
@@ -119,6 +143,10 @@ export default auto(function Layout (props) {
                   <div
                     key={t.id}
                     className={'anchor-tab' + (currentTab && currentTab.id === t.id ? ' on' : '')}
+                    draggable
+                    onDragStart={e => handleTabDragStart(e, t.id)}
+                    onDragOver={e => handleTabDragOver(e, t.id)}
+                    onDrop={e => handleTabDrop(e, t.id)}
                     onClick={() => { store.clickTab(t.id, t.batch ?? store.currentLayoutBatch); setView('term') }}
                   >
                     <span className='dot' />
