@@ -3,14 +3,17 @@
  * 历史列表(anchor-api.getRecents,新在前)+ 双击连接 + 清空 + 空状态引导。
  * 状态点 = 该主机当前有活跃会话标签(srcId 匹配)。
  */
-import React from 'react'
+import React, { useState, useRef } from 'react'
 import { auto } from 'manate/react'
 import message from '../common/message'
 import { getRecents, clearRecents } from '../../common/anchor-api'
 import { notify } from './anchor-notify'
 
+const QC_PAGE = 20
+
 export default auto(function QuickConnect (props) {
   const { store, onOpenManager, onNewHost } = props
+  const [visibleCount, setVisibleCount] = useState(QC_PAGE)
   const recents = getRecents(store)
   const openIds = new Set(
     store.tabs.filter(t => t.srcId).map(t => t.srcId)
@@ -35,6 +38,12 @@ export default auto(function QuickConnect (props) {
   const rows = useAll
     ? [...allHosts].sort((a, b) => (a.title || '').localeCompare(b.title || ''))
     : visibleRecents
+  // 模式切换(RECENT<->ALL)时重置分页
+  const modeRef = useRef(useAll)
+  if (modeRef.current !== useAll) {
+    modeRef.current = useAll
+    if (visibleCount !== QC_PAGE) setVisibleCount(QC_PAGE)
+  }
   // history 的 tab 副本不含 srcId(被 tabPropertiesExcludes 剥离),
   // 按 host+username 反查书签 id
   const bidOf = (h) => {
@@ -59,7 +68,7 @@ export default auto(function QuickConnect (props) {
         </div>
         {
           rows.length
-            ? rows.map(h => {
+            ? rows.slice(0, visibleCount).map(h => {
               return (
                 <div
                   key={h.historyId || h.id}
@@ -97,6 +106,13 @@ export default auto(function QuickConnect (props) {
                 </div>
               </div>
               )
+        }
+        {
+          rows.length > visibleCount && (
+            <button className='qc-more' onClick={() => setVisibleCount(n => n + QC_PAGE)}>
+              加载更多({visibleCount}/{rows.length})
+            </button>
+          )
         }
       </div>
 
