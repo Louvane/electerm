@@ -1776,10 +1776,12 @@ class Term extends Component {
           // This hides the command and its output until OSC 633 is detected
           const suppressionTimeout = this.isSsh() ? 5000 : 3000
           // Pass callback to resolve the promise after suppression ends
+          // discardOnTimeout=true: OSC 633 未按期到达(老 bash/特殊 shell)时直接丢弃抑制期输出,
+          // 否则超时回放会把注入命令回显+多余提示符泄露给用户(双提示符现象)
           this.attachAddon.startOutputSuppression(suppressionTimeout, () => {
             this.shellInjected = true
             resolve()
-          })
+          }, true)
           this.attachAddon._sendData(integrationCmd)
         } else {
           resolve()
