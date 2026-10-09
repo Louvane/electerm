@@ -30,6 +30,7 @@ export default auto(function CommandPalette (props) {
     if (open) {
       setKw('')
       setSelIdx(0)
+      setEditing(null)
       setTimeout(() => inputRef.current && inputRef.current.focus(), 50)
     }
   }, [open])
@@ -111,9 +112,13 @@ export default auto(function CommandPalette (props) {
 
   if (!open) return null
 
+  // 用 mousedown 判外点关闭: click 会误吞拖选(按下在层内、抬起在层外时 click 目标是本遮罩)
+  const onMaskMouseDown = (e) => {
+    if (e.target === e.currentTarget) onClose()
+  }
   return (
-    <div className='cmd-palette' onClick={onClose}>
-      <div className='cmd-palette-box' onClick={e => e.stopPropagation()}>
+    <div className='cmd-palette' onMouseDown={onMaskMouseDown}>
+      <div className='cmd-palette-box'>
         <div className='cp-head'>
           <ThunderboltOutlined style={{ color: 'var(--amber,#5c8dff)' }} />
           <input
