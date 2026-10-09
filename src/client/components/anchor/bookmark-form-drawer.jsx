@@ -30,6 +30,8 @@ export default function BookmarkFormDrawer (props) {
   const [hops, setHops] = useState([]) // bookmarkId 列表(有序)
   const [encoding, setEncoding] = useState('UTF-8')
   const [keepalive, setKeepalive] = useState('10')
+  // 连接后自动执行: [{script, delay(ms)}], 由 terminal 的 runInitScript 队列引擎消费
+  const [scripts, setScripts] = useState([])
 
   useEffect(() => {
     if (!open) return
@@ -44,6 +46,7 @@ export default function BookmarkFormDrawer (props) {
     setShowPwd(false)
     setEncoding(host && host.encoding ? host.encoding : 'UTF-8')
     setKeepalive(host && host.keepaliveInterval ? String(Math.round(host.keepaliveInterval / 1000)) : '10')
+    setScripts(Array.isArray(host && host.runScripts) ? host.runScripts.map(x => ({ script: x.script || '', delay: x.delay || 0 })) : [])
     // 已有跳板链回填:优先用显式保存的 hoppingIds, 否则从 expanded 的 connectionHoppings 反推(兼容旧数据, 尝试去重展开)
     if (host && (host.connectionHoppingIds || host.hopIds)) {
       const ids = host.connectionHoppingIds || host.hopIds
@@ -87,7 +90,10 @@ export default function BookmarkFormDrawer (props) {
       encoding: encoding || 'UTF-8',
       keepaliveInterval: (Number(keepalive) || 10) * 1000,
       connectionHoppings: resolveHops(store, hops),
-      connectionHoppingIds: hops.filter(Boolean)
+      connectionHoppingIds: hops.filter(Boolean),
+      runScripts: scripts
+        .filter(x => (x.script || '').trim())
+        .map(x => ({ script: x.script, delay: Math.max(0, Number(x.delay) || 0) }))
     }
     if (host) item.id = host.id
     // electerm v1.50.65+ 语义: 有跳板必须标记 hasHopping,
@@ -198,6 +204,35 @@ export default function BookmarkFormDrawer (props) {
         <div className='inner'>
           <div className='fld'><label>编码</label><Select style={{ flex: 1 }} value={encoding} onChange={v => setEncoding(v)}><Select.Option value='UTF-8'>UTF-8</Select.Option><Select.Option value='GBK'>GBK</Select.Option><Select.Option value='BIG5'>BIG5</Select.Option><Select.Option value='ISO-8859-1'>ISO-8859-1</Select.Option></Select></div>
           <div className='fld'><label>保活</label><div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}><input value={keepalive} onChange={e => setKeepalive(e.target.value.replace(/[^0-9]/g, ''))} placeholder='10' style={{ flex: 1 }} /><span style={{ color: 'var(--fog)', fontSize: 12 }}>秒</span></div></div>
+        </div>
+      </details>
+      <details className='dr-sec'>
+        <summary>连接后执行</summary>
+        <div className='inner'>
+          <div className='jump-hint'>连接建立后按顺序自动发送,延迟为距上一条的毫秒数。</div>
+          {
+            scripts.length
+              ? scripts.map((sc, i) => (
+                <div className='jump-row' key={i}>
+                  <span className='seq'>{i + 1}</span>
+                  <input
+                    className='rs-cmd'
+                    value={sc.script}
+                    placeholder='命令, 如 docker ps'
+                    onChange={e => setScripts(ss => ss.map((x, j) => j === i ? { ...x, script: e.target.value } : x))}
+                  />
+                  <input
+                    className='rs-delay'
+                    value={String(sc.delay)}
+                    placeholder='ms'
+                    onChange={e => setScripts(ss => ss.map((x, j) => j === i ? { ...x, delay: Number(e.target.value.replace(/[^0-9]/g, '')) || 0 } : x))}
+                  />
+                  <button className='jump-btn' title='移除' onClick={() => setScripts(ss => ss.filter((_, j) => j !== i))}><CloseOutlined /></button>
+                </div>
+              ))
+              : <div className='jump-hint'>未配置</div>
+          }
+          <button className='add-jump' onClick={() => setScripts(ss => [...ss, { script: '', delay: 500 }])}><PlusOutlined /> 添加命令</button>
         </div>
       </details>
     </Drawer>
