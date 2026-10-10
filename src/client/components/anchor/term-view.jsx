@@ -14,12 +14,18 @@ export default function TermView ({ store }) {
   const ref = useRef(null)
   const [dim, setDim] = useState({ w: 0, h: 0 })
 
+  const dimRef = useRef({ w: 0, h: 0 })
   useEffect(() => {
     const el = ref.current
     if (!el) return undefined
     const ro = new window.ResizeObserver(entries => {
       const r = entries[0].contentRect
-      setDim({ w: Math.floor(r.width), h: Math.floor(r.height) })
+      // display:none 隐藏时 contentRect 归零: 保留上次有效尺寸,
+      // 避免 SessionsWrap 因 dim.w===0 卸载导致所有终端会话断开
+      if (r.width > 0 && r.height > 0) {
+        dimRef.current = { w: Math.floor(r.width), h: Math.floor(r.height) }
+        setDim(dimRef.current)
+      }
     })
     ro.observe(el)
     return () => ro.disconnect()

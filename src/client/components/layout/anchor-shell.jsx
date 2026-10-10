@@ -185,18 +185,21 @@ export default auto(function Layout (props) {
               </button>
             </div>
             <div className='anchor-content'>
-              {
-            view === 'term' && store.tabs.length
-              ? <TermView store={store} />
-              : (
+              {/* 有 tab 时 TermView 常驻(仅隐藏不卸载): 切到快速连接页再切回,
+                  终端组件不重新 mount, 避免所有会话断开重连 */}
+              {store.tabs.length > 0 && (
+                <div style={{ display: view === 'term' ? 'block' : 'none', height: '100%' }}>
+                  <TermView store={store} />
+                </div>
+              )}
+              {view !== 'term' && (
                 <QuickConnect
                   store={store}
                   onOpenManager={() => setMgrOpen(true)}
                   onNewHost={() => { setFormHost(null); setFormOpen(true) }}
                   onConnect={() => setView('term')}
                 />
-                )
-          }
+              )}
             </div>
             {
             view === 'term' && store.tabs.length > 0 && <CmdInput store={store} />
