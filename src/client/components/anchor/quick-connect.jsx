@@ -5,7 +5,6 @@
  */
 import React, { useState, useRef } from 'react'
 import { auto } from 'manate/react'
-import message from '../common/message'
 import { getRecents, clearRecents } from '../../common/anchor-api'
 import { notify } from './anchor-notify'
 
@@ -53,20 +52,22 @@ export default auto(function QuickConnect (props) {
 
   return (
     <div className='page-home'>
-      <div className='home-head'>
-        <h1>快速连接</h1>
-      </div>
-      <div className='qc-panel'>
-        <div className='qc-toolbar'>
-          <span className='cap'>{useAll ? 'ALL HOSTS' : 'RECENT'}</span>
-          <span className='n'>{rows.length}</span>
-          <span className='sp' />
-          <button className='hint' onClick={onOpenManager}>全部主机</button>
-          {
+      <div className='home-wrap'>
+        <div className='home-head'>
+          <h1>快速连接</h1>
+        </div>
+        <div className='qc-panel'>
+          <div className='qc-toolbar'>
+            <span className='cap'>{useAll ? 'ALL HOSTS' : 'RECENT'}</span>
+            <span className='n'>{rows.length}</span>
+            <span className='sp' />
+            <button className='hint' onClick={onOpenManager}>全部主机</button>
+            {
             !useAll && <button className='hint' onClick={() => clearRecents(store)}>清空记录</button>
           }
-        </div>
-        {
+          </div>
+          <div className='qc-list'>
+            {
           rows.length
             ? rows.slice(0, visibleCount).map(h => {
               return (
@@ -107,13 +108,15 @@ export default auto(function QuickConnect (props) {
               </div>
               )
         }
-        {
+            {
           rows.length > visibleCount && (
             <button className='qc-more' onClick={() => setVisibleCount(n => n + QC_PAGE)}>
               加载更多({visibleCount}/{rows.length})
             </button>
           )
         }
+          </div>
+        </div>
       </div>
 
     </div>

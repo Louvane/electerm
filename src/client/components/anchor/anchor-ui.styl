@@ -281,10 +281,18 @@
 // 快速连接页
 .page-home
   height 100%
-  overflow-y auto
+  overflow hidden
   padding 40px clamp(24px, 6vw, 90px)
   background var(--ink0, #0f141d)
+  .home-wrap
+    width min(680px, 100%)
+    height 100%
+    display flex
+    flex-direction column
+    // 上下边距对称: 列表底部不超出窗口
+    max-height 100%
 .home-head
+  flex-shrink 0
   display flex
   align-items baseline
   gap 14px
@@ -303,6 +311,10 @@
   border-radius 8px
   background var(--ink1, #151c28)
   overflow hidden
+  flex 1
+  min-height 0
+  display flex
+  flex-direction column
 .qc-toolbar
   display flex
   align-items center
@@ -1707,3 +1719,18 @@ body[data-anchor-theme=light] .anchor-tip
   font-size 12px
   &:hover
     color var(--amber, #ffb454)
+
+// 快速连接: 列表区内部滚动(整体不撑破窗口)
+.qc-list
+  flex 1
+  min-height 0
+  overflow-y auto
+  &::-webkit-scrollbar
+    width 8px
+  &::-webkit-scrollbar-thumb
+    background var(--line, #2a3547)
+    border-radius 4px
+  &::-webkit-scrollbar-thumb:hover
+    background var(--fog, #8b98ab)
+  &::-webkit-scrollbar-corner
+    background transparent
